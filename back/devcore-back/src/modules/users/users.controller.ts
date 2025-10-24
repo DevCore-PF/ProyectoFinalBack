@@ -17,14 +17,12 @@ export class UsersController {
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
-
     await this.usersService.create(createUserDto);
-    
+
     const { password, confirmPassword, ...userExceptionPassword } =
       createUserDto;
 
     return userExceptionPassword;
-
   }
 
   @Get()

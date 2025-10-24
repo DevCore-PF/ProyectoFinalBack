@@ -8,7 +8,7 @@ async function bootstrap() {
   const swaggerConfig = new DocumentBuilder()
     .setTitle('devCore')
     .setDescription(
-      'API construidoa por nest para ser empleada en el ProyectoFinal de la carrera FullStack de Henry',
+      'API construida por nest para ser empleada en el ProyectoFinal de la carrera FullStack de Henry',
     )
     .setVersion('1.0')
     .addBearerAuth()
