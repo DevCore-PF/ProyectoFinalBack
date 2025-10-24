@@ -10,7 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [typeOrmConfig],
+      load: [typeOrmConfig]
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -19,12 +19,9 @@ import { AuthModule } from './modules/auth/auth.module';
         if (!typeOrmConfig) {
           throw new Error('TypeORM configuration not found');
         }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return typeOrmConfig;
-      },
-    }),
-    UsersModule,
-    AuthModule,
+      }
+    }), UsersModule, AuthModule
   ],
   controllers: [],
   providers: [],
