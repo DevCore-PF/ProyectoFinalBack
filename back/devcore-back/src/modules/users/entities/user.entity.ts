@@ -95,7 +95,6 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-
   isTeacher(): boolean {
     return this.role === UserRole.TEACHER;
   }
