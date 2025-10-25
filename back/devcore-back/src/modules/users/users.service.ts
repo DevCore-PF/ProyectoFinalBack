@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './users.repository';
@@ -7,11 +11,10 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-
-  constructor(private userRepository: UsersRepository,
-    private readonly dataSource: DataSource
+  constructor(
+    private userRepository: UsersRepository,
+    private readonly dataSource: DataSource,
   ) {}
-
 
   async create(createUserDto: CreateUserDto) {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -21,12 +24,15 @@ export class UsersService {
     try {
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-      if(!hashedPassword){
-        throw new BadRequestException('Error al hasehar el password')
+      if (!hashedPassword) {
+        throw new BadRequestException('Error al hasehar el password');
       }
 
-      const newUser = this.userRepository.createUser({...createUserDto, password: hashedPassword})
-      
+      const newUser = this.userRepository.createUser({
+        ...createUserDto,
+        password: hashedPassword,
+      });
+
       await queryRunner.commitTransaction();
       return newUser;
     } catch (error) {
@@ -37,6 +43,12 @@ export class UsersService {
     }
   }
 
+  async updateUserImage(id: string, imageUrl: string) {
+    const user = await this.userRepository.findUserById(id);
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+    user.image = imageUrl;
+    return this.userRepository.saveUser(user);
+  }
 
   findAll() {
     return `This action returns all users`;
