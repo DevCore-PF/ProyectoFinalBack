@@ -31,4 +31,7 @@ export class CreateUserDto {
         message: 'La contraseña debe contener al menos una letra minúscula, una letra mayúscula, un número y uno de los siguientes caracteres especiales: !@#$%^&*'
     })
     confirmPassword: string;
+
+    
+    emailVerificationToken?: string; 
 }

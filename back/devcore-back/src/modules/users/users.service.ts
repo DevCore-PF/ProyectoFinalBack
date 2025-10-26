@@ -1,9 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './users.repository';
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { GoogleUserDto } from '../auth/dto/google-user.dto';
+import { User } from './entities/user.entity';
+import { UserRole } from './enums/user-role.enum';
 
 @Injectable()
 export class UsersService {
@@ -34,6 +37,34 @@ export class UsersService {
       throw error;
     } finally {
       await queryRunner.release();
+    }
+  }
+
+
+  async createGoogleUser(googleUserDto: GoogleUserDto): Promise<User> {
+    const { email, name, image, googleId } = googleUserDto;
+
+    // Asumimos que tu 'userRepository' es un Repository<User> de TypeORM
+    // o tiene métodos create/save.
+    const newUser = this.userRepository.create({
+      email,
+      name,
+      image,
+      googleId,
+      isGoogleAccount: true,  // <-- Lógica clave
+      isEmailVerified: true, // <-- Lógica clave
+      role: undefined, // <-- Rol por defecto
+      password: undefined, // No tienen contraseña local
+    });
+
+    try {
+      await this.userRepository.save(newUser);
+      return newUser;
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        'Error al guardar el nuevo usuario de Google',
+      );
     }
   }
 
