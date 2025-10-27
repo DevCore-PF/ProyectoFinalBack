@@ -1,13 +1,21 @@
-import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "./entities/user.entity";
-import { Repository, DeepPartial } from "typeorm"; // <-- 1. Importa DeepPartial
-import { CreateUserDto } from "./dto/create-user.dto";
-import { Injectable } from "@nestjs/common";
+import {  InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
+import { Repository, DeepPartial } from 'typeorm'; // <-- 1. Importa DeepPartial
+import { CreateUserDto } from './dto/create-user.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class UsersRepository {
 
-    constructor(@InjectRepository(User) private userRepository: Repository<User>) { }
+  constructor(
+    @InjectRepository(User) private userRepository: Repository<User>,
+  )  { }
+
+  async getAll() {
+    const users = await this.userRepository.find();
+    return users.map((user) => (user.isActive = true));
+  }
+
 
     //Metodo que obtiene todos los usuarios de la base de datos
     async getUsers() {
@@ -54,5 +62,12 @@ export class UsersRepository {
         return this.userRepository.save(user);
     }
 
+      async deleteUserRepo(id: string) {
+    const findUser = await this.findUserById(id);
+    if (!findUser) return new NotFoundException('Usuario no encontrado');
+    findUser.isActive = false;
+    await this.userRepository.save(findUser);
+    return findUser;
+  }
 
 }

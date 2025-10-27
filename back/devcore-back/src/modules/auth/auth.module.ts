@@ -12,11 +12,11 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 @Module({
   controllers: [AuthController],
   providers: [AuthService, GoogleStrategy, LocalStrategy, JwtStrategy],
-  imports:[PassportModule.register({ defaultStrategy: 'jwt' }), 
+  imports: [PassportModule.register({ defaultStrategy: 'jwt' }), 
     JwtModule.register({ 
       global: true, 
       secret: process.env.JWT_SECRET, 
       signOptions: { expiresIn: '1h' },
-    }),UsersModule, MailModule]
+    }),UsersModule, MailModule],
 })
 export class AuthModule {}
