@@ -1,7 +1,5 @@
 import { Exclude } from 'class-transformer';
 import {
-  BeforeInsert,
-  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -11,7 +9,6 @@ import {
 } from 'typeorm';
 import { v4 as UUID } from 'uuid';
 import { UserRole } from '../enums/user-role.enum';
-import * as bcrypt from 'bcrypt';
 
 @Entity('users')
 export class User {
@@ -36,10 +33,10 @@ export class User {
   @Column({
     type: 'varchar',
     length: 250,
-    nullable: false,
+    nullable: true, // Debe ser true para usuarios de Google
   })
   @Exclude()
-  password: string;
+  password?: string;
 
   @Column({
     type: 'enum',
@@ -47,6 +44,7 @@ export class User {
     nullable: true,
   })
   role: UserRole;
+
   @Column({
     type: 'boolean',
     default: true,
@@ -57,14 +55,14 @@ export class User {
     type: 'boolean',
     default: false,
   })
-  isGoogleAccount: boolean;
+  isGoogleAccount: boolean; //Para saber si se registró con Google
 
   @Column({
     nullable: true,
     unique: true,
   })
   @Index()
-  auth0Id?: string;
+  googleId?: string; //auth0Id para google
 
   @Column({
     type: 'varchar',
@@ -74,14 +72,13 @@ export class User {
   image: string;
 
   @Column({ default: false })
-  isEmailVerified: boolean; // true automáticamente si es Auth0
+  isEmailVerified: boolean; //Se pondrá a true si es de Google
 
   @Column({ nullable: true })
-  emailVerificationToken?: string; // Solo se usara para elr registro local y el usuario confirme su email
-  //asi evitamos que se registren con correos falsos
+  emailVerificationToken?: string; 
 
   @Column({ nullable: true })
-  resetPasswordToken?: string; // Soloa para usuarios de nuestro registro para recuperar su contraseña
+  resetPasswordToken?: string; 
 
   @Column({ type: 'timestamp', nullable: true })
   resetPasswordExpires?: Date;
