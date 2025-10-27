@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -44,25 +45,33 @@ export class UsersService {
   }
 
   async updateUserImage(id: string, imageUrl: string) {
-    const user = await this.userRepository.findUserById(id);
-    if (!user) throw new NotFoundException('Usuario no encontrado');
-    user.image = imageUrl;
-    return this.userRepository.saveUser(user);
+    try {
+      const user = await this.userRepository.getById(id);
+      if (!user) throw new NotFoundException('Usuario no encontrado');
+
+      user.image = imageUrl;
+      return await this.userRepository.saveUser(user);
+    } catch (error) {
+      console.error('Error actualizando imagen del usuario:', error);
+      throw new InternalServerErrorException(
+        'Error al actualizar la imagen del usuario',
+      );
+    }
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async getAllUser() {
+    return await this.userRepository.getAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async getUserById(id: string) {
+    return await this.userRepository.getById(id);
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async deleteUser(id: string) {
+    return await this.userRepository.deleteUserRepo(id);
   }
 }

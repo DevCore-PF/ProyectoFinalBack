@@ -75,7 +75,7 @@ export class UsersController {
   ) {
     const result = await this.cloudinaryService.uploadImage(file);
     if (!result?.secure_url) {
-      throw new NotFoundException('Error al subir la imagen a Cloudinary');
+      throw new NotFoundException('Error al subir la imagen');
     }
 
     return this.usersService.updateUserImage(id, result.secure_url);
@@ -83,21 +83,24 @@ export class UsersController {
 
   @Get()
   findAll() {
-    return this.usersService.findAll();
+    return this.usersService.getAllUser();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.usersService.getUserById(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     return this.usersService.update(+id, updateUserDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.usersService.deleteUser(id);
   }
 }
