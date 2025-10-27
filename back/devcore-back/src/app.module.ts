@@ -5,12 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [typeOrmConfig]
+      envFilePath: ['.env.development'],
+      load: [typeOrmConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -20,10 +22,11 @@ import { AuthModule } from './modules/auth/auth.module';
           throw new Error('TypeORM configuration not found');
         }
         return typeOrmConfig;
-      }
-    }), UsersModule, AuthModule
+      },
+    }),
+    UsersModule,
+    AuthModule,
+    CloudinaryModule, // 👈 importalo también acá si lo usás en varios módulos
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}
