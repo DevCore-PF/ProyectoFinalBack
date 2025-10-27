@@ -2,6 +2,7 @@
 
 import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 
+//dto para crear un usuario con google
 export class GoogleUserDto {
   @IsEmail()
   @IsNotEmpty()

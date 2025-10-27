@@ -15,10 +15,11 @@ import { UserRole } from '../users/enums/user-role.enum';
 import { JwtService } from '@nestjs/jwt'; 
 import { MailService } from 'src/mail/mail.service';
 import { v4 as uuidv4 } from 'uuid';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  // El constructor se queda igual
+
   constructor(
     private readonly userService: UsersService,
     private readonly userRepository: UsersRepository,
@@ -27,35 +28,35 @@ export class AuthService {
   ) {}
 
   /**
-   * MÉTODO NUEVO: Implementa la lógica de Google
+   * Metodo que implementa la lógica de Google
    */
   async validateAndHandleGoogleUser(googleUserDto: GoogleUserDto): Promise<User> {
     const { email, image } = googleUserDto;
 
     try {
-      // 1. Buscamos al usuario por su email
+      // Buscamos al usuario por su email
       const user = await this.userRepository.findUserByEmail(email);
 
-      // --- CASO 1: El usuario SÍ existe ---
+      // si el el usuario "SI" existe ---
       if (user) {
-        // REGLA: Si el email existe PERO no es de Google, es un conflicto.
+        // Si el email existe PERO no es de Google, es un conflicto.
         if (!user.isGoogleAccount) {
           throw new ConflictException(
             `El email ${email} ya está registrado con contraseña. Por favor, inicia sesión localmente.`,
           );
         }
 
-        // Si es un usuario de Google, actualizamos su imagen (opcional) y lo retornamos
+        // Si es un usuario de Google actualizamos su imagen
         if (image) {
           user.image = image;
         }
-        // Asumimos que tu UsersRepository (que extiende Repository<User>) tiene .save()
+        // y guardamos el usuario
         await this.userRepository.save(user); 
         return user;
       }
 
-      // --- CASO 2: El usuario NO existe ---
-      // Delegamos la creación al UsersService para mantener tu arquitectura
+      // El usuario NO existe
+      // se pasa la creación al UsersService 
       const newUser = await this.userService.createGoogleUser(googleUserDto);
       return newUser;
 
@@ -71,59 +72,61 @@ export class AuthService {
   }
 
   /**
-   * MÉTODO 'create' (local): Actualizado
+   * Crea un usuario con nuestroo formulario
    */
   async create(registerUser: CreateUserDto) {
     const userExists = await this.userRepository.findUserByEmail(
       registerUser.email,
     );
 
-    // --- REGLA DE NEGOCIO ACTUALIZADA ---
     if (userExists) {
-      // REGLA: Si existe Y es de Google, no puede registrarse localmente
+      // Si existe Y es de Google, no puede registrarse localmente
       if (userExists.isGoogleAccount) {
         throw new BadRequestException(
           `El email ${registerUser.email} ya está registrado con Google. Por favor, inicia sesión con Google.`,
         );
       }
-      // Si existe y no es de Google, es el error que ya tenías
+      // Si existe y no es de google marca error de que ya existe
       throw new BadRequestException('El correo electrónico ya está en uso');
     }
-    // --- FIN DE LA ACTUALIZACIÓN ---
 
     
-
+    //validamos que las contraseñas coincidan
     if (registerUser.password !== registerUser.confirmPassword) {
       throw new BadRequestException('Las contraseñas no coinciden');
     }
 
+    //creamo el token para la evrificacion
     const verificationToken = uuidv4();
 
+    //creamos el usuario y le pasamos el token creado al emailverificationtoken para qye se envie
     const userCreate = {
       ...registerUser,
       emailVerificationToken: verificationToken,
     }
 
-    // Tu lógica de creación se mantiene
+    //se crea el usuario
     const newUser = await this.userService.create(userCreate);
 
-    // 7. Envía el email
+    // Se envia el email con el token para la valdiacion
     await this.mailService.sendVerificationEmail(
       newUser.email,
       verificationToken,
     );
 
+    //retornamos el usaurio con su token y el rol
     return this.login(newUser);
   }
 
+
   /**
-   * 4. MÉTODO NUEVO: Genera el JWT
+   * Genera el JWT
    * Este método es llamado por el login local y por el callback de Google.
    */
   login(user: User) {
     // El payload es la información que guardamos en el token
     const payload = { 
-      sub: user.id, // 'sub' (subject) es el estándar para el ID de usuario
+      sub: user.id, // sub se guarda el id
       email: user.email,
       role: user.role,
     };
@@ -167,18 +170,43 @@ export class AuthService {
     // 3. Devolvemos un NUEVO token con la información actualizada
     return this.login(updatedUser); 
   }
+  
 
+  async validateLocalUser(email: string, pass: string): Promise<any> {
+    const user = await this.userRepository.findUserByEmail(email);
+
+    // Revisa si el usuario existe y no es de Google
+    if (!user || user.isGoogleAccount) {
+      return null;
+    }
+
+    // Compara la contraseña hasheada si existe
+    if (!user.password) {
+      return null;
+    }
+    const isPasswordMatch = await bcrypt.compare(pass, user.password);
+
+    if (isPasswordMatch) {
+      //Si la contraseña es correcta, devuelve el usuario (sin la contraseña)
+      const { password, ...result } = user;
+      return result;
+    }
+
+    return null;
+  }
+
+  //verificar el email por medio del token enviado
   async verifyEmailToken(token: string) {
-    // 1. Busca al usuario por el token
-    const user = await this.userRepository.findUserByToken(token); // (Debes crear este método en tu UsersRepository)
+    // Busca al usuario por el token
+    const user = await this.userRepository.findUserByToken(token); 
     
     if (!user) {
       throw new BadRequestException('El token de verificación es inválido o ha expirado.');
     }
 
-    // 2. Actualiza al usuario
+    // Actualiza al usuario su estado de verificacion
     user.isEmailVerified = true;
-    user.emailVerificationToken = undefined; // Limpiamos el token
+    user.emailVerificationToken = undefined;
     
     await this.userRepository.save(user);
 

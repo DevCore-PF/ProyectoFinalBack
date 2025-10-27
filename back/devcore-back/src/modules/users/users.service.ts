@@ -44,17 +44,15 @@ export class UsersService {
   async createGoogleUser(googleUserDto: GoogleUserDto): Promise<User> {
     const { email, name, image, googleId } = googleUserDto;
 
-    // Asumimos que tu 'userRepository' es un Repository<User> de TypeORM
-    // o tiene métodos create/save.
     const newUser = this.userRepository.create({
       email,
       name,
       image,
       googleId,
-      isGoogleAccount: true,  // <-- Lógica clave
-      isEmailVerified: true, // <-- Lógica clave
-      role: undefined, // <-- Rol por defecto
-      password: undefined, // No tienen contraseña local
+      isGoogleAccount: true,  // se marca en true ya que damos por hecho al registrarse con google
+      isEmailVerified: true, //se verifica automaticamente por que se inicio con google
+      role: undefined, //Rol por defecto
+      password: undefined, // No se le asiga contraseña por que se maneja con google
     });
 
     try {

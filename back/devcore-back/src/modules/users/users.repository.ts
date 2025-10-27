@@ -15,7 +15,7 @@ export class UsersRepository {
     }
 
     //Metodo que crea un usuario nuevo en la base de datos
-    // (Tu método original para registro local)
+    //
     async createUser(user: CreateUserDto) {
         // Es mejor usar create + save
         const newUser = this.userRepository.create(user);
@@ -33,7 +33,7 @@ export class UsersRepository {
     // --- MÉTODOS NUEVOS NECESARIOS ---
 
     /**
-     * 2. Método 'create' (pass-through)
+     * Método 'create'
      * Permite a los servicios crear una instancia de la entidad User
      * (sin guardarla aún)
      */
@@ -46,7 +46,7 @@ export class UsersRepository {
     }
 
     /**
-     * 3. Método 'save' (pass-through)
+     * Método 'save'
      * Permite a los servicios guardar (crear o actualizar) una entidad User
      * en la base de datos.
      */

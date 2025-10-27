@@ -33,7 +33,7 @@ export class User {
   @Column({
     type: 'varchar',
     length: 250,
-    nullable: true, // AJUSTE: Debe ser true para usuarios de Google
+    nullable: true, // Debe ser true para usuarios de Google
   })
   @Exclude()
   password?: string;
@@ -55,7 +55,7 @@ export class User {
     type: 'boolean',
     default: false,
   })
-  isGoogleAccount: boolean; // Bien. Para saber si se registró con Google
+  isGoogleAccount: boolean; //Para saber si se registró con Google
 
   @Column({
     nullable: true,

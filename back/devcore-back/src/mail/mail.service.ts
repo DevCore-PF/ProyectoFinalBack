@@ -4,12 +4,12 @@ import * as nodemailer from 'nodemailer';
 @Injectable()
 export class MailService {
 
+  //metodos para nodemailer el envio de confirmacion de cuenta de correo
     private transporter;
 
     constructor() {
-    // Configura esto con tus credenciales (mejor desde .env)
     this.transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com', // Ejemplo con Gmail
+      host: 'smtp.gmail.com', 
       port: 587,
       secure: false,
       auth: {
@@ -22,6 +22,7 @@ export class MailService {
   async sendVerificationEmail(email: string, token: string) {
     const url = `${process.env.API_URL}/auth/verify-email?token=${token}`;
 
+    //se debe generar un diseño mejor apoyo del front
     await this.transporter.sendMail({
       from: '"Tu App" <noreply@tuapp.com>',
       to: email,
