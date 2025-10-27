@@ -34,7 +34,6 @@ export class UsersRepository {
       const findUser = await this.userRepository.findOneBy({ id });
       if (!findUser || !findUser?.isActive)
       throw new NotFoundException('Usuario no encontrado');
-         return 
         return findUser;
     }
 
