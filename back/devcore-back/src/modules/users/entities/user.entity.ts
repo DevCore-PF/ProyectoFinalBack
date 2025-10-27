@@ -4,11 +4,13 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { v4 as UUID } from 'uuid';
 import { UserRole } from '../enums/user-role.enum';
+import { ProfessorProfile } from 'src/modules/profiles/professor-profile.entity';
 
 @Entity('users')
 export class User {
@@ -91,6 +93,9 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToOne(() => ProfessorProfile, (profile) => profile.user, {cascade: true})
+  professorProfile: ProfessorProfile;
 
   isTeacher(): boolean {
     return this.role === UserRole.TEACHER;
