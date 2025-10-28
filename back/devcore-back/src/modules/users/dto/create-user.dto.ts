@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsString,
@@ -60,6 +61,9 @@ export class CreateUserDto {
   })
   confirmPassword: string;
 
-    
-    emailVerificationToken?: string; 
+  @IsBoolean()
+  @IsNotEmpty()
+  checkBoxTerms: boolean;
+
+  emailVerificationToken?: string; 
 }
