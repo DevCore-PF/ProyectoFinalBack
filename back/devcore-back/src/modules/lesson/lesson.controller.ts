@@ -40,7 +40,7 @@ export class LessonsController {
           type: 'string',
           format: 'binary',
           description:
-            'Archivo de video (obligatorio, formatos: mp4, mov, webm)',
+            'Archivo de video (obligatorio, formatos: mp4, mov, webm) Maximo 10 MB',
         },
       },
     },
@@ -51,8 +51,8 @@ export class LessonsController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({
-            maxSize: 100 * 1024 * 1024,
-            message: 'El video no puede superar los 100 MB.',
+            maxSize: 10 * 1024 * 1024,
+            message: 'El video no puede superar los 10 MB.',
           }),
           new FileTypeValidator({
             fileType: /(mp4|mov|webm)$/i,
