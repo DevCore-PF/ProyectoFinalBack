@@ -1,6 +1,12 @@
 // src/auth/dto/google-user.dto.ts
 
-import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 
 //dto para crear un usuario con google
 export class GoogleUserDto {
@@ -10,14 +16,14 @@ export class GoogleUserDto {
 
   @IsString()
   @IsNotEmpty()
-  name: string; 
+  name: string;
 
   @IsString()
   @IsNotEmpty()
-  googleId: string; 
+  googleId: string;
 
   @IsOptional()
   @IsString()
   @IsUrl()
-  image?: string; 
+  image?: string;
 }

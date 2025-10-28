@@ -28,11 +28,7 @@ export class AuthController {
    */
   @Post('register')
   async create(@Body() createAuthDto: CreateUserDto) {
-    await this.authService.create(createAuthDto);
-    const { password, confirmPassword, ...userExceptionPassword } =
-      createAuthDto;
-
-    return userExceptionPassword;
+   return await this.authService.create(createAuthDto);
   }
 
   /**
