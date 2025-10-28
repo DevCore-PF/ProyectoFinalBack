@@ -70,5 +70,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   checkBoxTerms: boolean;
 
-  emailVerificationToken?: string;
+  @IsOptional()
+  isEmailVerified: boolean;
 }
