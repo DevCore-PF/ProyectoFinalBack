@@ -3,12 +3,12 @@ import { Type } from 'class-transformer';
 import { IsNotEmpty, IsString, IsNumber, Min } from 'class-validator';
 
 export class CreateCourseDto {
-  @ApiProperty({ example: 'Introduction to NestJS' })
+  @ApiProperty({ example: 'Intro a NestJS' })
   @IsNotEmpty()
   @IsString()
   title: string;
 
-  @ApiProperty({ example: 'Learn NestJS from scratch' })
+  @ApiProperty({ example: 'Aprendé NestJS desde cero' })
   @IsNotEmpty()
   @IsString()
   description: string;
