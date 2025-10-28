@@ -187,6 +187,12 @@ export class AuthService {
     if (!user.password) {
       return null;
     }
+
+    //Verificamos que el usario haya  validad su email desde su correo
+    if(!user.isEmailVerified) {
+      throw new BadRequestException('Debe verifiar su email para poder iniciar sesion')
+    }
+    
     const isPasswordMatch = await bcrypt.compare(pass, user.password);
 
     if (isPasswordMatch) {
