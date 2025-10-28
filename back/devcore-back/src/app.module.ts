@@ -6,6 +6,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { LessonsModule } from './modules/lesson/lesson.module';
+import { CoursesModule } from './modules/course/course.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 
 @Module({
@@ -28,6 +30,8 @@ import { ProfilesModule } from './modules/profiles/profiles.module';
     UsersModule,
     AuthModule,
     CloudinaryModule,
+    LessonsModule,
+    CoursesModule,
     ProfilesModule
   ],
 })

@@ -51,7 +51,7 @@ export class UsersController {
           type: 'string',
           format: 'binary',
           description:
-            'Foto de perfil (formatos: jpg, jpeg, png, webp, máximo 200KB)',
+            'Foto de perfil (formatos: jpg, jpeg, png, webp, máximo 1MB)',
         },
       },
     },
@@ -91,13 +91,13 @@ export class UsersController {
     return this.usersService.getUserById(id);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    return this.usersService.update(+id, updateUserDto);
-  }
+  // @Patch(':id')
+  // update(
+  //   @Param('id', ParseUUIDPipe) id: string,
+  //   @Body() updateUserDto: UpdateUserDto,
+  // ) {
+  //   return this.usersService.update(+id, updateUserDto);
+  // }
 
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {

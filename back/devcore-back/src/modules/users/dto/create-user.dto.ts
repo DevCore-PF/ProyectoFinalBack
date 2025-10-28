@@ -4,6 +4,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
+  IsOptional,
   Matches,
   MaxLength,
   MinLength,
@@ -13,13 +14,13 @@ import { Not } from 'typeorm';
 export class CreateUserDto {
   @ApiProperty({
     description:
-      'El nombre del usuario debe tener estar contemplado entre 3 y 25 caracteres',
+      'El nombre del usuario debe tener estar contemplado entre 3 y 70 caracteres',
     example: 'Gonzalo',
   })
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
-  @MaxLength(25)
+  @MaxLength(70)
   name: string;
 
   @ApiProperty({
@@ -61,9 +62,15 @@ export class CreateUserDto {
   })
   confirmPassword: string;
 
+  @ApiProperty({
+    example: true,
+    description:
+      'Debe ser true si el usuario acepta los términos y condiciones.',
+  })
   @IsBoolean()
   @IsNotEmpty()
   checkBoxTerms: boolean;
 
-  emailVerificationToken?: string; 
+  @IsOptional()
+  isEmailVerified: boolean;
 }

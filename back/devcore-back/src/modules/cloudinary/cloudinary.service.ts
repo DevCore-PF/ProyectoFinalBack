@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import * as streamifier from 'streamifier';
 
@@ -15,6 +15,25 @@ export class CloudinaryService {
           resolve(result);
         },
       );
+      streamifier.createReadStream(file.buffer).pipe(uploadStream);
+    });
+  }
+
+  async uploadVideo(
+    file: Express.Multer.File,
+  ): Promise<UploadApiResponse | undefined> {
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: 'video',
+          folder: 'lessons_videos',
+        },
+        (error, result) => {
+          if (error) return reject(new BadRequestException(error.message));
+          resolve(result);
+        },
+      );
+
       streamifier.createReadStream(file.buffer).pipe(uploadStream);
     });
   }
