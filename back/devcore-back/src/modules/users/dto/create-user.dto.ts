@@ -4,6 +4,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
+  IsOptional,
   Matches,
   MaxLength,
   MinLength,
