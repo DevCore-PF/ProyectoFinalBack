@@ -96,6 +96,10 @@ export class AuthService {
       throw new BadRequestException('Las contraseñas no coinciden');
     }
 
+    if(!registerUser.checkBoxTerms){
+      throw new BadRequestException('Debe aceptar lo trminos y condiciones');
+    }
+
     //creamo el token para la evrificacion
     const verificationToken = uuidv4();
 
