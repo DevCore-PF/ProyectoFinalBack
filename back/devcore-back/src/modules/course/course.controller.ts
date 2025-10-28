@@ -33,19 +33,15 @@ export class CoursesController {
     schema: {
       type: 'object',
       properties: {
-        title: { type: 'string', example: 'Intro to NestJS' },
-        description: { type: 'string', example: 'Learn NestJS from scratch' },
+        title: { type: 'string', example: 'Introduccion a NESTJS' },
+        description: { type: 'string', example: 'Aprende NESTJS desde cero' },
         price: { type: 'number', example: 49.99 },
-        estado: {
-          type: 'string',
-          enum: ['DRAFT', 'PUBLISHED'],
-          example: 'DRAFT',
-        },
+
         image: {
           type: 'string',
           format: 'binary',
           description:
-            'Course cover image (formats: jpg, jpeg, png, webp — max 2MB)',
+            'Imagen de portada del curso (formatos: jpg, jpeg, png, webp — máximo 2 MB)',
         },
       },
     },
@@ -57,7 +53,7 @@ export class CoursesController {
         validators: [
           new MaxFileSizeValidator({
             maxSize: 2 * 1024 * 1024, // 2 MB
-            message: 'The image cannot exceed 2MB.',
+            message: 'La imagen no puede superar los 2 MB.',
           }),
           new FileTypeValidator({
             fileType: /(jpg|jpeg|png|webp)$/i,
@@ -68,7 +64,7 @@ export class CoursesController {
     file: Express.Multer.File,
   ) {
     if (!file) {
-      throw new BadRequestException('Course image is required.');
+      throw new BadRequestException('La imagen del curso es obligatoria.');
     }
 
     const uploadResult = await this.cloudinaryService.uploadImage(file);
