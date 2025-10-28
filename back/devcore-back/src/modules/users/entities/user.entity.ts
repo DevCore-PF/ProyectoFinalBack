@@ -56,6 +56,14 @@ export class User {
   @Column({
     type: 'boolean',
     default: false,
+    nullable: false
+  })
+  checkBoxTerms: boolean;
+
+
+  @Column({
+    type: 'boolean',
+    default: false,
   })
   isGoogleAccount: boolean; //Para saber si se registró con Google
 
