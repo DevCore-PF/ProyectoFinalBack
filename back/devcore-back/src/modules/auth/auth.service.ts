@@ -158,7 +158,7 @@ export class AuthService {
     // 1. Asignamos el rol
     user.role = role;
 
-    // 2. *** ESTA ES LA LÓGICA QUE QUERÍAS ***
+    //
     // Si es Estudiante, su perfil ya está "completo"
     if (role === UserRole.STUDENT) {
       user.hasCompletedProfile = false; 
