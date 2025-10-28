@@ -4,6 +4,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
+  IsOptional,
   Matches,
   MaxLength,
   MinLength,
@@ -70,5 +71,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   checkBoxTerms: boolean;
 
-  emailVerificationToken?: string;
+  @IsOptional()
+  isEmailVerified: boolean;
 }

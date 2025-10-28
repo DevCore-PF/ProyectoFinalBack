@@ -141,6 +141,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
+        isEmailVerified: user.isEmailVerified,
         hasCompletedProfile: user.hasCompletedProfile,
       },
       access_token: this.jwtService.sign(payload),
@@ -157,7 +158,7 @@ export class AuthService {
     // 1. Asignamos el rol
     user.role = role;
 
-    // 2. *** ESTA ES LA LÓGICA QUE QUERÍAS ***
+    //
     // Si es Estudiante, su perfil ya está "completo"
     if (role === UserRole.STUDENT) {
       user.hasCompletedProfile = false; 
@@ -187,6 +188,12 @@ export class AuthService {
     if (!user.password) {
       return null;
     }
+
+    //Verificamos que el usario haya  validad su email desde su correo
+    if(!user.isEmailVerified) {
+      throw new BadRequestException('Debe verifiar su email para poder iniciar sesion')
+    }
+    
     const isPasswordMatch = await bcrypt.compare(pass, user.password);
 
     if (isPasswordMatch) {

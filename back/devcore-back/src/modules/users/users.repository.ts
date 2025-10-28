@@ -10,9 +10,13 @@ export class UsersRepository {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async getAll() {
-    const users = await this.userRepository.find();
-    return users.map((user) => (user.isActive = true));
+   async getAll() {
+    const users = await this.userRepository.find({
+      where: { isActive: true },
+    });
+    return users.map(
+      ({ password, ...userWithoutPassword }) => userWithoutPassword,
+    );
   }
 
   //Metodo que obtiene todos los usuarios de la base de datos
