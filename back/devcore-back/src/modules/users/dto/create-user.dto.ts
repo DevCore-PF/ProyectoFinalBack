@@ -61,9 +61,14 @@ export class CreateUserDto {
   })
   confirmPassword: string;
 
+  @ApiProperty({
+    example: true,
+    description:
+      'Debe ser true si el usuario acepta los términos y condiciones.',
+  })
   @IsBoolean()
   @IsNotEmpty()
   checkBoxTerms: boolean;
 
-  emailVerificationToken?: string; 
+  emailVerificationToken?: string;
 }

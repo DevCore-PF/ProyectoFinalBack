@@ -56,10 +56,9 @@ export class User {
   @Column({
     type: 'boolean',
     default: false,
-    nullable: false
+    nullable: false,
   })
   checkBoxTerms: boolean;
-
 
   @Column({
     type: 'boolean',
@@ -85,10 +84,10 @@ export class User {
   isEmailVerified: boolean; //Se pondrá a true si es de Google
 
   @Column({ nullable: true })
-  emailVerificationToken?: string; 
+  emailVerificationToken?: string;
 
   @Column({ nullable: true })
-  resetPasswordToken?: string; 
+  resetPasswordToken?: string;
 
   @Column({ type: 'timestamp', nullable: true })
   resetPasswordExpires?: Date;
@@ -102,7 +101,9 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToOne(() => ProfessorProfile, (profile) => profile.user, {cascade: true})
+  @OneToOne(() => ProfessorProfile, (profile) => profile.user, {
+    cascade: true,
+  })
   professorProfile: ProfessorProfile;
 
   isTeacher(): boolean {
