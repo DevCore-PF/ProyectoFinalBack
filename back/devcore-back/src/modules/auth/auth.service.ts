@@ -132,7 +132,6 @@ export class AuthService {
     };
     
     return {
-      message: 'Inicio de sesión exitoso',
       user: {
         id: user.id,
         email: user.email,
