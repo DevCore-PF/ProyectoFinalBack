@@ -33,17 +33,61 @@ export class CoursesController {
     schema: {
       type: 'object',
       properties: {
-        title: { type: 'string', example: 'Introduccion a NESTJS' },
-        description: { type: 'string', example: 'Aprende NESTJS desde cero' },
-        price: { type: 'number', example: 49.99 },
-
+        title: {
+          type: 'string',
+          example: 'Introducción a NestJS',
+          description: 'Título del curso que se desea crear.',
+        },
+        description: {
+          type: 'string',
+          example: 'Aprendé NestJS desde cero y construí APIs profesionales.',
+          description: 'Descripción general del curso.',
+        },
+        price: {
+          type: 'number',
+          example: 49.99,
+          description: 'Precio del curso en dólares (USD).',
+        },
+        // status: {
+        //   type: 'string',
+        //   enum: ['DRAFT', 'PUBLISHED'],
+        //   example: 'DRAFT',
+        //   description: 'Estado del curso: borrador o publicado.',
+        // },
+        duration: {
+          type: 'string',
+          example: '4h 30m',
+          description: 'Duración total del curso (por ejemplo: "3h 45m").',
+        },
+        difficulty: {
+          type: 'string',
+          enum: ['PRINCIPIANTE', 'INTERMEDIO', 'AVANZADO'],
+          example: 'PRINCIPIANTE',
+          description:
+            'Nivel de dificultad del curso. Este campo es obligatorio y debe seleccionarse.',
+        },
+        lessons: {
+          type: 'array',
+          items: { type: 'string' },
+          example: ['Lección 1: Introducción', 'Lección 2: Fundamentos'],
+          description: 'Lista de lecciones incluidas en el curso.',
+        },
         image: {
           type: 'string',
           format: 'binary',
           description:
-            'Imagen de portada del curso (formatos: jpg, jpeg, png, webp — máximo 2 MB)',
+            'Imagen de portada del curso (formatos: jpg, jpeg, png, webp — máximo 2 MB).',
         },
       },
+      required: [
+        'title',
+        'description',
+        'duration',
+        'price',
+        'difficulty',
+        'image',
+        'lessons',
+      ],
     },
   })
   async createCourse(
