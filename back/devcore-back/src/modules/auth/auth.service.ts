@@ -141,6 +141,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
+        isEmailVerified: user.isEmailVerified,
         hasCompletedProfile: user.hasCompletedProfile,
       },
       access_token: this.jwtService.sign(payload),
