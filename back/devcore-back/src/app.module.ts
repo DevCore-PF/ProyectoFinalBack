@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { LessonsModule } from './modules/lesson/lesson.module';
 import { CoursesModule } from './modules/course/course.module';
+import { ProfilesModule } from './modules/profiles/profiles.module';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { CoursesModule } from './modules/course/course.module';
     AuthModule,
     CloudinaryModule,
     LessonsModule,
-    CoursesModule, // 👈 importalo también acá si lo usás en varios módulos
+    CoursesModule,
+    ProfilesModule
   ],
 })
 export class AppModule {}

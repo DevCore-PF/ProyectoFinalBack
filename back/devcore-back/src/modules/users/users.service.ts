@@ -11,7 +11,6 @@ import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { GoogleUserDto } from '../auth/dto/google-user.dto';
 import { User } from './entities/user.entity';
-import { UserRole } from './enums/user-role.enum';
 
 @Injectable()
 export class UsersService {
@@ -103,6 +102,4 @@ export class UsersService {
   async deleteUser(id: string) {
     return await this.userRepository.deleteUserRepo(id);
   }
-
-
 }
