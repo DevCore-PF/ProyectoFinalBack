@@ -13,7 +13,7 @@ import { Not } from 'typeorm';
 export class CreateUserDto {
   @ApiProperty({
     description:
-      'El nombre del usuario debe tener estar contemplado entre 3 y 25 caracteres',
+      'El nombre del usuario debe tener estar contemplado entre 3 y 70 caracteres',
     example: 'Gonzalo',
   })
   @IsString()
