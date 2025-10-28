@@ -97,7 +97,7 @@ export class AuthService {
     }
 
     if(!registerUser.checkBoxTerms){
-      throw new BadRequestException('Debe aceptar lo trminos y condiciones');
+      throw new BadRequestException('Debe aceptar lo terminos y condiciones');
     }
 
     //creamo el token para la evrificacion
