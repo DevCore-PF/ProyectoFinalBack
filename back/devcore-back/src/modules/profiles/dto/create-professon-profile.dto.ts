@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
   IsBoolean,
@@ -10,21 +11,25 @@ import {
 } from 'class-validator';
 
 export class CreateProfessorProfileDto {
+  @ApiProperty({ example: '546789023' })
   @IsString()
   @IsOptional()
   @MaxLength(20)
   phone: string;
 
+  @ApiProperty({ example: 'Desarrolador FullStack' })
   @IsString()
   @IsNotEmpty({ message: 'La profesion es requerida' })
   @MaxLength(100)
   profession: string;
 
+  @ApiProperty({ example: 'BackEnd' })
   @IsString()
   @IsNotEmpty({ message: 'La especialidad es requerida' })
   @MaxLength(100)
   speciality: string;
 
+  @ApiProperty({ example: 'Naci en argentina en el año 98' })
   @IsString()
   @IsOptional()
   @MaxLength(500, {
@@ -32,6 +37,17 @@ export class CreateProfessorProfileDto {
   })
   biography: string;
 
+  @ApiProperty()
+  @IsArray()
+  @IsString({ each: true })
+  @IsUrl(
+    {},
+    { each: true, message: 'Cada certificado debe ser una URL valida' },
+  )
+  @IsNotEmpty({ message: 'Debe tener al menos 1 certificado' })
+  certificates: string[];
+
+  @ApiProperty()
   @IsArray()
   @IsString({ each: true })
   @IsUrl({}, { each: true, message: 'Cada enlace debe ser una URL valida' })
@@ -41,9 +57,13 @@ export class CreateProfessorProfileDto {
   @IsBoolean({ message: 'Debes aceptar los terminos y condiciones' })
   agreedToTerms: boolean;
 
-  @IsBoolean({message: 'Debes aceptar que la informacion proporcionada es veridica'})
+  @IsBoolean({
+    message: 'Debes aceptar que la informacion proporcionada es veridica',
+  })
   agreedToInfo: boolean;
 
-  @IsBoolean({message: 'Debes aceptar que tu perfil sera revisado para aprobacion'})
+  @IsBoolean({
+    message: 'Debes aceptar que tu perfil sera revisado para aprobacion',
+  })
   agreedToAproveed: boolean;
 }
