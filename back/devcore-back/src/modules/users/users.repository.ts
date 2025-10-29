@@ -58,6 +58,17 @@ export class UsersRepository {
     return this.userRepository.findOneBy({ emailVerificationToken: token });
   }
 
+  async findUserWithProfile(userId: string): Promise<User>{
+    const user = await this.userRepository.findOne({
+      where: {id: userId},
+      relations: {
+        professorProfile: true
+      }
+    });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+    return user;
+  }
+
   /**
    * Método 'save'
    * Permite a los servicios guardar (crear o actualizar) una entidad User
