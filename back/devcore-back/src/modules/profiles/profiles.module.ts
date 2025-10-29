@@ -7,9 +7,10 @@ import { AuthModule } from "../auth/auth.module";
 import { ProfilesRepository } from "./profiles.repository";
 import { ProfilesController } from "./profiles.controller";
 import { ProfilesService } from "./profiles.service";
+import { CloudinaryModule } from "../cloudinary/cloudinary.module";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([ProfessorProfile, User]),UsersModule, AuthModule],
+    imports: [TypeOrmModule.forFeature([ProfessorProfile, User]),UsersModule, AuthModule, CloudinaryModule],
     providers: [ProfilesRepository, ProfilesService],
     controllers: [ProfilesController]
 })
