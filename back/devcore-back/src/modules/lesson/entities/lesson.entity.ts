@@ -4,9 +4,12 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmpty } from 'class-validator';
+import { Course } from 'src/modules/course/entities/course.entity';
 
 @Entity('lessons')
 export class Lesson {
@@ -33,6 +36,12 @@ export class Lesson {
   @ApiProperty()
   @Column({ type: 'varchar', length: 250 })
   description: string;
+
+  @ManyToOne(() => Course, (course) => course.lessons, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'course_id' })
+  course: Course;
 
   @CreateDateColumn()
   createdAt: Date;

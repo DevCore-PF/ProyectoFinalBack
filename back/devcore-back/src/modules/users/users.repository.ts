@@ -10,7 +10,7 @@ export class UsersRepository {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-   async getAll() {
+  async getAll() {
     const users = await this.userRepository.find({
       where: { isActive: true },
     });
@@ -36,8 +36,8 @@ export class UsersRepository {
     const findUser = await this.userRepository.findOneBy({ id });
     if (!findUser || !findUser?.isActive)
       throw new NotFoundException('Usuario no encontrado');
-        return findUser;
-    }
+    return findUser;
+  }
 
   async findUserByEmail(email: string) {
     return this.userRepository.findOneBy({ email });

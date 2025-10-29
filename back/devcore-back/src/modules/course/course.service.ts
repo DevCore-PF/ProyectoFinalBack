@@ -8,7 +8,7 @@ export class CoursesService {
   constructor(private readonly coursesRepository: CoursesRepository) {}
 
   async createCourse(
-    data: CreateCourseDto & { image: string },
+    data: CreateCourseDto & { images: string[] },
   ): Promise<Course> {
     try {
       const course = await this.coursesRepository.createCourse(data);

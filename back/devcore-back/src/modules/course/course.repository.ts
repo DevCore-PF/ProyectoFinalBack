@@ -12,7 +12,7 @@ export class CoursesRepository {
   ) {}
 
   async createCourse(
-    data: CreateCourseDto & { image: string },
+    data: CreateCourseDto & { images: string[] },
   ): Promise<Course> {
     const newCourse = this.courseRepository.create(data);
     return await this.courseRepository.save(newCourse);
