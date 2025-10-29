@@ -19,6 +19,26 @@ export class CloudinaryService {
     });
   }
 
+  // Método Específico para Certificados
+  async uploadCertificate(
+    file: Express.Multer.File,
+  ): Promise<UploadApiResponse | undefined> {
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { 
+          folder: 'certificates', // Carpeta específica
+          // Opcional: podrías querer permitir PDFs, etc.
+          resource_type: 'auto', 
+        }, 
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        },
+      );
+      streamifier.createReadStream(file.buffer).pipe(uploadStream);
+    });
+  }
+
   async uploadVideo(
     file: Express.Multer.File,
   ): Promise<UploadApiResponse | undefined> {

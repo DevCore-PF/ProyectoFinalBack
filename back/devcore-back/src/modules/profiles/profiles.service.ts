@@ -11,6 +11,7 @@ import { UserRole } from '../users/enums/user-role.enum';
 import { ApprovalStatus } from './enums/approval-status.enum';
 import { CreateProfessorProfileDto } from './dto/create-professon-profile.dto';
 import { UpdateProfessorProfileDto } from './dto/update-professor-profile.dto';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class ProfilesService {
@@ -18,6 +19,7 @@ export class ProfilesService {
     private readonly profilesRepository: ProfilesRepository,
     private readonly userRepository: UsersRepository,
     private readonly authService: AuthService,
+    private readonly cloudinaryService: CloudinaryService
   ) {}
 
   /**
@@ -27,6 +29,7 @@ export class ProfilesService {
   async createProfile(
     userId: string,
     createProfileDto: CreateProfessorProfileDto,
+    files: Array<Express.Multer.File>
   ) {
     //primero buscamos al usuario que esta haciendo el registro de sus datos
     const user = await this.userRepository.findUserById(userId);
@@ -68,11 +71,21 @@ export class ProfilesService {
       );
     }
 
+    //creamos un arreglo para los certificados
+    let certificateUrls: string[] = [];
+    if(files && files.length > 0){
+      const uploadPromises = files.map(file => this.cloudinaryService.uploadCertificate(file));
+      const results = await Promise.all(uploadPromises);
+      // Filtramos por si alguno falló y obtén solo las Uque si se subieron
+      certificateUrls = results.filter(result => result?.secure_url).map(result => result!.secure_url)
+    }
+
     //si pasa las validaciones creamos una instancia con los datos del dto
     const newProfile = this.profilesRepository.create({
       ...createProfileDto,
       user: user, //asignamos la relacion al usuario
       approvalStatus: ApprovalStatus.PENDING, //poemosen pendiente su estado
+      certificates: certificateUrls //le pasamos las url de cloudinary
     });
 
     //guardamos el perfil nuevo en la db
@@ -95,7 +108,7 @@ export class ProfilesService {
   /**
    * Metodo para actualizar un perfil de profesor
    */
-  async updateProfile(userId: string, updateDto: UpdateProfessorProfileDto) {
+  async updateProfile(userId: string, updateDto: UpdateProfessorProfileDto, files: Array<Express.Multer.File>) {
     //bucamos al usuario
     const user = await this.userRepository.findUserById(userId);
     if (!user || user.role !== UserRole.TEACHER) {
@@ -113,7 +126,6 @@ export class ProfilesService {
     const sensitiveKeys: (keyof UpdateProfessorProfileDto)[] = [
       'profession',
       'speciality',
-      'certificates',
     ];
 
     //reviamos si alguno de los campos que son importantes vienen en el dto del actualiazar
@@ -124,8 +136,26 @@ export class ProfilesService {
     //unimos los nuevo datos con los existentes
     Object.assign(profile, updateDto);
 
+    let hasNewFiles = false;
+    if(files && files.length > 0){
+      hasNewFiles = true;
+
+      //Subimos los nuevo archivos a cloudinary
+      const uploadPromises = files.map(file => this.cloudinaryService.uploadCertificate(file)) //Llamamos al metodo para subir los archivos
+
+      const results = await Promise.all(uploadPromises);
+      const newUrls = results.filter(result => result?.secure_url).map(result => result!.secure_url);
+
+      //Añadimos las nuevas urls al arreglo de cetificates
+      if(!profile.certificates){
+        profile.certificates = []
+      }
+
+      profile.certificates.push(...newUrls)
+    }
+
     //si cambio un campo imporytante resetamos el estado a pendiente
-    if (hasSesnsitiveChanges) {
+    if (hasSesnsitiveChanges || hasNewFiles) {
       profile.approvalStatus = ApprovalStatus.PENDING;
     }
 

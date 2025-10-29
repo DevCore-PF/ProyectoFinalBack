@@ -34,15 +34,6 @@ export class CreateProfessorProfileDto {
 
   @IsArray()
   @IsString({ each: true })
-  @IsUrl(
-    {},
-    { each: true, message: 'Cada certificado debe ser una URL valida' },
-  )
-  @IsNotEmpty({ message: 'Debe tener al menos 1 certificado' })
-  certificates: string[];
-
-  @IsArray()
-  @IsString({ each: true })
   @IsUrl({}, { each: true, message: 'Cada enlace debe ser una URL valida' })
   @IsOptional()
   professionalLinks: string[];
