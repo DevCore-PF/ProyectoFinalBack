@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "../users/entities/user.entity";
-import { ApprovalStatus } from "./enums/approval-status.enum";
+import { User } from "../../users/entities/user.entity";
+import { ApprovalStatus } from "../enums/approval-status.enum";
 
 @Entity('professor_profiles')
 export class ProfessorProfile {
@@ -19,7 +19,7 @@ export class ProfessorProfile {
     profession:string;
 
     @Column({type: 'varchar', length: 100, nullable: true})
-    specialty: string;
+    speciality: string;
 
     @Column({type: 'text', nullable: true})
     biography: string;
@@ -32,6 +32,12 @@ export class ProfessorProfile {
 
     @Column({type: 'boolean', default: false})
     agreedToTerms: boolean;
+
+    @Column({type: 'boolean', default:false})
+    agreedToInfo: boolean;
+
+    @Column({type: 'boolean', default: false})
+    agreedToAproveed: boolean;
 
     @Column({type: 'enum', enum: ApprovalStatus, default: ApprovalStatus.PENDING})
     approvalStatus: ApprovalStatus;

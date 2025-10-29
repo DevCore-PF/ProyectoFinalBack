@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { v4 as UUID } from 'uuid';
 import { UserRole } from '../enums/user-role.enum';
-import { ProfessorProfile } from 'src/modules/profiles/professor-profile.entity';
+import { ProfessorProfile } from 'src/modules/profiles/entities/professor-profile.entity';
 
 @Entity('users')
 export class User {

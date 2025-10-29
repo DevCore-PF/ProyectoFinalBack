@@ -1,5 +1,5 @@
 import { InjectRepository } from "@nestjs/typeorm";
-import { ProfessorProfile } from "./professor-profile.entity";
+import { ProfessorProfile } from "./entities/professor-profile.entity";
 import { DeepPartial, Repository } from "typeorm";
 
 export class ProfilesRepository {

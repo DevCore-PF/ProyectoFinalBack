@@ -56,6 +56,7 @@ export class UsersController {
       },
     },
   })
+  
   async uploadProfilePicture(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @UploadedFile(
