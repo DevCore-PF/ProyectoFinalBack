@@ -5,8 +5,8 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from '../users/entities/user.entity';
-import { ApprovalStatus } from './enums/approval-status.enum';
+import { User } from '../../users/entities/user.entity';
+import { ApprovalStatus } from '../enums/approval-status.enum';
 
 @Entity('professor_profiles')
 export class ProfessorProfile {
@@ -37,6 +37,12 @@ export class ProfessorProfile {
 
   @Column({ type: 'boolean', default: false })
   agreedToTerms: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  agreedToInfo: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  agreedToAproveed: boolean;
 
   @Column({
     type: 'enum',
