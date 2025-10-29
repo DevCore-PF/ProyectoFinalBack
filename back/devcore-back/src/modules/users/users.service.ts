@@ -46,7 +46,6 @@ export class UsersService {
     }
   }
 
-
   async createGoogleUser(googleUserDto: GoogleUserDto): Promise<User> {
     const { email, name, image, googleId } = googleUserDto;
 
@@ -55,7 +54,7 @@ export class UsersService {
       name,
       image,
       googleId,
-      isGoogleAccount: true,  // se marca en true ya que damos por hecho al registrarse con google
+      isGoogleAccount: true, // se marca en true ya que damos por hecho al registrarse con google
       isEmailVerified: true, //se verifica automaticamente por que se inicio con google
       role: undefined, //Rol por defecto
       password: undefined, // No se le asiga contraseña por que se maneja con google
@@ -92,7 +91,9 @@ export class UsersService {
   }
 
   async getUserById(id: string) {
-    return await this.userRepository.findUserById(id);
+    const userFind = await this.userRepository.findUserById(id);
+    const { password, ...userWithoutPassword } = userFind;
+    return userWithoutPassword;
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
