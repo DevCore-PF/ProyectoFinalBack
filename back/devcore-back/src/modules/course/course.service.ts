@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CoursesRepository } from './course.repository';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { Course } from './entities/course.entity';
@@ -20,7 +24,7 @@ export class CoursesService {
 
   async createCourse(
     professorId: string,
-    data: CreateCourseDto & { images: string[] },
+    data: CreateCourseDto,
   ): Promise<Course> {
     try {
       const professor = await this.professorRepository.findOne({
@@ -33,13 +37,17 @@ export class CoursesService {
         );
       }
 
-      const course = await this.coursesRepository.createCourse({
+      return await this.coursesRepository.createCourse({
         ...data,
         professor,
       });
-      return course;
     } catch (error) {
-      throw new NotFoundException('Error creating course: ' + error.message);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new BadRequestException(
+        'Error al crear el curso: ' + error.message,
+      );
     }
   }
 

@@ -13,10 +13,10 @@ export class CoursesRepository {
   ) {}
 
   async createCourse(
-    data: CreateCourseDto & { images: string[]; professor: ProfessorProfile },
+    data: CreateCourseDto & { professor: ProfessorProfile },
   ): Promise<Course> {
-    const newCourse = this.courseRepository.create(data);
-    return await this.courseRepository.save(newCourse);
+    const course = this.courseRepository.create(data);
+    return await this.courseRepository.save(course);
   }
 
   async findAll(): Promise<Course[]> {
@@ -36,8 +36,7 @@ export class CoursesRepository {
   async findCoursesByIds(ids: string[]): Promise<Course[]> {
     //usa el In para buscar en un arreglo de ids
     return this.courseRepository.find({
-      where: {id: In(ids)}
-    })
+      where: { id: In(ids) },
+    });
   }
-
 }

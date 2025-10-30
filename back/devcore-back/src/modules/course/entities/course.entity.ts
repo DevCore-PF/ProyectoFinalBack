@@ -26,6 +26,15 @@ export enum CourseDifficulty {
   ADVANCED = 'AVANZADO',
 }
 
+export enum Category {
+  FrontEnd = 'Front End',
+  Backend = 'Backend',
+  DataScience = 'Data Science',
+  Database = 'Database',
+  VideoGames = 'Video Games',
+  MobileDevelopment = 'Mobile Development',
+}
+
 @Entity('courses')
 export class Course {
   @ApiProperty()
@@ -43,13 +52,6 @@ export class Course {
   @Column({ type: 'text' })
   description: string;
 
-  @ApiProperty({
-    example: 'https://res.cloudinary.com/.../curso-imagen.png',
-    description: 'URL de la imagen del curso (obligatoria)',
-  })
-  @Column('text', { array: true })
-  images: string[];
-
   @ApiProperty({ example: 49.99 })
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   price: number;
@@ -66,6 +68,12 @@ export class Course {
   @Column({ type: 'varchar', length: 50, nullable: false })
   duration: string;
 
+  @Column({
+    type: 'enum',
+    enum: Category,
+  })
+  category: Category;
+
   @ApiProperty({
     enum: CourseDifficulty,
     example: CourseDifficulty.BEGINNER,
@@ -77,6 +85,9 @@ export class Course {
     nullable: false,
   })
   difficulty: CourseDifficulty;
+
+  @Column('text', { array: true })
+  syllabus: string[];
 
   @OneToMany(() => Lesson, (lesson) => lesson.course, {
     cascade: true,

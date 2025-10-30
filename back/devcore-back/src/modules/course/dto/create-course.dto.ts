@@ -7,9 +7,11 @@ import {
   IsEnum,
   IsArray,
   ValidateNested,
+  ArrayMinSize,
+  ArrayMaxSize,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { CourseDifficulty } from '../entities/course.entity';
+import { Category, CourseDifficulty } from '../entities/course.entity';
 import { CreateLessonDto } from 'src/modules/lesson/dto/create-lesson.dto';
 import { BadRequestException } from '@nestjs/common';
 
@@ -53,17 +55,35 @@ export class CreateCourseDto {
     description: 'Nivel de dificultad',
     required: true,
   })
+  @ApiProperty({
+    enum: Category,
+    example: Category.Backend,
+  })
+  @IsEnum(Category, {
+    message: 'La categoría debe ser válida',
+  })
+  @IsNotEmpty()
+  category: Category;
+  @ApiProperty({
+    description: 'Temario del curso (títulos de las lecciones)',
+    example: [
+      'Introducción a NestJS',
+      'Configuración del entorno',
+      'Controllers y Routing',
+      'Services y Dependency Injection',
+      'TypeORM y Base de Datos',
+      'Autenticación con JWT',
+    ],
+    type: [String],
+    minItems: 1,
+    maxItems: 50,
+  })
+  @IsArray({ message: 'El temario debe ser un array' })
+  @ArrayMinSize(1, { message: 'Debe incluir al menos un tema' })
+  @ArrayMaxSize(50, { message: 'El temario no puede tener más de 50 temas' })
+  @IsString({ each: true, message: 'Cada tema debe ser un texto' })
+  syllabus: string[];
   @IsNotEmpty()
   @IsEnum(CourseDifficulty)
   difficulty: CourseDifficulty;
-
-  @ApiProperty({
-    type: 'string',
-    format: 'binary',
-    description:
-      'Imagen de portada del curso (jpg, jpeg, png, webp — máximo 2 MB)',
-    required: true,
-    isArray: true,
-  })
-  images: any[];
 }

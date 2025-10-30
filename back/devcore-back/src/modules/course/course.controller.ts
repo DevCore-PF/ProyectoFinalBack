@@ -16,7 +16,7 @@ import {
 } from '@nestjs/common';
 import { CoursesService } from './course.service';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateLessonDto } from '../lesson/dto/create-lesson.dto';
@@ -30,55 +30,22 @@ export class CoursesController {
   ) {}
 
   @Post(':professorId/create')
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FilesInterceptor('images', 3))
+  @ApiOperation({
+    summary: 'Crear un nuevo curso',
+    description:
+      'Crea un curso con su temario. Las lecciones se crean después con otro endpoint.',
+  })
+  @ApiParam({
+    name: 'professorId',
+    description: 'ID del profesor',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
   @ApiBody({ type: CreateCourseDto })
   async createCourse(
     @Param('professorId') professorId: string,
     @Body() data: CreateCourseDto,
-    @UploadedFiles(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({
-            maxSize: 2 * 1024 * 1024, // 2 MB
-            message: 'Cada imagen no puede superar los 2 MB.',
-          }),
-          new FileTypeValidator({
-            fileType: /(jpg|jpeg|png|webp)$/i,
-          }),
-        ],
-      }),
-    )
-    files: Express.Multer.File[],
   ) {
-    if (!files || files.length === 0) {
-      throw new BadRequestException(
-        'Debes subir al menos una imagen del curso.',
-      );
-    }
-
-    if (files.length > 3) {
-      throw new BadRequestException('Podés subir un máximo de 3 imágenes.');
-    }
-
-    const uploadPromises = files.map((file) =>
-      this.cloudinaryService.uploadImage(file),
-    );
-
-    const uploadResults = await Promise.all(uploadPromises);
-
-    if (uploadResults.some((result) => !result || !result.secure_url)) {
-      throw new BadRequestException(
-        'Error al subir una o más imágenes. Intentá nuevamente.',
-      );
-    }
-
-    const imageUrls = uploadResults.map((result) => result!.secure_url!);
-
-    return this.coursesService.createCourse(professorId, {
-      ...data,
-      images: imageUrls,
-    });
+    return this.coursesService.createCourse(professorId, data);
   }
 
   @Post(':courseId/lessons')
