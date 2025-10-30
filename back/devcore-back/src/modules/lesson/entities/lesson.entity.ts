@@ -26,8 +26,8 @@ export class Lesson {
   order?: number;
 
   @ApiProperty()
-  @Column({ type: 'varchar', length: 250, nullable: false })
-  urlVideo: string;
+  @Column('simple-array')
+  urlVideos: string[];
 
   @ApiProperty()
   @Column({ default: false })

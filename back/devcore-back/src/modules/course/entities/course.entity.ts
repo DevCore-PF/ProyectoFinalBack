@@ -6,11 +6,13 @@ import {
   UpdateDateColumn,
   ManyToOne,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Lesson } from 'src/modules/lesson/entities/lesson.entity';
+import { ProfessorProfile } from 'src/modules/profiles/entities/professor-profile.entity';
 
 export enum CourseStatus {
   DRAFT = 'BORRADOR',
@@ -79,6 +81,12 @@ export class Course {
     cascade: true,
   })
   lessons: Lesson[];
+
+  @ManyToOne(() => ProfessorProfile, (professor) => professor.courses, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'professor_id' })
+  professor: ProfessorProfile;
 
   @ApiProperty()
   @CreateDateColumn({ name: 'created_at' })

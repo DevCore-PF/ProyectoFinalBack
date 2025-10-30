@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateLessonDto {
   @ApiProperty({ example: 'Lección 1: Introducción', required: true })
@@ -10,15 +10,15 @@ export class CreateLessonDto {
   @ApiProperty({ example: 'Contenido de la lección', required: true })
   @IsNotEmpty()
   @IsString()
-  content: string;
+  description: string;
 
   @ApiProperty({
     type: 'array',
     items: { type: 'string', format: 'binary' },
-    description: 'Videos de la lección (máximo 5, formatos: mp4, mov, avi)',
+    description:
+      'Videos de la lección (máximo 5, formatos: mp4, mov, avi, webm)',
     required: false,
     maxItems: 5,
   })
-  @IsOptional()
   videos?: any[];
 }

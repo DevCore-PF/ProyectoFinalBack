@@ -66,29 +66,4 @@ export class CreateCourseDto {
     isArray: true,
   })
   images: any[];
-
-  @ApiProperty({
-    type: [CreateLessonDto],
-    description: 'Array con las lecciones del curso',
-    required: true,
-  })
-  @Transform(({ value }) => {
-    try {
-      if (typeof value === 'string') {
-        return JSON.parse(value);
-      }
-      if (Array.isArray(value)) {
-        return value;
-      }
-      return [];
-    } catch (error) {
-      throw new BadRequestException(
-        'El formato de lessons es inválido. Debe ser un JSON válido.',
-      );
-    }
-  })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateLessonDto)
-  lessons: CreateLessonDto[];
 }

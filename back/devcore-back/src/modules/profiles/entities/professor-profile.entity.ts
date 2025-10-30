@@ -2,11 +2,13 @@ import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { ApprovalStatus } from '../enums/approval-status.enum';
+import { Course } from 'src/modules/course/entities/course.entity';
 
 @Entity('professor_profiles')
 export class ProfessorProfile {
@@ -50,6 +52,9 @@ export class ProfessorProfile {
     default: ApprovalStatus.PENDING,
   })
   approvalStatus: ApprovalStatus;
+
+  @OneToMany(() => Course, (course) => course.professor)
+  courses: Course[];
 
   createdAt: Date;
 
