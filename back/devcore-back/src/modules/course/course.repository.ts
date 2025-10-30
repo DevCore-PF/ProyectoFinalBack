@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
+import { ProfessorProfile } from '../profiles/entities/professor-profile.entity';
 
 @Injectable()
 export class CoursesRepository {
@@ -12,7 +13,7 @@ export class CoursesRepository {
   ) {}
 
   async createCourse(
-    data: CreateCourseDto & { image: string },
+    data: CreateCourseDto & { images: string[]; professor: ProfessorProfile },
   ): Promise<Course> {
     const newCourse = this.courseRepository.create(data);
     return await this.courseRepository.save(newCourse);
@@ -23,6 +24,9 @@ export class CoursesRepository {
   }
 
   async findById(id: string): Promise<Course | null> {
-    return this.courseRepository.findOne({ where: { id } });
+    return this.courseRepository.findOne({
+      where: { id },
+      relations: ['lessons'],
+    });
   }
 }

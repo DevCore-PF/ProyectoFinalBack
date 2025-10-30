@@ -4,10 +4,15 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Lesson } from 'src/modules/lesson/entities/lesson.entity';
+import { ProfessorProfile } from 'src/modules/profiles/entities/professor-profile.entity';
 
 export enum CourseStatus {
   DRAFT = 'BORRADOR',
@@ -41,12 +46,8 @@ export class Course {
     example: 'https://res.cloudinary.com/.../curso-imagen.png',
     description: 'URL de la imagen del curso (obligatoria)',
   })
-  @Column({
-    type: 'varchar',
-    length: 250,
-    nullable: false,
-  })
-  image: string;
+  @Column('text', { array: true })
+  images: string[];
 
   @ApiProperty({ example: 49.99 })
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
@@ -76,15 +77,16 @@ export class Course {
   })
   difficulty: CourseDifficulty;
 
-  @ApiProperty({
-    type: [String],
-    description: 'Lista de lecciones incluidas en el curso.',
-    example: ['Lección 1: Introducción', 'Lección 2: Fundamentos'],
+  @OneToMany(() => Lesson, (lesson) => lesson.course, {
+    cascade: true,
   })
-  @Column('simple-array')
-  @IsArray()
-  @IsString({ each: true })
-  lessons: string[];
+  lessons: Lesson[];
+
+  @ManyToOne(() => ProfessorProfile, (professor) => professor.courses, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'professor_id' })
+  professor: ProfessorProfile;
 
   @ApiProperty()
   @CreateDateColumn({ name: 'created_at' })

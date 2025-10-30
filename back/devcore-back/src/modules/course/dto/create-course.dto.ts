@@ -6,9 +6,12 @@ import {
   Min,
   IsEnum,
   IsArray,
+  ValidateNested,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { CourseStatus, CourseDifficulty } from '../entities/course.entity';
+import { CourseDifficulty } from '../entities/course.entity';
+import { CreateLessonDto } from 'src/modules/lesson/dto/create-lesson.dto';
+import { BadRequestException } from '@nestjs/common';
 
 export class CreateCourseDto {
   @ApiProperty({ example: 'Introducción a NestJS', required: true })
@@ -32,21 +35,12 @@ export class CreateCourseDto {
   @IsNotEmpty()
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
-  @Type(() => Number)
+  @Transform(({ value }) => parseFloat(value))
   price: number;
-
-  // @ApiProperty({
-  //   enum: CourseStatus,
-  //   example: CourseStatus.DRAFT,
-  //   description: 'Estado inicial del curso (borrador o publicado)',
-  //   default: CourseStatus.DRAFT,
-  // })
-  // @IsEnum(CourseStatus)
-  // status: CourseStatus;
 
   @ApiProperty({
     example: '4h 30m',
-    description: 'Duración total del curso (ej: "3h 45m" o "10 horas")',
+    description: 'Duración total del curso',
     required: true,
   })
   @IsNotEmpty()
@@ -56,7 +50,7 @@ export class CreateCourseDto {
   @ApiProperty({
     enum: CourseDifficulty,
     example: CourseDifficulty.BEGINNER,
-    description: 'Nivel de dificultad (obligatorio)',
+    description: 'Nivel de dificultad',
     required: true,
   })
   @IsNotEmpty()
@@ -64,13 +58,12 @@ export class CreateCourseDto {
   difficulty: CourseDifficulty;
 
   @ApiProperty({
-    example: ['Lección 1: Introducción', 'Lección 2: Fundamentos'],
-    description: 'Array con los títulos de las lecciones del curso',
+    type: 'string',
+    format: 'binary',
+    description:
+      'Imagen de portada del curso (jpg, jpeg, png, webp — máximo 2 MB)',
     required: true,
+    isArray: true,
   })
-  @IsNotEmpty()
-  @IsArray()
-  @IsString({ each: true })
-  @Transform(({ value }) => value.split(',').map((v: string) => v.trim()))
-  lessons: string[];
+  images: any[];
 }

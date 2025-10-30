@@ -143,6 +143,7 @@ export class AuthService {
         role: user.role,
         isEmailVerified: user.isEmailVerified,
         hasCompletedProfile: user.hasCompletedProfile,
+        professorProfile: user.professorProfile,
       },
       access_token: this.jwtService.sign(payload),
     };

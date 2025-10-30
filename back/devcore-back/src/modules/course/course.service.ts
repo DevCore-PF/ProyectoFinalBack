@@ -2,16 +2,41 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CoursesRepository } from './course.repository';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { Course } from './entities/course.entity';
+import { Lesson } from '../lesson/entities/lesson.entity';
+import { CreateLessonDto } from '../lesson/dto/create-lesson.dto';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ProfessorProfile } from '../profiles/entities/professor-profile.entity';
 
 @Injectable()
 export class CoursesService {
-  constructor(private readonly coursesRepository: CoursesRepository) {}
+  constructor(
+    private readonly coursesRepository: CoursesRepository,
+    @InjectRepository(Lesson)
+    private readonly lessonsRepository: Repository<Lesson>,
+    @InjectRepository(ProfessorProfile)
+    private readonly professorRepository: Repository<ProfessorProfile>,
+  ) {}
 
   async createCourse(
-    data: CreateCourseDto & { image: string },
+    professorId: string,
+    data: CreateCourseDto & { images: string[] },
   ): Promise<Course> {
     try {
-      const course = await this.coursesRepository.createCourse(data);
+      const professor = await this.professorRepository.findOne({
+        where: { id: professorId },
+      });
+
+      if (!professor) {
+        throw new NotFoundException(
+          `Profesor con ID ${professorId} no encontrado`,
+        );
+      }
+
+      const course = await this.coursesRepository.createCourse({
+        ...data,
+        professor,
+      });
       return course;
     } catch (error) {
       throw new NotFoundException('Error creating course: ' + error.message);
@@ -26,5 +51,28 @@ export class CoursesService {
     const course = await this.coursesRepository.findById(id);
     if (!course) throw new NotFoundException('Course not found');
     return course;
+  }
+
+  async addLessonToCourse(
+    courseId: string,
+    lessonData: CreateLessonDto & { urlVideos: string[] },
+  ): Promise<Lesson> {
+    const course = await this.coursesRepository.findById(courseId);
+
+    if (!course) {
+      throw new NotFoundException(`Curso con ID ${courseId} no encontrado`);
+    }
+
+    const order = course.lessons ? course.lessons.length + 1 : 1;
+
+    const lesson = this.lessonsRepository.create({
+      title: lessonData.title,
+      description: lessonData.description,
+      urlVideos: lessonData.urlVideos || [],
+      order,
+      course,
+    });
+
+    return await this.lessonsRepository.save(lesson);
   }
 }
