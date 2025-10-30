@@ -25,11 +25,11 @@ export class CloudinaryService {
   ): Promise<UploadApiResponse | undefined> {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        { 
+        {
           folder: 'certificates', // Carpeta específica
           // Opcional: podrías querer permitir PDFs, etc.
-          resource_type: 'auto', 
-        }, 
+          resource_type: 'auto',
+        },
         (error, result) => {
           if (error) return reject(error);
           resolve(result);
