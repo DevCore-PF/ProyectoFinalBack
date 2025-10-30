@@ -13,6 +13,7 @@ import { IsArray, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Lesson } from 'src/modules/lesson/entities/lesson.entity';
 import { ProfessorProfile } from 'src/modules/profiles/entities/professor-profile.entity';
+import { Enrollment } from 'src/modules/enrollments/entities/enrollment.entity';
 
 export enum CourseStatus {
   DRAFT = 'BORRADOR',
@@ -87,6 +88,9 @@ export class Course {
   })
   @JoinColumn({ name: 'professor_id' })
   professor: ProfessorProfile;
+
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
+  enrollments: Enrollment[];
 
   @ApiProperty()
   @CreateDateColumn({ name: 'created_at' })
