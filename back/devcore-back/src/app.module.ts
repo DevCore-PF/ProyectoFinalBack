@@ -9,6 +9,7 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { LessonsModule } from './modules/lesson/lesson.module';
 import { CoursesModule } from './modules/course/course.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { ProfilesModule } from './modules/profiles/profiles.module';
     CloudinaryModule,
     LessonsModule,
     CoursesModule,
-    ProfilesModule
+    ProfilesModule,
+    PaymentsModule
   ],
 })
 export class AppModule {}

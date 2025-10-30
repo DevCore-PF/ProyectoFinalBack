@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { ProfessorProfile } from '../profiles/entities/professor-profile.entity';
@@ -29,4 +29,15 @@ export class CoursesRepository {
       relations: ['lessons'],
     });
   }
+
+  /**
+   * Metodo que busca multiples cursos para el carrito de compras con stripe
+   */
+  async findCoursesByIds(ids: string[]): Promise<Course[]> {
+    //usa el In para buscar en un arreglo de ids
+    return this.courseRepository.find({
+      where: {id: In(ids)}
+    })
+  }
+
 }

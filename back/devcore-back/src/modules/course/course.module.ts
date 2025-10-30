@@ -15,6 +15,6 @@ import { ProfessorProfile } from '../profiles/entities/professor-profile.entity'
     TypeOrmModule.forFeature([Course, Lesson, ProfessorProfile]),
     CloudinaryModule,
   ],
-  exports: [],
+  exports: [CoursesRepository],
 })
 export class CoursesModule {}
