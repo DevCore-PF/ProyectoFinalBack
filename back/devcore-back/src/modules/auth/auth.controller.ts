@@ -59,6 +59,8 @@ export class AuthController {
     // Esta función se queda vacía. El Guard hace la redirección.
   }
 
+  
+
   /**
    * 7. RUTA DE CALLBACK DE GOOGLE
    * Esta es la ruta a la que Google redirige al usuario despues de un login exitoso. en este caso primero redirige a el rol
@@ -116,5 +118,20 @@ export class AuthController {
   @Get()
   findAll() {
     return this.authService.findAll();
+  }
+
+  @Get('github')
+  @UseGuards(AuthGuard('github'))
+  async githubAuth() {}
+
+  @Get('github/redirect')
+  @UseGuards(AuthGuard('github'))
+  async githubAuthRedirect(@Req() req, @Res() res: Response) {
+    const user = req.user as User;
+    const loginData = this.authService.login(user);
+    const token = loginData.access_token;
+
+    const redirectUrl = `${process.env.FRONTEND_URL}/auth-callback?token=${token}`;
+    res.redirect(redirectUrl);
   }
 }

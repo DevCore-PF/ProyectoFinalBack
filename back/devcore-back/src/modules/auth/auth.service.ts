@@ -16,6 +16,7 @@ import { JwtService } from '@nestjs/jwt';
 import { MailService } from 'src/mail/mail.service';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
+import { GithubUserDto } from './dto/github-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -72,6 +73,51 @@ export class AuthService {
   }
 
   /**
+   * Metodo que implementa la lógica de Google
+   */
+  async validateAndHandleGitHubUser(
+    githubUserDto: GithubUserDto,
+  ): Promise<User> {
+    const { email, image } = githubUserDto;
+
+    try {
+      // Buscamos al usuario por su email
+      const user = await this.userRepository.findUserByEmail(email);
+
+      // si el el usuario "SI" existe ---
+      if (user) {
+        // Si el email existe PERO no es de Google, es un conflicto.
+        if (!user.isGitHubAccount) {
+          throw new ConflictException(
+            `El email ${email} ya está registrado con contraseña. Por favor, inicia sesión localmente.`,
+          );
+        }
+
+        // Si es un usuario de github actualizamos su imagen
+        if (image) {
+          user.image = image;
+        }
+        // y guardamos el usuario
+        await this.userRepository.save(user);
+        return user;
+      }
+
+      // El usuario NO existe
+      // se pasa la creación al UsersService
+      const newUser = await this.userService.createGithubUser(githubUserDto);
+      return newUser;
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
+      console.error(error);
+      throw new InternalServerErrorException(
+        'Error al procesar el login con Google',
+      );
+    }
+  }
+
+  /**
    * Crea un usuario con nuestroo formulario
    */
   async create(registerUser: CreateUserDto) {
@@ -85,6 +131,12 @@ export class AuthService {
         throw new BadRequestException(
           `El email ${registerUser.email} ya está registrado con Google. Por favor, inicia sesión con Google.`,
         );
+      }
+      // Si existe Y es de GitHub, no puede registrarse localmente
+      if (userExists.isGitHubAccount) {
+        throw new BadRequestException(
+          `El email ${registerUser.email} ya está registrado con GitHub. Por favor, inicia sesión con GitHub.`,
+        )
       }
       // Si existe y no es de google marca error de que ya existe
       throw new BadRequestException('El correo electrónico ya está en uso');
@@ -123,7 +175,7 @@ export class AuthService {
 
   /**
    * Genera el JWT
-   * Este método es llamado por el login local y por el callback de Google.
+   * Este método es llamado por el login local y por el callback de Google o Github
    */
   login(user: User) {
     // El payload es la información que guardamos en el token
@@ -154,7 +206,7 @@ export class AuthService {
     //
     // Si es Estudiante, su perfil ya está "completo"
     if (role === UserRole.STUDENT) {
-      user.hasCompletedProfile = false;
+      user.hasCompletedProfile = true;
     }
     // Si es Profesor, su perfil AÚN NO está completo.
     // Dejamos hasCompletedProfile en 'false' a propósito.

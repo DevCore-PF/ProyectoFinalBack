@@ -70,11 +70,25 @@ export class User {
   isGoogleAccount: boolean; //Para saber si se registró con Google
 
   @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isGitHubAccount: boolean; //Para saber si se registró con GitHub
+
+
+  @Column({
     nullable: true,
     unique: true,
   })
   @Index()
   googleId?: string; //auth0Id para google
+
+   @Column({
+    nullable: true,
+    unique: true,
+  })
+  @Index()
+  githubId?: string; //auth0Id para google
 
   @Column({
     type: 'varchar',
