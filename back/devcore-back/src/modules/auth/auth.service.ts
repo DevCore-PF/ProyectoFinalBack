@@ -134,17 +134,11 @@ export class AuthService {
       email: user.email,
       role: user.role,
     };
+
+    const {password, ...userReturn} = user;
     
     return {
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        isEmailVerified: user.isEmailVerified,
-        hasCompletedProfile: user.hasCompletedProfile,
-        professorProfile: user.professorProfile,
-      },
+      userReturn,
       access_token: this.jwtService.sign(payload),
     };
   }
