@@ -27,59 +27,6 @@ export class LessonsController {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  // @Post('create')
-  // @ApiConsumes('multipart/form-data')
-  // @UseInterceptors(FileInterceptor('video'))
-  // @ApiBody({
-  //   schema: {
-  //     type: 'object',
-  //     properties: {
-  //       title: { type: 'string', example: 'Intro a NestJS' },
-  //       description: { type: 'string', example: 'Aprendé NestJS desde cero' },
-  //       video: {
-  //         type: 'string',
-  //         format: 'binary',
-  //         description:
-  //           'Archivo de video (obligatorio, formatos: mp4, mov, webm) Maximo 10 MB',
-  //       },
-  //     },
-  //   },
-  // })
-  // async createLesson(
-  //   @Body() data: CreateLessonDto,
-  //   @UploadedFile(
-  //     new ParseFilePipe({
-  //       validators: [
-  //         new MaxFileSizeValidator({
-  //           maxSize: 10 * 1024 * 1024,
-  //           message: 'El video no puede superar los 10 MB.',
-  //         }),
-  //         new FileTypeValidator({
-  //           fileType: /(mp4|mov|webm)$/i,
-  //         }),
-  //       ],
-  //     }),
-  //   )
-  //   file: Express.Multer.File,
-  // ) {
-  //   if (!file) {
-  //     throw new BadRequestException('El archivo de video es obligatorio.');
-  //   }
-
-  //   const uploadResult = await this.cloudinaryService.uploadVideo(file);
-
-  //   if (!uploadResult?.secure_url) {
-  //     throw new BadRequestException('Error al subir el video a Cloudinary.');
-  //   }
-
-  //   const lessonData: CreateLessonDto & { urlVideo: string } = {
-  //     ...data,
-  //     urlVideo: uploadResult.secure_url,
-  //   };
-
-  //   return this.lessonsService.createLesson(lessonData);
-  // }
-
   @Get()
   async getAllLessons() {
     return await this.lessonsService.getAllLessons();

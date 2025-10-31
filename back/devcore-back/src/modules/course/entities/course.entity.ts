@@ -13,9 +13,10 @@ import { IsArray, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Lesson } from 'src/modules/lesson/entities/lesson.entity';
 import { ProfessorProfile } from 'src/modules/profiles/entities/professor-profile.entity';
+import { Enrollment } from 'src/modules/enrollments/entities/enrollment.entity';
 
 export enum CourseStatus {
-  DRAFT = 'BORRADOR',
+  DRAFT = 'EN REVISION',
   PUBLISHED = 'PUBLICADO',
 }
 
@@ -23,6 +24,20 @@ export enum CourseDifficulty {
   BEGINNER = 'PRINCIPIANTE',
   INTERMEDIATE = 'INTERMEDIO',
   ADVANCED = 'AVANZADO',
+}
+
+export enum Category {
+  FrontEnd = 'Front End',
+  Backend = 'Backend',
+  DataScience = 'Data Science',
+  Database = 'Database',
+  VideoGames = 'Video Games',
+  MobileDevelopment = 'Mobile Development',
+}
+
+export enum Tipo {
+  Curse = 'Curso',
+  Carrer = 'Carrera',
 }
 
 @Entity('courses')
@@ -42,13 +57,6 @@ export class Course {
   @Column({ type: 'text' })
   description: string;
 
-  @ApiProperty({
-    example: 'https://res.cloudinary.com/.../curso-imagen.png',
-    description: 'URL de la imagen del curso (obligatoria)',
-  })
-  @Column('text', { array: true })
-  images: string[];
-
   @ApiProperty({ example: 49.99 })
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   price: number;
@@ -64,6 +72,18 @@ export class Course {
   @ApiProperty({ example: '4h 30m', description: 'Duración total del curso' })
   @Column({ type: 'varchar', length: 50, nullable: false })
   duration: string;
+
+  @Column({
+    type: 'enum',
+    enum: Category,
+  })
+  category: Category;
+
+  @Column({
+    type: 'enum',
+    enum: Tipo,
+  })
+  type: Tipo;
 
   @ApiProperty({
     enum: CourseDifficulty,
@@ -87,6 +107,9 @@ export class Course {
   })
   @JoinColumn({ name: 'professor_id' })
   professor: ProfessorProfile;
+
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
+  enrollments: Enrollment[];
 
   @ApiProperty()
   @CreateDateColumn({ name: 'created_at' })

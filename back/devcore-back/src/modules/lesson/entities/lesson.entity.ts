@@ -7,7 +7,7 @@ import {
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEmpty } from 'class-validator';
 import { Course } from 'src/modules/course/entities/course.entity';
 
@@ -25,17 +25,20 @@ export class Lesson {
   @Column({ type: 'int', nullable: true })
   order?: number;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @Column('simple-array')
   urlVideos: string[];
+
+  @ApiPropertyOptional({
+    type: [String],
+    description: 'URLs de los documentos PDF de la lección',
+  })
+  @Column('simple-array', { default: '' })
+  urlPdfs: string[];
 
   @ApiProperty()
   @Column({ default: false })
   esPreview: boolean;
-
-  @ApiProperty()
-  @Column({ type: 'varchar', length: 250 })
-  description: string;
 
   @ManyToOne(() => Course, (course) => course.lessons, {
     onDelete: 'CASCADE',
