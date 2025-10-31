@@ -1,22 +1,23 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
   UseGuards,
-  Req,      
+  Req,
   BadRequestException,
   Res,
   Patch,
-  Query
+  Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { AuthGuard } from '@nestjs/passport'; 
-import { User } from '../users/entities/user.entity'; 
+import { AuthGuard } from '@nestjs/passport';
+import { User } from '../users/entities/user.entity';
 import type { Response } from 'express';
 import { SelectRoleDto } from './dto/select-role.dto';
 import { LoginUserDto } from './dto/login-user-dto';
+import { ApiConsumes } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -24,25 +25,26 @@ export class AuthController {
 
   /**
    * Enpoint para el registro con nuestro formulario
-   * 
+   *
    */
+  @ApiConsumes('application/x-www-form-urlencoded')
   @Post('register')
   async create(@Body() createAuthDto: CreateUserDto) {
-   return await this.authService.create(createAuthDto);
+    return await this.authService.create(createAuthDto);
   }
 
   /**
    * Endpoint para login local
    */
+  @ApiConsumes('application/x-www-form-urlencoded')
   @Post('login')
-  @UseGuards(AuthGuard('local')) 
+  @UseGuards(AuthGuard('local'))
   async login(@Req() req, @Body() loginUserDto: LoginUserDto) {
     // Si llegamos aquí, 'validate' de LocalStrategy fue exitoso
     // y Passport adjunta el 'user' a 'req.user'
     return this.authService.login(req.user);
     // Devuelve el JWT y los datos del usuario
   }
-
 
   //RUTAS PARA GOOGLE
 
@@ -67,11 +69,7 @@ export class AuthController {
    */
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(
-    @Req() req,
-    @Res() res: Response,
-  ) {
-    
+  async googleAuthRedirect(@Req() req, @Res() res: Response) {
     const user = req.user as User;
 
     if (!user) {
@@ -92,17 +90,14 @@ export class AuthController {
 
   // --- FIN DE RUTAS DE GOOGLE ---
 
-
+  @ApiConsumes('application/x-www-form-urlencoded')
   @Patch('select-role')
   @UseGuards(AuthGuard('jwt')) // se debe pasar en las cabezeras el token generado en el registro para asignar el rol
-  async selectRole(
-    @Req() req,
-    @Body() selectRoleDto: SelectRoleDto,
-  ) {
+  async selectRole(@Req() req, @Body() selectRoleDto: SelectRoleDto) {
     // 'req.user' contiene el payload del JWT que decodificó el AuthGuard
     const userId = req.user.sub; // 'sub' es el ID del usuario al que se le asiganara el rol seleccionado
     const { role } = selectRoleDto;
-    
+
     // El servicio actualiza al usuario y nos devuelve un nuevo token ya con el rol asigando
     return this.authService.selectUserRole(userId, role);
   }
@@ -113,7 +108,7 @@ export class AuthController {
     @Res() res: Response, // Inyectamos 'res' para redirigir
   ) {
     await this.authService.verifyEmailToken(token);
-    
+
     // Redirige al usuario a la página de login del frontend que se vaya usar para el login
     res.redirect(`${process.env.FRONTEND_URL}/login?verified=true`);
   }

@@ -35,6 +35,11 @@ export enum Category {
   MobileDevelopment = 'Mobile Development',
 }
 
+export enum Tipo {
+  Curse = 'Curso',
+  Carrer = 'Carrera',
+}
+
 @Entity('courses')
 export class Course {
   @ApiProperty()
@@ -74,6 +79,12 @@ export class Course {
   })
   category: Category;
 
+  @Column({
+    type: 'enum',
+    enum: Tipo,
+  })
+  type: Tipo;
+
   @ApiProperty({
     enum: CourseDifficulty,
     example: CourseDifficulty.BEGINNER,
@@ -85,9 +96,6 @@ export class Course {
     nullable: false,
   })
   difficulty: CourseDifficulty;
-
-  @Column('text', { array: true })
-  syllabus: string[];
 
   @OneToMany(() => Lesson, (lesson) => lesson.course, {
     cascade: true,

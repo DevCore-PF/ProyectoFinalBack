@@ -30,11 +30,7 @@ export class CoursesController {
   ) {}
 
   @Post(':professorId/create')
-  @ApiOperation({
-    summary: 'Crear un nuevo curso',
-    description:
-      'Crea un curso con su temario. Las lecciones se crean después con otro endpoint.',
-  })
+  @ApiConsumes('application/x-www-form-urlencoded')
   @ApiParam({
     name: 'professorId',
     description: 'ID del profesor',
@@ -49,7 +45,7 @@ export class CoursesController {
   }
 
   @Post(':courseId/lessons')
-  @ApiConsumes('multipart/form-data')
+  @ApiConsumes('multipart/form-data', 'application/x-www-form-urlencoded')
   @UseInterceptors(FilesInterceptor('videos', 5)) // Máximo 5 videos
   @ApiBody({ type: CreateLessonDto })
   async addLessonToCourse(
@@ -71,14 +67,12 @@ export class CoursesController {
     )
     files?: Express.Multer.File[],
   ) {
-    // Verificar que el curso existe
     const course = await this.coursesService.getCourseById(courseId);
 
     if (!course) {
       throw new NotFoundException(`Curso con ID ${courseId} no encontrado`);
     }
 
-    // Subir videos si existen
     let videoUrls: string[] = [];
 
     if (files && files.length > 0) {
@@ -86,8 +80,8 @@ export class CoursesController {
         throw new BadRequestException('Podés subir un máximo de 5 videos.');
       }
 
-      const uploadPromises = files.map(
-        (file) => this.cloudinaryService.uploadVideo(file), // ⬅️ Necesitás este método
+      const uploadPromises = files.map((file) =>
+        this.cloudinaryService.uploadVideo(file),
       );
 
       const uploadResults = await Promise.all(uploadPromises);
