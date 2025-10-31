@@ -11,6 +11,7 @@ import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { GoogleUserDto } from '../auth/dto/google-user.dto';
 import { User } from './entities/user.entity';
+import { GithubUserDto } from '../auth/dto/github-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -67,6 +68,31 @@ export class UsersService {
       console.error(error);
       throw new InternalServerErrorException(
         'Error al guardar el nuevo usuario de Google',
+      );
+    }
+  }
+
+  async createGithubUser(githubUserDto: GithubUserDto): Promise<User> {
+    const { email, name, image, githubId } = githubUserDto;
+
+    const newUser = this.userRepository.create({
+      email,
+      name,
+      image,
+      githubId,
+      isGitHubAccount: true, // se marca en true ya que damos por hecho al registrarse con google
+      isEmailVerified: true, //se verifica automaticamente por que se inicio con google
+      role: undefined, //Rol por defecto
+      password: undefined, // No se le asiga contraseña por que se maneja con google
+    });
+
+    try {
+      await this.userRepository.save(newUser);
+      return newUser;
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        'Error al guardar el nuevo usuario de Github',
       );
     }
   }

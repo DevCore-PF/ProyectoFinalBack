@@ -8,10 +8,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { MailModule } from 'src/mail/mail.module';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { GitHubStrategy } from './strategies/github.strategy';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, GoogleStrategy, LocalStrategy, JwtStrategy],
+  providers: [AuthService, GoogleStrategy, LocalStrategy, JwtStrategy, GitHubStrategy],
   imports: [PassportModule.register({ defaultStrategy: 'jwt' }), 
     JwtModule.register({ 
       global: true, 
