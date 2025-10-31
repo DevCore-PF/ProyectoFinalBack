@@ -15,8 +15,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { CoursesService } from './course.service';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
+import { ApiBody, ApiConsumes, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateLessonDto } from '../lesson/dto/create-lesson.dto';
@@ -30,114 +34,106 @@ export class CoursesController {
   ) {}
 
   @Post(':professorId/create')
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FilesInterceptor('images', 3))
+  @ApiConsumes('application/x-www-form-urlencoded')
+  @ApiParam({
+    name: 'professorId',
+    description: 'ID del profesor',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
   @ApiBody({ type: CreateCourseDto })
   async createCourse(
     @Param('professorId') professorId: string,
     @Body() data: CreateCourseDto,
-    @UploadedFiles(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({
-            maxSize: 2 * 1024 * 1024, // 2 MB
-            message: 'Cada imagen no puede superar los 2 MB.',
-          }),
-          new FileTypeValidator({
-            fileType: /(jpg|jpeg|png|webp)$/i,
-          }),
-        ],
-      }),
-    )
-    files: Express.Multer.File[],
   ) {
-    if (!files || files.length === 0) {
-      throw new BadRequestException(
-        'Debes subir al menos una imagen del curso.',
-      );
-    }
-
-    if (files.length > 3) {
-      throw new BadRequestException('Podés subir un máximo de 3 imágenes.');
-    }
-
-    const uploadPromises = files.map((file) =>
-      this.cloudinaryService.uploadImage(file),
-    );
-
-    const uploadResults = await Promise.all(uploadPromises);
-
-    if (uploadResults.some((result) => !result || !result.secure_url)) {
-      throw new BadRequestException(
-        'Error al subir una o más imágenes. Intentá nuevamente.',
-      );
-    }
-
-    const imageUrls = uploadResults.map((result) => result!.secure_url!);
-
-    return this.coursesService.createCourse(professorId, {
-      ...data,
-      images: imageUrls,
-    });
+    return this.coursesService.createCourse(professorId, data);
   }
 
   @Post(':courseId/lessons')
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FilesInterceptor('videos', 5)) // Máximo 5 videos
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'videos', maxCount: 5 },
+      { name: 'pdfs', maxCount: 10 },
+    ]),
+  )
   @ApiBody({ type: CreateLessonDto })
   async addLessonToCourse(
     @Param('courseId') courseId: string,
     @Body() data: CreateLessonDto,
-    @UploadedFiles(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({
-            maxSize: 50 * 1024 * 1024, // 50 MB por video
-            message: 'Cada video no puede superar los 50 MB.',
-          }),
-          new FileTypeValidator({
-            fileType: /(mp4|mov|avi|webm)$/i,
-          }),
-        ],
-        fileIsRequired: false, // Videos opcionales
-      }),
-    )
-    files?: Express.Multer.File[],
+    @UploadedFiles()
+    files?: { videos?: Express.Multer.File[]; pdfs?: Express.Multer.File[] },
   ) {
-    // Verificar que el curso existe
     const course = await this.coursesService.getCourseById(courseId);
 
     if (!course) {
       throw new NotFoundException(`Curso con ID ${courseId} no encontrado`);
     }
 
-    // Subir videos si existen
-    let videoUrls: string[] = [];
-
-    if (files && files.length > 0) {
-      if (files.length > 5) {
-        throw new BadRequestException('Podés subir un máximo de 5 videos.');
-      }
-
-      const uploadPromises = files.map(
-        (file) => this.cloudinaryService.uploadVideo(file), // ⬅️ Necesitás este método
-      );
-
-      const uploadResults = await Promise.all(uploadPromises);
-
-      if (uploadResults.some((result) => !result || !result.secure_url)) {
-        throw new BadRequestException('Error al subir uno o más videos.');
-      }
-
-      videoUrls = uploadResults
-        .filter((result): result is UploadApiResponse => !!result?.secure_url)
-        .map((result) => result.secure_url);
-    }
+    // Subidas y validaciones personalizadas
+    const videoUrls = await this.uploadFiles(files?.videos, 'video', 'videos');
+    const pdfUrls = await this.uploadFiles(files?.pdfs, 'pdf', 'PDFs');
 
     return this.coursesService.addLessonToCourse(courseId, {
       ...data,
       urlVideos: videoUrls,
+      urlPdfs: pdfUrls,
     });
+  }
+
+  private async uploadFiles(
+    files: Express.Multer.File[] | undefined,
+    fileType: 'video' | 'pdf',
+    fileTypeName: string,
+  ): Promise<string[]> {
+    if (!files?.length) return [];
+
+    const maxSize = 50 * 1024 * 1024; // 50 MB
+
+    for (const file of files) {
+      if (file.size > maxSize) {
+        throw new BadRequestException(
+          `El ${fileTypeName} "${file.originalname}" supera los 50 MB.`,
+        );
+      }
+
+      if (fileType === 'video' && !file.mimetype.startsWith('video/')) {
+        throw new BadRequestException(
+          `"${file.originalname}" no es un archivo de video válido.`,
+        );
+      }
+
+      if (fileType === 'pdf' && file.mimetype !== 'application/pdf') {
+        throw new BadRequestException(
+          `"${file.originalname}" no es un archivo PDF válido.`,
+        );
+      }
+    }
+
+    try {
+      const uploadPromises = files.map((file) =>
+        fileType === 'video'
+          ? this.cloudinaryService.uploadVideo(file)
+          : this.cloudinaryService.uploadLessonDocument(file),
+      );
+
+      const uploadResults = await Promise.all(uploadPromises);
+
+      const fileUrls = uploadResults
+        .filter((result): result is UploadApiResponse => !!result?.secure_url)
+        .map((result) => result.secure_url);
+
+      if (fileUrls.length !== files.length) {
+        throw new BadRequestException(
+          `Error al subir uno o más ${fileTypeName}. Verificá el formato y tamaño.`,
+        );
+      }
+
+      return fileUrls;
+    } catch (error) {
+      throw new BadRequestException(
+        `Error al procesar los ${fileTypeName}. Intentá nuevamente.`,
+      );
+    }
   }
 
   @Get()

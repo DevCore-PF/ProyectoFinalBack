@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -11,6 +12,8 @@ import {
 import { v4 as UUID } from 'uuid';
 import { UserRole } from '../enums/user-role.enum';
 import { ProfessorProfile } from 'src/modules/profiles/entities/professor-profile.entity';
+import { StudentProfile } from 'src/modules/studentprofile/entities/studentprofile.entity';
+import { Enrollment } from 'src/modules/enrollments/entities/enrollment.entity';
 
 @Entity('users')
 export class User {
@@ -105,6 +108,12 @@ export class User {
     cascade: true,
   })
   professorProfile: ProfessorProfile;
+
+  @OneToOne(() => StudentProfile, (profile) => profile.user, {cascade: true})
+  studentProfile: StudentProfile;
+
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.user)
+  enrollments: Enrollment[];
 
   isTeacher(): boolean {
     return this.role === UserRole.TEACHER;

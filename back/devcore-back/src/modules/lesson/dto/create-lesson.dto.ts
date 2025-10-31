@@ -7,11 +7,6 @@ export class CreateLessonDto {
   @IsString()
   title: string;
 
-  @ApiProperty({ example: 'Contenido de la lección', required: true })
-  @IsNotEmpty()
-  @IsString()
-  description: string;
-
   @ApiProperty({
     type: 'array',
     items: { type: 'string', format: 'binary' },
@@ -21,4 +16,13 @@ export class CreateLessonDto {
     maxItems: 5,
   })
   videos?: any[];
+
+  @ApiProperty({
+    type: 'array',
+    items: { type: 'string', format: 'binary' },
+    description: 'Documentos PDF de la lección (máximo 10)',
+    maxItems: 10,
+    required: false,
+  })
+  pdfs?: any[];
 }
