@@ -63,7 +63,7 @@ export class CoursesService {
 
   async addLessonToCourse(
     courseId: string,
-    lessonData: CreateLessonDto & { urlVideos: string[] },
+    lessonData: CreateLessonDto & { urlVideos: string[]; urlPdfs: string[] },
   ): Promise<Lesson> {
     const course = await this.coursesRepository.findById(courseId);
 
@@ -75,8 +75,8 @@ export class CoursesService {
 
     const lesson = this.lessonsRepository.create({
       title: lessonData.title,
-      description: lessonData.description,
       urlVideos: lessonData.urlVideos || [],
+      urlPdfs: lessonData.urlPdfs || [],
       order,
       course,
     });

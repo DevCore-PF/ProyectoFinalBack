@@ -16,7 +16,7 @@ import { ProfessorProfile } from 'src/modules/profiles/entities/professor-profil
 import { Enrollment } from 'src/modules/enrollments/entities/enrollment.entity';
 
 export enum CourseStatus {
-  DRAFT = 'BORRADOR',
+  DRAFT = 'EN REVISION',
   PUBLISHED = 'PUBLICADO',
 }
 
