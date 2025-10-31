@@ -7,9 +7,11 @@ import {
   IsEnum,
   IsArray,
   ValidateNested,
+  ArrayMinSize,
+  ArrayMaxSize,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { CourseDifficulty } from '../entities/course.entity';
+import { Category, CourseDifficulty, Tipo } from '../entities/course.entity';
 import { CreateLessonDto } from 'src/modules/lesson/dto/create-lesson.dto';
 import { BadRequestException } from '@nestjs/common';
 
@@ -53,17 +55,26 @@ export class CreateCourseDto {
     description: 'Nivel de dificultad',
     required: true,
   })
-  @IsNotEmpty()
   @IsEnum(CourseDifficulty)
-  difficulty: CourseDifficulty;
+  difficulty: CourseDifficulty.ADVANCED;
 
   @ApiProperty({
-    type: 'string',
-    format: 'binary',
-    description:
-      'Imagen de portada del curso (jpg, jpeg, png, webp — máximo 2 MB)',
-    required: true,
-    isArray: true,
+    enum: Category,
+    example: Category.Backend,
   })
-  images: any[];
+  @IsEnum(Category, {
+    message: 'La categoría debe ser válida',
+  })
+  @IsNotEmpty()
+  category: Category;
+
+  @ApiProperty({
+    enum: Tipo,
+    example: Tipo.Curse,
+  })
+  @IsEnum(Tipo, {
+    message: 'Debe ser Curso o Carrera',
+  })
+  @IsNotEmpty()
+  type: Tipo;
 }

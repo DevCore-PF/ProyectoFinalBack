@@ -27,7 +27,7 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
-
+  @ApiConsumes('application/x-www-form-urlencoded')
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     await this.usersService.create(createUserDto);
@@ -39,6 +39,7 @@ export class UsersController {
   }
 
   // @ApiBearerAuth()
+  @ApiConsumes('application/x-www-form-urlencoded')
   @Post(':id/upload/profile')
   // @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file'))
@@ -56,7 +57,7 @@ export class UsersController {
       },
     },
   })
-  
+  @ApiConsumes('application/x-www-form-urlencoded')
   async uploadProfilePicture(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @UploadedFile(
