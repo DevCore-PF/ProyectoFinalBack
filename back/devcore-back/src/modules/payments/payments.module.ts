@@ -6,6 +6,7 @@ import { Enrollment } from "../enrollments/entities/enrollment.entity";
 import { EnrollmentsModule } from "../enrollments/enrollments.module";
 import { PaymentsController } from "./payments.controller";
 import { PaymentsService } from "./payments.service";
+import { CartModule } from "../cart/cart.module";
 
 const stripeProvider = {
     provide: 'STRIPE_CLIENT',
@@ -25,7 +26,8 @@ const stripeProvider = {
     imports: [
         ConfigModule,
         CoursesModule,
-        EnrollmentsModule
+        EnrollmentsModule,
+        CartModule
     ],
     controllers: [PaymentsController],
     providers: [PaymentsService, stripeProvider]
