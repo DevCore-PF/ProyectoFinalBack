@@ -105,4 +105,9 @@ export class UsersController {
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.deleteUser(id);
   }
+
+  @Patch('checkbox/:id')
+  updateCheckbox(@Param('id', ParseUUIDPipe) id: string) {
+    return this.usersService.updateCheckbox(id);
+  }
 }
