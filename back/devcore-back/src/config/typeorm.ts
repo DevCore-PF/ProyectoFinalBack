@@ -6,13 +6,13 @@ dotenvConfig({ path: '.env.development' });
 
 const config = {
   type: 'postgres',
-  url:process.env.DATABASE_URL,
+  url: process.env.DATABASE_URL,
   entities: ['dist/**/*.entity{.ts,.js}'],
   migrations: ['dist/migrations/**/*.ts,.js'],
   autoLoadEntities: true,
   synchronize: true,
   logging: true,
-  dropSchema:true
+  //dropSchema:true
 };
 
 export default registerAs('typeorm', () => config);
