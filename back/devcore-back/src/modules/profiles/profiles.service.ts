@@ -135,7 +135,7 @@ export class ProfilesService {
 
     const sensitiveKeys: (keyof UpdateProfessorProfileDto)[] = [
       'profession',
-      'specialty',
+      'speciality',
     ];
 
     //reviamos si alguno de los campos que son importantes vienen en el dto del actualiazar
