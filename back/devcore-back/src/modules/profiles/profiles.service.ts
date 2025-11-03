@@ -91,7 +91,7 @@ export class ProfilesService {
       ...createProfileDto,
       user: user, //asignamos la relacion al usuario
       approvalStatus: ApprovalStatus.APPROVED, //poemosen pendiente provisional para pruebas ya que esto se debe aprobar por el admin
-      certificates: certificateUrls //le pasamos las url de cloudinary
+      certificates: certificateUrls, //le pasamos las url de cloudinary
     });
 
     //guardamos el perfil nuevo en la db
@@ -135,7 +135,7 @@ export class ProfilesService {
 
     const sensitiveKeys: (keyof UpdateProfessorProfileDto)[] = [
       'profession',
-      'speciality',
+      'specialty',
     ];
 
     //reviamos si alguno de los campos que son importantes vienen en el dto del actualiazar
