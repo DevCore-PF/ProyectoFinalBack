@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { ILike, In, Like, Repository } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { ProfessorProfile } from '../profiles/entities/professor-profile.entity';
@@ -19,14 +19,18 @@ export class CoursesRepository {
     return await this.courseRepository.save(course);
   }
 
-  async findAll(): Promise<Course[]> {
-    return this.courseRepository.find();
+  async findAll(title?: string): Promise<Course[]> {
+    const where = title ? { title: ILike(`%${title}%`) } : {};
+    return this.courseRepository.find({
+      where,
+      relations: ['lessons', 'professor.user'],
+    });
   }
 
   async findById(id: string): Promise<Course | null> {
     return this.courseRepository.findOne({
       where: { id },
-      relations: ['lessons'],
+      relations: ['lessons', 'professor.user'],
     });
   }
 

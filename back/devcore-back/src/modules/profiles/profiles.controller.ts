@@ -49,7 +49,7 @@ export class ProfilesController {
           example: 'Desarrollador FullStack',
           description: 'Profesión u ocupación principal',
         },
-        speciality: {
+        specialty: {
           type: 'string',
           example: 'BackEnd',
           description: 'Especialidad o área de expertise',
@@ -95,7 +95,7 @@ export class ProfilesController {
       },
       required: [
         'profession',
-        'speciality',
+        'specialty',
         'agreedToTerms',
         'agreedToInfo',
         'agreedToAproveed',

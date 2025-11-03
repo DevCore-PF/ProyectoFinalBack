@@ -10,6 +10,7 @@ import {
   ParseFilePipe,
   ParseUUIDPipe,
   Post,
+  Query,
   UploadedFile,
   UploadedFiles,
   UseInterceptors,
@@ -20,11 +21,18 @@ import {
   FileInterceptor,
   FilesInterceptor,
 } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes, ApiOperation, ApiParam } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateLessonDto } from '../lesson/dto/create-lesson.dto';
 import { UploadApiResponse } from 'cloudinary';
+import { IsOptional } from 'class-validator';
 
 @Controller('courses')
 export class CoursesController {
@@ -137,8 +145,9 @@ export class CoursesController {
   }
 
   @Get()
-  async getAllLessons() {
-    return await this.coursesService.getAllCourses();
+  @ApiQuery({ name: 'title', required: false, type: String })
+  async getAllCourses(@Query('title') title?: string) {
+    return await this.coursesService.getAllCourses(title);
   }
 
   @Get(':id')
