@@ -5,15 +5,20 @@ import { EnrollmentRepository } from "./enrollments.repository";
 export class EnrollmentService {
     constructor(private readonly enrollmentRepository:EnrollmentRepository){}
 
-    async createEnrollmentsForUSer(userId: string, courseId: string[]){
-        const enrollments = courseId.map(courseId => {
-            return this.enrollmentRepository.create({
-                user: {id: userId},
-                course: {id: courseId},
-                progress: 0,
-            })
-        })
-
-        await this.enrollmentRepository.save(enrollments)
-    }
+    async createEnrollmentsForUser(
+    userId: string, 
+    enrollmentData: { courseId: string, priceInCents: number }[]
+  ) {
+    
+    const enrollments = enrollmentData.map(data => {
+      return this.enrollmentRepository.create({
+        user: { id: userId },
+        course: { id: data.courseId },
+        progress: 0,
+        priceAtPurchase: data.priceInCents / 100.0, 
+      });
+    });
+    
+    await this.enrollmentRepository.save(enrollments);
+  }
 }

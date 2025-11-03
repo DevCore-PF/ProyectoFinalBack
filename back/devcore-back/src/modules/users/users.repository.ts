@@ -8,7 +8,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 export class UsersRepository {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async getAll() {
     const users = await this.userRepository.find({
@@ -39,6 +39,19 @@ export class UsersRepository {
     return findUser;
   }
 
+  async findUserByIdWithRelations(id: string, relations: string[]) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations,
+    });
+
+    if (!user || !user.isActive) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    return user;
+  }
+
   async findUserByEmail(email: string) {
     return this.userRepository.findOneBy({ email });
   }
@@ -58,9 +71,9 @@ export class UsersRepository {
     return this.userRepository.findOneBy({ emailVerificationToken: token });
   }
 
-  async findUserWithProfile(userId: string): Promise<User>{
+  async findUserWithProfile(userId: string): Promise<User> {
     const user = await this.userRepository.findOne({
-      where: {id: userId},
+      where: { id: userId },
       relations: {
         professorProfile: true
       }

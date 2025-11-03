@@ -79,7 +79,7 @@ export class AuthController {
     }
 
     // Llama a tu servicio para obtener el token
-    const loginData = this.authService.login(user);
+    const loginData = await this.authService.login(user);
     const token = loginData.access_token; //Extrae el token
 
     // Construye la URL de redirección al frontend
@@ -128,7 +128,7 @@ export class AuthController {
   @UseGuards(AuthGuard('github'))
   async githubAuthRedirect(@Req() req, @Res() res: Response) {
     const user = req.user as User;
-    const loginData = this.authService.login(user);
+    const loginData = await this.authService.login(user);
     const token = loginData.access_token;
 
     const redirectUrl = `${process.env.FRONTEND_URL}/auth-callback?token=${token}`;

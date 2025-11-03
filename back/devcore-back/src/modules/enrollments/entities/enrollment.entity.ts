@@ -21,6 +21,14 @@ export class Enrollment {
     })
     progress: number;
 
+    @Column({
+        type: 'decimal',
+        precision: 5,
+        scale: 2,
+        default: 0.0
+    })
+    priceAtPurchase: number;
+
     @Column({nullable: true})
     diplomaUrl: string
 
