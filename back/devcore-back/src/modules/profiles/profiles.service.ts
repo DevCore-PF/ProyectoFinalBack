@@ -19,7 +19,7 @@ export class ProfilesService {
     private readonly profilesRepository: ProfilesRepository,
     private readonly userRepository: UsersRepository,
     private readonly authService: AuthService,
-    private readonly cloudinaryService: CloudinaryService
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   /**
@@ -29,7 +29,7 @@ export class ProfilesService {
   async createProfile(
     userId: string,
     createProfileDto: CreateProfessorProfileDto,
-    files: Array<Express.Multer.File>
+    files: Array<Express.Multer.File>,
   ) {
     //primero buscamos al usuario que esta haciendo el registro de sus datos
     const user = await this.userRepository.findUserById(userId);
@@ -55,8 +55,10 @@ export class ProfilesService {
       );
     }
 
-    if(!user.isEmailVerified) {
-        throw new ConflictException('Debe verificar su email para poder completar su perfil')
+    if (!user.isEmailVerified) {
+      throw new ConflictException(
+        'Debe verificar su email para poder completar su perfil',
+      );
     }
 
     if (!createProfileDto.agreedToInfo) {
@@ -73,18 +75,22 @@ export class ProfilesService {
 
     //creamos un arreglo para los certificados
     let certificateUrls: string[] = [];
-    if(files && files.length > 0){
-      const uploadPromises = files.map(file => this.cloudinaryService.uploadCertificate(file));
+    if (files && files.length > 0) {
+      const uploadPromises = files.map((file) =>
+        this.cloudinaryService.uploadCertificate(file),
+      );
       const results = await Promise.all(uploadPromises);
       // Filtramos por si alguno falló y obtén solo las Uque si se subieron
-      certificateUrls = results.filter(result => result?.secure_url).map(result => result!.secure_url)
+      certificateUrls = results
+        .filter((result) => result?.secure_url)
+        .map((result) => result!.secure_url);
     }
 
     //si pasa las validaciones creamos una instancia con los datos del dto
     const newProfile = this.profilesRepository.create({
       ...createProfileDto,
       user: user, //asignamos la relacion al usuario
-      approvalStatus: ApprovalStatus.PENDING, //poemosen pendiente su estado
+      approvalStatus: ApprovalStatus.APPROVED, //poemosen pendiente provisional para pruebas ya que esto se debe aprobar por el admin
       certificates: certificateUrls //le pasamos las url de cloudinary
     });
 
@@ -108,7 +114,11 @@ export class ProfilesService {
   /**
    * Metodo para actualizar un perfil de profesor
    */
-  async updateProfile(userId: string, updateDto: UpdateProfessorProfileDto, files: Array<Express.Multer.File>) {
+  async updateProfile(
+    userId: string,
+    updateDto: UpdateProfessorProfileDto,
+    files: Array<Express.Multer.File>,
+  ) {
     //bucamos al usuario
     const user = await this.userRepository.findUserById(userId);
     if (!user || user.role !== UserRole.TEACHER) {
@@ -137,21 +147,25 @@ export class ProfilesService {
     Object.assign(profile, updateDto);
 
     let hasNewFiles = false;
-    if(files && files.length > 0){
+    if (files && files.length > 0) {
       hasNewFiles = true;
 
       //Subimos los nuevo archivos a cloudinary
-      const uploadPromises = files.map(file => this.cloudinaryService.uploadCertificate(file)) //Llamamos al metodo para subir los archivos
+      const uploadPromises = files.map((file) =>
+        this.cloudinaryService.uploadCertificate(file),
+      ); //Llamamos al metodo para subir los archivos
 
       const results = await Promise.all(uploadPromises);
-      const newUrls = results.filter(result => result?.secure_url).map(result => result!.secure_url);
+      const newUrls = results
+        .filter((result) => result?.secure_url)
+        .map((result) => result!.secure_url);
 
       //Añadimos las nuevas urls al arreglo de cetificates
-      if(!profile.certificates){
-        profile.certificates = []
+      if (!profile.certificates) {
+        profile.certificates = [];
       }
 
-      profile.certificates.push(...newUrls)
+      profile.certificates.push(...newUrls);
     }
 
     //si cambio un campo imporytante resetamos el estado a pendiente
@@ -161,5 +175,10 @@ export class ProfilesService {
 
     //Guardamos el perfil con los cambiso hechos
     return this.profilesRepository.save(profile);
+  }
+
+  async getProfessorById(id: string) {
+    const professorFind = await this.profilesRepository.findById(id);
+    return professorFind;
   }
 }

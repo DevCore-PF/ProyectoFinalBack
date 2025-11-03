@@ -129,4 +129,11 @@ export class UsersService {
   async deleteUser(id: string) {
     return await this.userRepository.deleteUserRepo(id);
   }
+
+  async updateCheckbox(id: string) {
+    const userFind = await this.userRepository.findUserById(id);
+    userFind.checkBoxTerms = true;
+    await this.userRepository.save(userFind);
+    return userFind;
+  }
 }

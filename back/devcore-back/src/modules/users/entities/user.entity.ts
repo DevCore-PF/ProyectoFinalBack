@@ -14,6 +14,7 @@ import { UserRole } from '../enums/user-role.enum';
 import { ProfessorProfile } from 'src/modules/profiles/entities/professor-profile.entity';
 import { StudentProfile } from 'src/modules/studentprofile/entities/studentprofile.entity';
 import { Enrollment } from 'src/modules/enrollments/entities/enrollment.entity';
+import { Cart } from 'src/modules/cart/entities/cart.entity';
 
 @Entity('users')
 export class User {
@@ -128,6 +129,9 @@ export class User {
 
   @OneToMany(() => Enrollment, (enrollment) => enrollment.user)
   enrollments: Enrollment[];
+
+  @OneToOne(() => Cart, (cart) => cart.user, {cascade: true})
+  cart: Cart;
 
   isTeacher(): boolean {
     return this.role === UserRole.TEACHER;

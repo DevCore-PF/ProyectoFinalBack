@@ -177,7 +177,20 @@ export class AuthService {
    * Genera el JWT
    * Este método es llamado por el login local y por el callback de Google o Github
    */
-  login(user: User) {
+  async login(user: User) {
+
+    //Obtenemos la relacion
+    let userRelations = user;
+
+    if(user.role === UserRole.TEACHER) {
+      userRelations = await this.userRepository.findUserByIdWithRelations(user.id, ['professorProfile']);
+    } else if (user.role === UserRole.STUDENT) {
+      userRelations = await this.userRepository.findUserByIdWithRelations(user.id, ['studentProfile'])
+    } else {
+    // Si es admin o cualquier otro rol, no cargamos relaciones
+    userRelations = await this.userRepository.findUserById(user.id);
+  }
+
     // El payload es la información que guardamos en el token
     const payload = {
       sub: user.id, // sub se guarda el id
@@ -185,7 +198,7 @@ export class AuthService {
       role: user.role,
     };
 
-    const {password, ...userReturn} = user;
+    const {password, ...userReturn} = userRelations;
     
     return {
       userReturn,

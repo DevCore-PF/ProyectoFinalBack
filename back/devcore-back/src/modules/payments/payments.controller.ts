@@ -14,11 +14,10 @@ export class PaymentsController {
     @Post('create-checkout-session')
     @UseGuards(AuthGuard('jwt'))
     async createCheckoutSession(
-        @Req() req,
-        @Body() createCheckoutDto: CreateCheckoutDto
+        @Req() req
     ){
         const userId = req.user.sub;
-        return this.paymentsService.createCheckoutSession(userId, createCheckoutDto)
+        return this.paymentsService.createCheckoutSession(userId)
     }
 
     /**
