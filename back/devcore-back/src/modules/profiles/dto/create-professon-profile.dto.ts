@@ -42,7 +42,7 @@ export class CreateProfessorProfileDto {
   @IsString()
   @IsNotEmpty({ message: 'La especialidad es requerida' })
   @MaxLength(100)
-  speciality: string;
+  specialty: string;
 
   @ApiProperty({
     example:
