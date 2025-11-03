@@ -2,8 +2,11 @@ import {
   Body,
   Controller,
   FileTypeValidator,
+  Get,
   MaxFileSizeValidator,
+  Param,
   ParseFilePipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   Req,
@@ -142,5 +145,10 @@ export class ProfilesController {
   ) {
     const userId = req.user.sub;
     return this.profilesService.updateProfile(userId, updateDto, files);
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.profilesService.getProfessorById(id);
   }
 }
