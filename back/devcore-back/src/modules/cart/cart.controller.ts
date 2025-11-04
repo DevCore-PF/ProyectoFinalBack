@@ -163,15 +163,7 @@ export class CartController {
       },
     },
   })
-
-  //Quita el curso del carrto
-  @Delete('remove/:courseId')
-  async removeCourse(
-    @Req() req,
-    @Param('courseId', ParseUUIDPipe) courseId: string,
-  ) {
-    return this.cartService.removeCourse(req.user.sub, courseId);
-  }
+ 
 
   //Ruta para vaciar el carrito completo
   @Delete('clear')
