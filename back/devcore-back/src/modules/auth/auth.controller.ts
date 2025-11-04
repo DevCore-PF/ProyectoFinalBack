@@ -17,7 +17,7 @@ import { User } from '../users/entities/user.entity';
 import type { Response } from 'express';
 import { SelectRoleDto } from './dto/select-role.dto';
 import { LoginUserDto } from './dto/login-user-dto';
-import { ApiConsumes } from '@nestjs/swagger';
+import { ApiConsumes, ApiResponse, ApiOperation } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -29,6 +29,38 @@ export class AuthController {
    */
   @ApiConsumes('application/x-www-form-urlencoded')
   @Post('register')
+  @ApiOperation({
+    summary: 'Registrar un nuevo usuario',
+    description:
+      'Crea una nueva cuenta de usuario en el sistema. Requiere datos básicos como nombre, correo electrónico y contraseña. Devuelve la información del usuario registrado o un token de autenticación si el registro es exitoso.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Usuario registrado exitosamente',
+    schema: {
+      example: {
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        name: 'Juan Pérez',
+        email: 'juan@example.com',
+        role: 'student',
+        isActive: true,
+        isEmailVerified: false,
+        hasCompletedProfile: false,
+        createdAt: '2024-01-15T10:30:00Z',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Datos inválidos o email ya registrado',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['El email debe ser un email', 'La contraseña es muy debil'],
+        error: 'Bad Request',
+      },
+    },
+  })
   async create(@Body() createAuthDto: CreateUserDto) {
     return await this.authService.create(createAuthDto);
   }
@@ -38,6 +70,49 @@ export class AuthController {
    */
   @ApiConsumes('application/x-www-form-urlencoded')
   @Post('login')
+  @ApiOperation({
+    summary: 'Iniciar sesión de usuario',
+    description:
+      'Permite a un usuario autenticarse en el sistema mediante su correo electrónico y contraseña. Devuelve un token de acceso (JWT) que debe utilizarse para acceder a los endpoints protegidos.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Login exitoso',
+    schema: {
+      example: {
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        user: {
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          name: 'Juan Pérez',
+          email: 'juan@example.com',
+          role: 'student',
+          image: 'https://example.com/avatar.jpg',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Credenciales inválidas',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Email o contraseña incorrectos',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Datos inválidos',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['El email debe ser un email', 'Password no debe estar vacio'],
+        error: 'Bad Request',
+      },
+    },
+  })
   @UseGuards(AuthGuard('local'))
   async login(@Req() req, @Body() loginUserDto: LoginUserDto) {
     // Si llegamos aquí, 'validate' de LocalStrategy fue exitoso
@@ -54,12 +129,15 @@ export class AuthController {
    * El AuthGuard('google') redirige automáticamente al usuario a Google.
    */
   @Get('google')
+  @ApiOperation({
+    summary: 'Redirigir al inicio de sesión con Google',
+    description:
+      'Inicia el proceso de autenticación con Google. Redirige al usuario al servicio de Google para autorizar el acceso y continuar con el inicio de sesión mediante OAuth2.',
+  })
   @UseGuards(AuthGuard('google'))
   async googleAuth() {
     // Esta función se queda vacía. El Guard hace la redirección.
   }
-
-  
 
   /**
    * 7. RUTA DE CALLBACK DE GOOGLE
@@ -70,6 +148,11 @@ export class AuthController {
    * Ahora redirige al frontend con el token.
    */
   @Get('google/redirect')
+  @ApiOperation({
+    summary: 'Redirección después del inicio de sesión con Google',
+    description:
+      'Endpoint de callback utilizado por Google tras la autenticación exitosa. Procesa la información del usuario proporcionada por Google y genera el token de acceso (JWT) correspondiente para iniciar sesión en el sistema.',
+  })
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req, @Res() res: Response) {
     const user = req.user as User;
@@ -94,6 +177,11 @@ export class AuthController {
 
   @ApiConsumes('application/x-www-form-urlencoded')
   @Patch('select-role')
+  @ApiOperation({
+    summary: 'Seleccionar el rol de un usuario',
+    description:
+      'Permite asignar o actualizar el rol de un usuario autenticado (por ejemplo, estudiante o profesor). Este endpoint se utiliza generalmente después del registro o durante la configuración inicial del perfil.',
+  })
   @UseGuards(AuthGuard('jwt')) // se debe pasar en las cabezeras el token generado en el registro para asignar el rol
   async selectRole(@Req() req, @Body() selectRoleDto: SelectRoleDto) {
     // 'req.user' contiene el payload del JWT que decodificó el AuthGuard
@@ -105,6 +193,11 @@ export class AuthController {
   }
 
   @Get('verify-email')
+  @ApiOperation({
+    summary: 'Verificar correo electrónico del usuario',
+    description:
+      'Verifica la dirección de correo electrónico de un usuario mediante un token enviado por email. Este endpoint completa el proceso de validación de cuenta para permitir el acceso al sistema.',
+  })
   async verifyEmail(
     @Query('token') token: string,
     @Res() res: Response, // Inyectamos 'res' para redirigir
@@ -115,16 +208,26 @@ export class AuthController {
     res.redirect(`${process.env.FRONTEND_URL}/login?verified=true`);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.authService.findAll();
+  // }
 
   @Get('github')
+  @ApiOperation({
+    summary: 'Redirigir al inicio de sesión con GitHub',
+    description:
+      'Inicia el proceso de autenticación con GitHub. Redirige al usuario al servicio de GitHub para autorizar el acceso y continuar con el inicio de sesión mediante OAuth2.',
+  })
   @UseGuards(AuthGuard('github'))
   async githubAuth() {}
 
   @Get('github/redirect')
+  @ApiOperation({
+    summary: 'Redirección después del inicio de sesión con GitHub',
+    description:
+      'Endpoint de callback utilizado por GitHub tras una autenticación exitosa. Procesa la información del usuario proporcionada por GitHub y genera el token de acceso (JWT) correspondiente para iniciar sesión en el sistema.',
+  })
   @UseGuards(AuthGuard('github'))
   async githubAuthRedirect(@Req() req, @Res() res: Response) {
     const user = req.user as User;

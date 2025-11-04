@@ -42,6 +42,11 @@ export class CoursesController {
   ) {}
 
   @Post(':professorId/create')
+  @ApiOperation({
+    summary: 'Crear un nuevo curso asociado a un profesor',
+    description:
+      'Permite crear un curso y asociarlo al profesor identificado por su ID. Requiere información como el título, descripción, categoría y demás datos del curso.',
+  })
   @ApiConsumes('application/x-www-form-urlencoded')
   @ApiParam({
     name: 'professorId',
@@ -57,6 +62,11 @@ export class CoursesController {
   }
 
   @Post(':courseId/lessons')
+  @ApiOperation({
+    summary: 'Agregar una lección a un curso',
+    description:
+      'Crea una nueva lección y la asocia al curso identificado por su ID. Requiere información como el título, contenido y duración de la lección.',
+  })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileFieldsInterceptor([
@@ -65,6 +75,11 @@ export class CoursesController {
     ]),
   )
   @ApiBody({ type: CreateLessonDto })
+  @ApiOperation({
+    summary: 'Obtener todos los cursos con sus relaciones',
+    description:
+      'Devuelve una lista de todos los cursos disponibles en el sistema, incluyendo sus relaciones con profesores, lecciones, categorías y otros datos asociados.',
+  })
   async addLessonToCourse(
     @Param('courseId') courseId: string,
     @Body() data: CreateLessonDto,
@@ -145,12 +160,22 @@ export class CoursesController {
   }
 
   @Get()
+  @ApiOperation({
+    summary: 'Obtener todos los cursos o filtrar por título',
+    description:
+      'Devuelve una lista de todos los cursos disponibles en el sistema. Si se proporciona el parámetro opcional "title", filtra los cursos cuyo título coincida total o parcialmente con el valor indicado.',
+  })
   @ApiQuery({ name: 'title', required: false, type: String })
   async getAllCourses(@Query('title') title?: string) {
     return await this.coursesService.getAllCourses(title);
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Obtener un curso por ID con sus relaciones',
+    description:
+      'Devuelve la información completa de un curso identificado por su ID, incluyendo sus relaciones con el profesor, las lecciones y demás datos asociados.',
+  })
   async getUserById(@Param('id', ParseUUIDPipe) id: string) {
     return await this.coursesService.getCourseById(id);
   }

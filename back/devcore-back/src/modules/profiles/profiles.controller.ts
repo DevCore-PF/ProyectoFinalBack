@@ -19,7 +19,13 @@ import { AuthGuard } from '@nestjs/passport';
 import { CreateProfessorProfileDto } from './dto/create-professon-profile.dto';
 import { UpdateProfessorProfileDto } from './dto/update-professor-profile.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { CreateCourseDto } from '../course/dto/create-course.dto';
 
 @Controller('profiles')
@@ -103,6 +109,62 @@ export class ProfilesController {
       ],
     },
   })
+  @ApiResponse({
+    status: 201,
+    description: 'Perfil de profesor creado exitosamente',
+    schema: {
+      example: {
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        biography: 'Profesor con 10 años de experiencia en desarrollo web',
+        specialization: 'Desarrollo Full Stack',
+        experience: 10,
+        certificates: [
+          'https://cloudinary.com/certificate1.pdf',
+          'https://cloudinary.com/certificate2.pdf',
+        ],
+        userId: '562129b0-9faa-45a2-bab1-4961d07b3377',
+        createdAt: '2024-01-15T10:30:00Z',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Archivos inválidos o datos incorrectos',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'El archivo supera el tamaño máximo de 1MB',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'No autenticado',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Usuario no encontrado',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Usuario no encontrado',
+        error: 'Not Found',
+      },
+    },
+  })
+  @ApiOperation({
+    summary: 'Crear perfil de profesor',
+    description:
+      'Crea un nuevo perfil de profesor en el sistema. Requiere los datos personales, profesionales y de contacto necesarios para completar la información del docente.',
+  })
   async createProfile(
     @Req() req,
     @Body() createProfileDto: CreateProfessorProfileDto,
@@ -127,6 +189,11 @@ export class ProfilesController {
   // --- PRÓXIMO PASO (CUANDO LO NECESITES) ---
 
   @Patch() // Se activa con un PATCH a /profiles
+  @ApiOperation({
+    summary: 'Actualizar perfil de profesor',
+    description:
+      'Permite modificar la información del perfil de un profesor autenticado. Se pueden actualizar datos personales, profesionales, de contacto o cualquier otro campo editable del perfil.',
+  })
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FilesInterceptor('certificates', 10))
   async updateProfile(
@@ -148,6 +215,65 @@ export class ProfilesController {
   }
 
   @Get(':id')
+  @ApiResponse({
+    status: 200,
+    description: 'Perfil de profesor obtenido exitosamente',
+    schema: {
+      example: {
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        biography: 'Profesor con 10 años de experiencia en desarrollo web',
+        specialization: 'Desarrollo Full Stack',
+        experience: 10,
+        certificates: [
+          'https://cloudinary.com/certificate1.pdf',
+          'https://cloudinary.com/certificate2.pdf',
+        ],
+        user: {
+          id: '562129b0-9faa-45a2-bab1-4961d07b3377',
+          name: 'Juan Pérez',
+          email: 'juan@example.com',
+          image: 'https://example.com/avatar.jpg',
+        },
+        courses: [
+          {
+            id: 'course-uuid-1',
+            title: 'Curso de NestJS',
+            description: 'Aprende NestJS desde cero',
+          },
+        ],
+        createdAt: '2024-01-15T10:30:00Z',
+        updatedAt: '2024-01-20T15:45:00Z',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Perfil de profesor no encontrado',
+    schema: {
+      example: {
+        statusCode: 404,
+        message:
+          'Perfil no encontrado con id 123e4567-e89b-12d3-a456-426614174000',
+        error: 'Not Found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'ID inválido',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Validation failed (uuid is expected)',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiOperation({
+    summary: 'Obtener perfil de profesor por ID',
+    description:
+      'Devuelve la información completa del perfil de un profesor identificado por su ID. Incluye datos personales, experiencia, especialización y cursos asociados.',
+  })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.profilesService.getProfessorById(id);
   }

@@ -103,7 +103,8 @@ export class UsersService {
       if (!user) throw new NotFoundException('Usuario no encontrado');
 
       user.image = imageUrl;
-      return await this.userRepository.save(user);
+      await this.userRepository.save(user);
+      return { message: 'Imagen actualizada correctamente' };
     } catch (error) {
       console.error('Error actualizando imagen del usuario:', error);
       throw new InternalServerErrorException(
