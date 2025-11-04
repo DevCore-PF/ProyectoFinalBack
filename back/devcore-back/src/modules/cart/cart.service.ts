@@ -46,7 +46,7 @@ export class CartService {
     }
 
     //metodo para limpiar el carrito despues de la compra
-    async clearCart(userId: string): Promise<Cart | null> {
+    async cleanCart(userId: string): Promise<Cart | null> {
         //Busca el carrito con sus cursos
         const cart = await this.cartRepository.findByUserId(userId);
 
