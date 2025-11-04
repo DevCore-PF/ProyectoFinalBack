@@ -40,6 +40,7 @@ export class ProfilesRepository {
   /**
    * Busca un perfil de profesor por su propio ID
    */
+
   async findById(id: string): Promise<ProfessorProfile> {
     const profile = await this.profileRepository.findOne({
       where: { id },
