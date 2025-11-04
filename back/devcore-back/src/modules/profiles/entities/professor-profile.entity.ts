@@ -26,7 +26,7 @@ export class ProfessorProfile {
   profession: string;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
-  specialty: string;
+  speciality: string;
 
   @Column({ type: 'text', nullable: true })
   biography: string;

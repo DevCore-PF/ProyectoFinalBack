@@ -24,4 +24,10 @@ export class CartController {
     async removeCourse(@Req() req, @Param('courseId', ParseUUIDPipe) courseId: string){
         return this.cartService.removeCourse(req.user.sub, courseId)
     }
+
+    //Ruta para vaciar el carrito completo
+    @Delete('clear')
+    async clearCart(@Req() req){
+        return this.cartService.clearCart(req.user.sub)
+    }
 }
