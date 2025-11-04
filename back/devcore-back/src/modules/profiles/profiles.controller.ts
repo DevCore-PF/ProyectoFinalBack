@@ -189,6 +189,11 @@ export class ProfilesController {
   // --- PRÓXIMO PASO (CUANDO LO NECESITES) ---
 
   @Patch() // Se activa con un PATCH a /profiles
+  @ApiOperation({
+    summary: 'Actualizar perfil de profesor',
+    description:
+      'Permite modificar la información del perfil de un profesor autenticado. Se pueden actualizar datos personales, profesionales, de contacto o cualquier otro campo editable del perfil.',
+  })
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FilesInterceptor('certificates', 10))
   async updateProfile(
