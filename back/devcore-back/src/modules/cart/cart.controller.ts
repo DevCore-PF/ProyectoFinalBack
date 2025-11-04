@@ -169,7 +169,7 @@ export class CartController {
   @Delete('clear')
   @ApiOperation({ summary: 'Vacía todo el carrito del usuario' })
   @ApiResponse({ status: 200, description: 'Carrito vaciado con éxito' })
-  async clearCart(@Req() req) {
+  async cleanCart(@Req() req) {
     return this.cartService.cleanCart(req.user.sub);
   }
 }
