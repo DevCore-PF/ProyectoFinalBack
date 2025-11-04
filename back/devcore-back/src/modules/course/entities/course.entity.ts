@@ -65,7 +65,7 @@ export class Course {
   @Column({
     type: 'enum',
     enum: CourseStatus,
-    default: CourseStatus.DRAFT,
+    default: CourseStatus.PUBLISHED,
   })
   status: CourseStatus;
 
