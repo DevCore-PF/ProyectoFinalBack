@@ -163,12 +163,6 @@ export class CartController {
       },
     },
   })
-  async removeCourse(
-    @Req() req,
-    @Param('courseId', ParseUUIDPipe) courseId: string,
-  ) {
-    return this.cartService.removeCourse(req.user.sub, courseId);
-  }
 
   //Quita el curso del carrto
   @Delete('remove/:courseId')
@@ -181,6 +175,8 @@ export class CartController {
 
   //Ruta para vaciar el carrito completo
   @Delete('clear')
+  @ApiOperation({ summary: 'Vacía todo el carrito del usuario' })
+  @ApiResponse({ status: 200, description: 'Carrito vaciado con éxito' })
   async clearCart(@Req() req) {
     return this.cartService.clearCart(req.user.sub);
   }
