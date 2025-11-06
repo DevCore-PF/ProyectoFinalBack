@@ -13,7 +13,7 @@ export class CartService {
     async getOrCreateCart(userId: string): Promise<Cart> {
         let cart = await this.cartRepository.findByUserId(userId);
         if(!cart){
-            cart = this.cartRepository.crate({id: userId});
+            cart = this.cartRepository.create({id: userId});
             await this.cartRepository.save(cart)
         }
         return cart

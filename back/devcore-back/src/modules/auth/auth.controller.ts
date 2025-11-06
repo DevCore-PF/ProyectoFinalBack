@@ -18,6 +18,9 @@ import type { Response } from 'express';
 import { SelectRoleDto } from './dto/select-role.dto';
 import { LoginUserDto } from './dto/login-user-dto';
 import { ApiConsumes, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { SocialActionGuard } from './guards/social-action.guard';
+import { SetPasswordDto } from './dto/set-password.dto';
+import { ResendVerificationDto } from './dto/resend-verification.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -173,6 +176,8 @@ export class AuthController {
     res.redirect(redirectUrl);
   }
 
+  
+
   // --- FIN DE RUTAS DE GOOGLE ---
 
   @ApiConsumes('application/x-www-form-urlencoded')
@@ -237,4 +242,43 @@ export class AuthController {
     const redirectUrl = `${process.env.FRONTEND_URL}/auth-callback?token=${token}`;
     res.redirect(redirectUrl);
   }
+
+  //Nuevo Endpoint para probar el registro y login nuevo
+  @Get('google/login')
+  @UseGuards(SocialActionGuard('google', 'login'))
+  async googleLogin() {}
+
+  @Get('google/register')
+  @UseGuards(SocialActionGuard('google', 'register'))
+  async googleRegister(){}
+
+  // 3. LOGIN CON GITHUB
+  @Get('github/login')
+  @UseGuards(SocialActionGuard('github', 'login'))
+  async githubLogin() {}
+
+  // 4. REGISTRO CON GITHUB
+  @Get('github/register')
+  @UseGuards(SocialActionGuard('github', 'register'))
+  async githubRegister() {}
+
+  /**
+   * Para asignar una contraseña cuando el usuario uso github o google en el registro
+   */
+  @Patch('set-password')
+  @UseGuards(AuthGuard('jwt')) // ¡Debe estar logueado para hacer esto!
+  async setPassword(@Req() req, @Body() setPasswordDto: SetPasswordDto) {
+    const userId = req.user.sub; // ID del usuario logueado
+    return this.authService.setLocalPassword(userId, setPasswordDto);
+  }
+
+  /**
+   * Edpoind para reenviar el mensaje de confirmacion al usuario
+   */
+  @Post('resend-verification')
+  async resendEmail(@Body() resendDto: ResendVerificationDto){
+    return this.authService.resendVerificationEmail(resendDto)
+  }
+
+
 }

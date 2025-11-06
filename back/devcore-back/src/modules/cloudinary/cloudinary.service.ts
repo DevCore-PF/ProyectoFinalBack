@@ -57,6 +57,7 @@ export class CloudinaryService {
       streamifier.createReadStream(file.buffer).pipe(uploadStream);
     });
   }
+  
   async uploadLessonDocument(
     file: Express.Multer.File,
   ): Promise<UploadApiResponse | undefined> {

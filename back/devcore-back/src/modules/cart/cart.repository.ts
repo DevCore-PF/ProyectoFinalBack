@@ -15,7 +15,7 @@ export class CartRepository {
     }
 
     //Crea un carrito nuevo para el usuario
-    crate(user: {id: string}): Cart {
+    create(user: {id: string}): Cart {
         const cart = this.cartRepository.create({
             user: user,
             courses: []
