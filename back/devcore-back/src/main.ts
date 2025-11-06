@@ -9,7 +9,7 @@ async function bootstrap() {
     rawBody: true,
   });
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://devcore-front.vercel.app/'],
+    origin: ['http://localhost:3000', 'https://devcore-front.vercel.app'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });
