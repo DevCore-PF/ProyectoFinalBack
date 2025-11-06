@@ -144,7 +144,7 @@ export class UsersService {
   }
 
   async getUserById(id: string) {
-    const userFind = await this.userRepository.findUserById(id);
+    const userFind = await this.userRepository.findUserWithProfile(id);
     const { password, ...userWithoutPassword } = userFind;
     return userWithoutPassword;
   }
