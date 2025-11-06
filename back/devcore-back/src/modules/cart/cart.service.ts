@@ -50,7 +50,7 @@ export class CartService {
         //Busca el carrito con sus cursos
         const cart = await this.cartRepository.findByUserId(userId);
 
-        //si tiene cursos y existe
+        //si tiene cursos y existe lo limpia
         if(cart && cart.courses.length > 0){
             cart.courses = []
             return this.cartRepository.save(cart)

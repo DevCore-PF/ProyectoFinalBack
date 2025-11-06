@@ -122,7 +122,7 @@ export class PaymentsService {
         try {
             await this.cartService.clearCart(userId)
         } catch (error) {
-            console.log(`Error al vaciar el carrito del usuario ${userId}:`, error)
+            console.log(`Error al vaciar el carrito del usuario: ${userId}:`, error)
         }
     }
     return {received: true}
