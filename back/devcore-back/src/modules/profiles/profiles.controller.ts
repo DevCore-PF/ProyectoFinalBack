@@ -109,62 +109,62 @@ export class ProfilesController {
       ],
     },
   })
-  @ApiResponse({
-    status: 201,
-    description: 'Perfil de profesor creado exitosamente',
-    schema: {
-      example: {
-        id: '123e4567-e89b-12d3-a456-426614174000',
-        biography: 'Profesor con 10 años de experiencia en desarrollo web',
-        specialization: 'Desarrollo Full Stack',
-        experience: 10,
-        certificates: [
-          'https://cloudinary.com/certificate1.pdf',
-          'https://cloudinary.com/certificate2.pdf',
-        ],
-        userId: '562129b0-9faa-45a2-bab1-4961d07b3377',
-        createdAt: '2024-01-15T10:30:00Z',
-      },
-    },
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Archivos inválidos o datos incorrectos',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: 'El archivo supera el tamaño máximo de 1MB',
-        error: 'Bad Request',
-      },
-    },
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'No autenticado',
-    schema: {
-      example: {
-        statusCode: 401,
-        message: 'Unauthorized',
-        error: 'Unauthorized',
-      },
-    },
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Usuario no encontrado',
-    schema: {
-      example: {
-        statusCode: 404,
-        message: 'Usuario no encontrado',
-        error: 'Not Found',
-      },
-    },
-  })
-  @ApiOperation({
-    summary: 'Crear perfil de profesor',
-    description:
-      'Crea un nuevo perfil de profesor en el sistema. Requiere los datos personales, profesionales y de contacto necesarios para completar la información del docente.',
-  })
+  // @ApiResponse({
+  //   status: 201,
+  //   description: 'Perfil de profesor creado exitosamente',
+  //   schema: {
+  //     example: {
+  //       id: '123e4567-e89b-12d3-a456-426614174000',
+  //       biography: 'Profesor con 10 años de experiencia en desarrollo web',
+  //       specialization: 'Desarrollo Full Stack',
+  //       experience: 10,
+  //       certificates: [
+  //         'https://cloudinary.com/certificate1.pdf',
+  //         'https://cloudinary.com/certificate2.pdf',
+  //       ],
+  //       userId: '562129b0-9faa-45a2-bab1-4961d07b3377',
+  //       createdAt: '2024-01-15T10:30:00Z',
+  //     },
+  //   },
+  // })
+  // @ApiResponse({
+  //   status: 400,
+  //   description: 'Archivos inválidos o datos incorrectos',
+  //   schema: {
+  //     example: {
+  //       statusCode: 400,
+  //       message: 'El archivo supera el tamaño máximo de 1MB',
+  //       error: 'Bad Request',
+  //     },
+  //   },
+  // })
+  // @ApiResponse({
+  //   status: 401,
+  //   description: 'No autenticado',
+  //   schema: {
+  //     example: {
+  //       statusCode: 401,
+  //       message: 'Unauthorized',
+  //       error: 'Unauthorized',
+  //     },
+  //   },
+  // })
+  // @ApiResponse({
+  //   status: 404,
+  //   description: 'Usuario no encontrado',
+  //   schema: {
+  //     example: {
+  //       statusCode: 404,
+  //       message: 'Usuario no encontrado',
+  //       error: 'Not Found',
+  //     },
+  //   },
+  // })
+  // @ApiOperation({
+  //   summary: 'Crear perfil de profesor',
+  //   description:
+  //     'Crea un nuevo perfil de profesor en el sistema. Requiere los datos personales, profesionales y de contacto necesarios para completar la información del docente.',
+  // })
   async createProfile(
     @Req() req,
     @Body() createProfileDto: CreateProfessorProfileDto,
