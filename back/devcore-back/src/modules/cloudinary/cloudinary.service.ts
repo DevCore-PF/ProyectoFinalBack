@@ -9,7 +9,10 @@ export class CloudinaryService {
   ): Promise<UploadApiResponse | undefined> {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        { folder: 'profile_pictures' },
+        {
+          folder: 'profile_pictures',
+          public_id: file.originalname.split('.')[0],
+        },
         (error, result) => {
           if (error) return reject(error);
           resolve(result);
@@ -29,6 +32,7 @@ export class CloudinaryService {
           folder: 'certificates', // Carpeta específica
           // Opcional: podrías querer permitir PDFs, etc.
           resource_type: 'auto',
+          public_id: file.originalname,
         },
         (error, result) => {
           if (error) return reject(error);
@@ -47,6 +51,7 @@ export class CloudinaryService {
         {
           resource_type: 'video',
           folder: 'lessons_videos',
+          public_id: file.originalname.split('.')[0],
         },
         (error, result) => {
           if (error) return reject(new BadRequestException(error.message));
@@ -57,7 +62,7 @@ export class CloudinaryService {
       streamifier.createReadStream(file.buffer).pipe(uploadStream);
     });
   }
-  
+
   async uploadLessonDocument(
     file: Express.Multer.File,
   ): Promise<UploadApiResponse | undefined> {
@@ -66,6 +71,7 @@ export class CloudinaryService {
         {
           folder: 'lessons_documents',
           resource_type: 'auto', // Detecta PDFs, imágenes, etc.
+          public_id: file.originalname.split('.')[0],
         },
         (error, result) => {
           if (error) return reject(new BadRequestException(error.message));
