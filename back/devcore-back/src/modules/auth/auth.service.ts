@@ -341,7 +341,7 @@ export class AuthService {
     const user = await this.userRepository.findUserByEmail(email);
 
     // Revisa si el usuario existe y no es de Google
-    if (!user || user.isGoogleAccount) {
+    if (!user) {
       return null;
     }
 
