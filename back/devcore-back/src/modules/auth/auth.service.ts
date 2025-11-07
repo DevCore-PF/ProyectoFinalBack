@@ -156,7 +156,10 @@ export class AuthService {
         user.githubId = providerId;
       }
 
-      user.image = image
+      //Actualizamos la imagen solamente si el usuario no tiene una
+      if(!user.image && image){
+        user.image = image;
+      }
       
       await this.userRepository.save(user);
       return user;
