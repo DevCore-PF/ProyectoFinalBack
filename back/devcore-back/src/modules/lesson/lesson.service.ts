@@ -25,4 +25,12 @@ export class LessonsService {
     if (!lesson) throw new NotFoundException('Lesson not found');
     return lesson;
   }
+
+  async deleteLessonById(id: string) {
+    const LessonFind = await this.lessonsRepository.getLessonById(id);
+    if (!LessonFind) throw new NotFoundException('Leccion no encontrada');
+    LessonFind.isActive = false;
+    await this.lessonsRepository.deleteLesson(LessonFind);
+    return `Leccion ${LessonFind.title} desactiva correctamente`;
+  }
 }

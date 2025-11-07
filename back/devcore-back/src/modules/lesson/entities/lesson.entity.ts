@@ -6,10 +6,11 @@ import {
   UpdateDateColumn,
   JoinColumn,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmpty } from 'class-validator';
 import { Course } from 'src/modules/course/entities/course.entity';
+import { LessonProgress } from 'src/modules/LessonProgress/entities/lessoprogress.entity';
 
 @Entity('lessons')
 export class Lesson {
@@ -39,6 +40,12 @@ export class Lesson {
   @ApiProperty()
   @Column({ default: false })
   esPreview: boolean;
+
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
+
+  @OneToMany(() => LessonProgress, (progress) => progress.lesson)
+  progress: LessonProgress[];
 
   @ManyToOne(() => Course, (course) => course.lessons, {
     onDelete: 'CASCADE',
