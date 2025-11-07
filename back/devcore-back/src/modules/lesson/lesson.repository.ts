@@ -23,4 +23,8 @@ export class LessonsRepository {
   async getLessonById(id: string): Promise<Lesson | null> {
     return this.lessonRepository.findOne({ where: { id } });
   }
+
+  async deleteLesson(data: Lesson) {
+    return this.lessonRepository.save(data);
+  }
 }
