@@ -29,6 +29,7 @@ export class CartService {
   async addCourse(userId: string, courseId: string): Promise<Cart> {
     const cart = await this.getOrCreateCart(userId);
     const course = await this.courseRepository.findById(courseId);
+
     const user = await this.usersRepository.findUserById(userId);
 
     if (!course) {

@@ -43,4 +43,8 @@ export class CoursesRepository {
       where: { id: In(ids) },
     });
   }
+
+  async updateCourse(course) {
+    return await this.courseRepository.save(course);
+  }
 }
