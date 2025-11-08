@@ -6,13 +6,13 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { CreateCourseDto } from 'src/modules/course/dto/create-course.dto';
+import { CreateProfessorProfileDto } from '../dto/create-professon-profile.dto';
 
 export function ApiCreateProfessorProfileDoc() {
   return applyDecorators(
     ApiBearerAuth(),
     ApiConsumes('multipart/form-data'),
-    ApiBody({ type: CreateCourseDto }),
+    ApiBody({ type: CreateProfessorProfileDto }),
     ApiBody({
       schema: {
         type: 'object',
