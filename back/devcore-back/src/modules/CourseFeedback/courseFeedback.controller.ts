@@ -10,7 +10,7 @@ import { AuthGuard } from '@nestjs/passport';
 export class CourseFeedbackController {
   constructor(private readonly feedbackService: CourseFeedbackService) {}
 
-  @Post(':courseId/:userId')
+  @Post(':courseId/')
   @UseGuards(AuthGuard('jwt'))
   @ApiCreateCourseFeedbackDocs()
   async createFeedback(
