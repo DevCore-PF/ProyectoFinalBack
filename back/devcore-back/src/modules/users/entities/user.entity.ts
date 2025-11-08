@@ -15,6 +15,8 @@ import { ProfessorProfile } from 'src/modules/profiles/entities/professor-profil
 import { StudentProfile } from 'src/modules/studentprofile/entities/studentprofile.entity';
 import { Enrollment } from 'src/modules/enrollments/entities/enrollment.entity';
 import { Cart } from 'src/modules/cart/entities/cart.entity';
+import { LessonProgress } from 'src/modules/LessonProgress/entities/lessoprogress.entity';
+import { CourseFeedback } from 'src/modules/CourseFeedback/entities/courseFeedback.entity';
 
 @Entity('users')
 export class User {
@@ -76,7 +78,6 @@ export class User {
   })
   isGitHubAccount: boolean; //Para saber si se registró con GitHub
 
-
   @Column({
     nullable: true,
     unique: true,
@@ -84,7 +85,7 @@ export class User {
   @Index()
   googleId?: string; //auth0Id para google
 
-   @Column({
+  @Column({
     nullable: true,
     unique: true,
   })
@@ -124,14 +125,20 @@ export class User {
   })
   professorProfile: ProfessorProfile;
 
-  @OneToOne(() => StudentProfile, (profile) => profile.user, {cascade: true})
+  @OneToOne(() => StudentProfile, (profile) => profile.user, { cascade: true })
   studentProfile: StudentProfile;
 
   @OneToMany(() => Enrollment, (enrollment) => enrollment.user)
   enrollments: Enrollment[];
 
-  @OneToOne(() => Cart, (cart) => cart.user, {cascade: true})
+  @OneToOne(() => Cart, (cart) => cart.user, { cascade: true })
   cart: Cart;
+
+  @OneToMany(() => CourseFeedback, (feedback) => feedback.user)
+  courseFeedbacks: CourseFeedback[];
+
+  @OneToMany(() => LessonProgress, (progress) => progress.user)
+  lessonProgress: LessonProgress[];
 
   isTeacher(): boolean {
     return this.role === UserRole.TEACHER;

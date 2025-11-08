@@ -10,6 +10,8 @@ import { LessonsModule } from './modules/lesson/lesson.module';
 import { CoursesModule } from './modules/course/course.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { LessonProgressModule } from './modules/LessonProgress/lessonprogress.module';
+import { CourseFeedbackModule } from './modules/CourseFeedback/courseFeedback.module';
 
 @Module({
   imports: [
@@ -34,7 +36,9 @@ import { PaymentsModule } from './modules/payments/payments.module';
     LessonsModule,
     CoursesModule,
     ProfilesModule,
-    PaymentsModule
+    PaymentsModule,
+    LessonProgressModule,
+    CourseFeedbackModule,
   ],
 })
 export class AppModule {}

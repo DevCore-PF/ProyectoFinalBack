@@ -9,6 +9,7 @@ import {
   Param,
   ParseFilePipe,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
   UploadedFile,
@@ -27,12 +28,19 @@ import {
   ApiOperation,
   ApiParam,
   ApiQuery,
+  ApiResponse,
 } from '@nestjs/swagger';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateLessonDto } from '../lesson/dto/create-lesson.dto';
 import { UploadApiResponse } from 'cloudinary';
 import { IsOptional } from 'class-validator';
+import { UpdateCourseDto } from './dto/update-course.dto';
+import { ApiUpdateCourseDocs } from './doc/update-course.doc';
+import { ApiCreateCourseDoc } from './doc/createCourse.doc';
+import { ApiCreateLessonDoc } from './doc/createLesson.doc';
+import { ApiGetCouseDoc } from './doc/getCourse.doc';
+import { ApiGetCourseByIdDoc } from './doc/getCourseById.doc';
 
 @Controller('courses')
 export class CoursesController {
@@ -42,18 +50,7 @@ export class CoursesController {
   ) {}
 
   @Post(':professorId/create')
-  @ApiOperation({
-    summary: 'Crear un nuevo curso asociado a un profesor',
-    description:
-      'Permite crear un curso y asociarlo al profesor identificado por su ID. Requiere información como el título, descripción, categoría y demás datos del curso.',
-  })
-  @ApiConsumes('application/x-www-form-urlencoded')
-  @ApiParam({
-    name: 'professorId',
-    description: 'ID del profesor',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  @ApiBody({ type: CreateCourseDto })
+  @ApiCreateCourseDoc()
   async createCourse(
     @Param('professorId') professorId: string,
     @Body() data: CreateCourseDto,
@@ -62,24 +59,13 @@ export class CoursesController {
   }
 
   @Post(':courseId/lessons')
-  @ApiOperation({
-    summary: 'Agregar una lección a un curso',
-    description:
-      'Crea una nueva lección y la asocia al curso identificado por su ID. Requiere información como el título, contenido y duración de la lección.',
-  })
-  @ApiConsumes('multipart/form-data')
+  @ApiCreateLessonDoc()
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'videos', maxCount: 5 },
       { name: 'pdfs', maxCount: 10 },
     ]),
   )
-  @ApiBody({ type: CreateLessonDto })
-  @ApiOperation({
-    summary: 'Obtener todos los cursos con sus relaciones',
-    description:
-      'Devuelve una lista de todos los cursos disponibles en el sistema, incluyendo sus relaciones con profesores, lecciones, categorías y otros datos asociados.',
-  })
   async addLessonToCourse(
     @Param('courseId') courseId: string,
     @Body() data: CreateLessonDto,
@@ -160,23 +146,24 @@ export class CoursesController {
   }
 
   @Get()
-  @ApiOperation({
-    summary: 'Obtener todos los cursos o filtrar por título',
-    description:
-      'Devuelve una lista de todos los cursos disponibles en el sistema. Si se proporciona el parámetro opcional "title", filtra los cursos cuyo título coincida total o parcialmente con el valor indicado.',
-  })
-  @ApiQuery({ name: 'title', required: false, type: String })
+  @ApiGetCouseDoc()
   async getAllCourses(@Query('title') title?: string) {
     return await this.coursesService.getAllCourses(title);
   }
 
   @Get(':id')
-  @ApiOperation({
-    summary: 'Obtener un curso por ID con sus relaciones',
-    description:
-      'Devuelve la información completa de un curso identificado por su ID, incluyendo sus relaciones con el profesor, las lecciones y demás datos asociados.',
-  })
+  @ApiGetCourseByIdDoc()
   async getUserById(@Param('id', ParseUUIDPipe) id: string) {
     return await this.coursesService.getCourseById(id);
+  }
+
+  @Patch(':id')
+  @ApiUpdateCourseDocs()
+  @ApiBody({ type: UpdateCourseDto })
+  async updateCourseById(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: UpdateCourseDto,
+  ) {
+    return await this.coursesService.updateCourseById(id, data);
   }
 }
