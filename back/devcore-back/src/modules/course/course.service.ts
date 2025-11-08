@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CoursesRepository } from './course.repository';
 import { CreateCourseDto } from './dto/create-course.dto';
-import { Course } from './entities/course.entity';
+import { Course, CourseStatus } from './entities/course.entity';
 import { Lesson } from '../lesson/entities/lesson.entity';
 import { CreateLessonDto } from '../lesson/dto/create-lesson.dto';
 import { Repository } from 'typeorm';
@@ -82,5 +82,24 @@ export class CoursesService {
     });
 
     return await this.lessonsRepository.save(lesson);
+  }
+
+  async updateCourseById(id, data) {
+    const courseFind = await this.coursesRepository.findById(id);
+    if (!courseFind) throw new NotFoundException('Curso no encontrado');
+    const { title, description, price, duration, difficulty, category, type } =
+      data;
+
+    if (title !== undefined) courseFind.title = title;
+    if (description !== undefined) courseFind.description = description;
+    if (price !== undefined) courseFind.price = price;
+    if (duration !== undefined) courseFind.duration = duration;
+    if (difficulty !== undefined) courseFind.difficulty = difficulty;
+    if (category !== undefined) courseFind.category = category;
+    if (type !== undefined) courseFind.type = type;
+
+    courseFind.status = CourseStatus.DRAFT;
+
+    return await this.coursesRepository.updateCourse(courseFind);
   }
 }
