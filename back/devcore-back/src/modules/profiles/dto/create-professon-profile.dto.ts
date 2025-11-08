@@ -59,24 +59,12 @@ export class CreateProfessorProfileDto {
   biography: string;
 
   @ApiProperty({
-    example: [
-      'https://ejemplo.com/certificado1.pdf',
-      'https://ejemplo.com/certificado2.pdf',
-    ],
-    description:
-      'URLs de los certificados profesionales del profesor (mínimo 1)',
+    type: 'array',
+    items: { type: 'string', format: 'binary' },
+    description: 'Certificados (PDF, JPG, PNG, WEBP - máximo 10 archivos)',
     required: true,
-    type: [String],
-    isArray: true,
   })
-  // @IsArray()
-  // @IsString({ each: true })
-  // @IsUrl(
-  //   {},
-  //   { each: true, message: 'Cada certificado debe ser una URL valida' },
-  // )
-  // @IsNotEmpty({ message: 'Debe tener al menos 1 certificado' })
-  certificates: any[];
+  certificates: Express.Multer.File[];
 
   @ApiProperty({
     example: '["https://linkedin.com/in/usuario","https://github.com/usuario"]',
