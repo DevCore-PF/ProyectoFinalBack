@@ -7,7 +7,6 @@ import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { LessonProgress } from './entities/lessoprogress.entity';
 import { Lesson } from '../lesson/entities/lesson.entity';
 
-
 @Injectable()
 export class LessonProgressRepository {
   constructor(
@@ -66,6 +65,23 @@ export class LessonProgressRepository {
       lesson,
       completed: true,
       completedAt: new Date(),
+    });
+  }
+
+  async findCompletedLessonsByCourse(userId: string, courseId: string) {
+    return this.progressRepo.find({
+      where: {
+        user: { id: userId },
+        lesson: { course: { id: courseId } },
+        completed: true,
+      },
+      relations: ['lesson'],
+      select: {
+        lesson: {
+          id: true,
+          title: true,
+        },
+      },
     });
   }
 }
