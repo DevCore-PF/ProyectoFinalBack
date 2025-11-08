@@ -7,16 +7,18 @@ import { LessonProgressRepository } from './lessonprogress.repository';
 
 @Injectable()
 export class LessonProgressService {
-  constructor(private readonly repository: LessonProgressRepository) {}
+  constructor(
+    private readonly lessonProgressRepository: LessonProgressRepository,
+  ) {}
 
   async markLessonCompleted(userId: string, lessonId: string) {
-    const user = await this.repository.findUser(userId);
-    const lesson = await this.repository.findLesson(lessonId);
+    const user = await this.lessonProgressRepository.findUser(userId);
+    const lesson = await this.lessonProgressRepository.findLesson(lessonId);
 
     if (!user || !lesson)
       throw new NotFoundException('Usuario o lección no encontrada.');
 
-    const enrollment = await this.repository.findEnrollment(
+    const enrollment = await this.lessonProgressRepository.findEnrollment(
       user.id,
       lesson.course.id,
     );
@@ -26,15 +28,38 @@ export class LessonProgressService {
         'No puedes completar esta lección porque no estás inscrito en el curso.',
       );
 
-    let progress = await this.repository.findProgress(user.id, lesson.id);
+    let progress = await this.lessonProgressRepository.findProgress(
+      user.id,
+      lesson.id,
+    );
 
     if (!progress) {
-      progress = this.repository.createProgress(user, lesson);
+      progress = this.lessonProgressRepository.createProgress(user, lesson);
     } else {
       progress.completed = true;
       progress.completedAt = new Date();
     }
 
-    return this.repository.saveProgress(progress);
+    return this.lessonProgressRepository.saveProgress(progress);
+  }
+
+  async getCompletedLessons(userId: string, courseId: string) {
+    const completedLessons =
+      await this.lessonProgressRepository.findCompletedLessonsByCourse(
+        userId,
+        courseId,
+      );
+
+    if (!completedLessons.length) {
+      return {
+        message: 'No hay lecciones completadas para este curso.',
+      };
+    }
+
+    return {
+      courseId,
+      totalCompleted: completedLessons.length,
+      lessons: completedLessons.map((p) => p.lesson),
+    };
   }
 }
