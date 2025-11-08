@@ -133,6 +133,8 @@ export class AuthService {
       if(user) {
         //aqui se valida para que no pueda registrarse de nuevo sin importar si fue con gihub, propio o google
         throw new ConflictException(`El email ${email} ya está registrado.`);
+        //redirigimos al usuario al login
+        
       }
 
       //si el mail del usuario no existe se registra
@@ -345,7 +347,9 @@ export class AuthService {
 
     // Revisa si el usuario existe y no es de Google
     if (!user) {
-      return null;
+      throw new NotFoundException(
+        'Esta cuenta no está registrada. Por favor, regístrate primero.'
+      );
     }
 
     // Compara la contraseña hasheada si existe

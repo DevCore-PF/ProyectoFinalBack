@@ -9,6 +9,7 @@ import {
   Res,
   Patch,
   Query,
+  UseFilters,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
@@ -21,8 +22,10 @@ import { ApiConsumes, ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { SocialActionGuard } from './guards/social-action.guard';
 import { SetPasswordDto } from './dto/set-password.dto';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
+import { OauthExceptionFilter } from './filters/oauth-exception.filter';
 
 @Controller('auth')
+@UseFilters(new OauthExceptionFilter())
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -163,6 +166,7 @@ export class AuthController {
     if (!user) {
       throw new BadRequestException('Fallo en la autenticación con Google.');
     }
+
 
     // Llama a tu servicio para obtener el token
     const loginData = await this.authService.login(user);
