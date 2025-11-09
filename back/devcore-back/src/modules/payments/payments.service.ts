@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { CoursesRepository } from '../course/course.repository';
@@ -16,6 +16,7 @@ export class PaymentsService {
     private readonly enrollmentsService: EnrollmentService,
     private readonly cartService: CartService
   ) {}
+
 
   //Crea la sesion para el carrito de compras
   async createCheckoutSession(userId: string){
@@ -77,7 +78,7 @@ export class PaymentsService {
   /**
    * Maneja el webhook de pago exitoso
    */
-  async handleWebhook(buffer: Buffer, signature: string){
+   async handleWebhook(buffer: Buffer, signature: string){
     //obtenemos el secreto del webhook(este nos lo devuelve stripe litesn)
     const secret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
     if (!secret) {
