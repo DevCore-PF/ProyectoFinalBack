@@ -52,11 +52,58 @@ export class UsersRepository {
     return user;
   }
 
+  async findUserWithPurchasedCourses(userId: string): Promise<User | null> {
+  const user = await this.userRepository.findOne({
+    where: { id: userId },
+    relations: {
+      enrollments: {
+        course: {
+          professor: {
+            user: true,
+          },
+        },
+      },
+    },
+    select: {
+      enrollments: {
+        id: true,
+        progress: true,
+        priceAtPurchase: true,
+        inscripcionDate: true,
+        completedAt: true,
+        course: {
+          id: true,
+          title: true,
+          description: true,
+          price: true,
+          category: true,
+          difficulty: true,
+          duration: true,
+          professor: {
+            id: true,
+            user: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+return user;
+}
+
   async findUserByEmail(email: string) {
     return this.userRepository.findOneBy({ email });
   }
 
-  // --- MÉTODOS NUEVOS NECESARIOS ---
+  /**
+   * Busca a un usuario por el token de cambio de contraseña
+   */
+  async findUserByChangeToken(token: string): Promise<User | null> {
+    return this.userRepository.findOneBy({ newPasswordToken: token });
+  }
+
 
   /**
    * Método 'create'

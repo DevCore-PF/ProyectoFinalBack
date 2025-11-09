@@ -31,6 +31,7 @@ import { ApiSlectRoleDoct } from './doc/selectRole.doc';
 import { ApiVerifyEmailDoc } from './doc/verifyEmail.doc';
 import { ApiRedirectGithubDoc } from './doc/getGithub.doc';
 import { ApiRedirectHomeGithubDoc } from './doc/redirectGithub.doc';
+import { ChangePasswordRequestDto } from './dto/change-password-request.dto';
 
 @Controller('auth')
 @UseFilters(new OauthExceptionFilter())
@@ -127,10 +128,68 @@ export class AuthController {
     @Query('token') token: string,
     @Res() res: Response, // Inyectamos 'res' para redirigir
   ) {
-    await this.authService.verifyEmailToken(token);
 
-    // Redirige al usuario a la página de login del frontend que se vaya usar para el login
-    res.redirect(`${process.env.FRONTEND_URL}/login?verified=true`);
+    try {
+      //verifica el token si el token es valido continua y redirige al login
+      await this.authService.verifyEmailToken(token);
+      const successUrl = new URL(`${process.env.FRONTEND_URL}/login`);
+      successUrl.searchParams.set('verified', 'true');
+      res.redirect(successUrl.toString());
+    } catch (error) {
+      //si falla por que el token vencio u otro detalle lo redirige tambien la login y le manda un mensaje con el error
+      const errorMessage ='El token de verificación es inválido o ha expirado. Por favor, solicita uno nuevo.';
+
+      //Redirige a la página de login, pero con el error del token
+      const errorUrl = new URL(`${process.env.FRONTEND_URL}/login`);
+      errorUrl.searchParams.set('error', 'verification_failed');
+      errorUrl.searchParams.set('message', encodeURIComponent(errorMessage));
+      res.redirect(errorUrl.toString());
+    }
+
+  }
+
+  /**
+   * Solicitar un cambio de contraseña usuario loguedo
+   */
+  @Post('request-password-change')
+  @UseGuards(AuthGuard('jwt')) // ¡Protegido! El usuario debe estar logueado
+  async requestPasswordChange(
+    @Req() req,
+    @Body() changePasswordDto: ChangePasswordRequestDto,
+  ) {
+    const userId = req.user.sub; // ID del usuario logueado
+    return this.authService.requestPasswordChange(userId, changePasswordDto);
+  }
+
+  /**
+   * Confirmar el cambio desde el email que se le envio
+   */
+  @Get('confirm-password-change')
+  async confirmPasswordChange(
+    @Query('token') token: string,
+    @Res() res: Response,
+  ) {
+    // Lo envolvemos en try...catch para redirigir
+    try {
+      await this.authService.confirmPasswordChange(token);
+      
+      // ¡Éxito! Redirige al login con un mensaje de éxito
+      const successUrl = new URL(`${process.env.FRONTEND_URL}/login`);
+      successUrl.searchParams.set('passwordChanged', 'true');
+      res.redirect(successUrl.toString());
+
+    } catch (error) {
+      // ¡Fallo! Redirige al login con un mensaje de error
+      const errorMessage =
+        error.message ||
+        'El token es inválido o ha expirado. Inténtalo de nuevo.';
+      
+      const errorUrl = new URL(`${process.env.FRONTEND_URL}/login`);
+      errorUrl.searchParams.set('error', 'password_change_failed');
+      errorUrl.searchParams.set('message', encodeURIComponent(errorMessage));
+      
+      res.redirect(errorUrl.toString());
+    }
   }
 
   // @Get()
