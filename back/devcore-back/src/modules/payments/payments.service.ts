@@ -77,15 +77,17 @@ export class PaymentsService {
   }
 
   /**
-   * MANEJA EL WEBHOOK (VERSIÓN CON LOGGER)
+   * Maneja el webhoom de pago exitoso
    */
   async handleWebhook(buffer: Buffer, signature: string) {
+    // Obtenemos el secreto del webhook
     const secret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
     if (!secret) {
         throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
     }
     let event: Stripe.Event;
 
+    // 1. Verifica la firma
     try {
         event = this.stripe.webhooks.constructEvent(buffer, signature, secret);
     } catch(err){
@@ -93,12 +95,8 @@ export class PaymentsService {
         throw new BadRequestException(`Webhook Error: ${err.message}`)
     }
 
-    // 3. Usa el logger de NestJS (este SÍ debería aparecer en tu consola)
-    this.logger.log(`[Stripe Webhook] Evento recibido: ${event.type}`);
-
-    // Maneja el evento
+    // 2. Maneja el evento
     if(event.type === 'checkout.session.completed'){
-        this.logger.log('[Stripe Webhook] Procesando checkout.session.completed...');
         const session = event.data.object as Stripe.Checkout.Session;
 
         const userId = session.client_reference_id;
@@ -115,32 +113,28 @@ export class PaymentsService {
             throw new BadRequestException('Webhook Error: Faltan metadatos en la sesion')
         }
 
-        this.logger.log(`[Stripe Webhook] Datos recuperados: UserID: ${userId}`);
-
         const enrollmentsData = courseIds.map(id => ({
             courseId: id,
             priceInCents: prices[id]
         }))
 
-        // 4. ¡EL BLOQUE TRY...CATCH CRÍTICO!
+        // 3. Bloque try...catch para las operaciones de BD
         try {
-            this.logger.log('[Stripe Webhook] Intentando crear inscripciones...');
+            // Crea las inscripciones
             await this.enrollmentsService.createEnrollmentsForUser(userId, enrollmentsData);
-            this.logger.log('[Stripe Webhook] ¡Inscripciones creadas exitosamente!');
 
-            this.logger.log('[Stripe Webhook] Intentando vaciar el carrito...');
+            // Vacía el carrito
             await this.cartService.clearCart(userId);
-            this.logger.log(`[Stripe Webhook] Carrito vaciado para Usuario ID: ${userId}`);
 
         } catch (error) {
-            // 5. ¡AQUÍ ES DONDE VERÁS EL ERROR!
-            // El logger.error SÍ aparecerá en tu consola si el nivel 'error' está activo
-            this.logger.error('[Stripe Webhook] ¡ERROR CRÍTICO al procesar la base de datos!:', error.stack);
-            
+            // Si algo falla al crear la inscripción o vaciar el carrito,
+            // lo logueamos y lanzamos un error para que Stripe reintente.
+            this.logger.error('[Stripe Webhook] Error al procesar la base de datos:', error.stack);
             throw new InternalServerErrorException('Error al procesar la inscripción en la base de datos.');
         }
     }
     
+    // 4. Responde a Stripe
     return {received: true}
   }
 }
