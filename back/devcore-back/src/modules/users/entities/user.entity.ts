@@ -111,6 +111,13 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   resetPasswordExpires?: Date;
 
+  @Column({ type: 'varchar', length: 250, nullable: true })
+  @Exclude()
+  newPasswordRequest?: string; // Guardará el hash de la nueva contraseña
+
+  @Column({ nullable: true, unique: true })
+  newPasswordToken?: string; // Token para confirmar el cambio por email
+
   @Column({ default: false })
   hasCompletedProfile: boolean;
 

@@ -143,6 +143,28 @@ export class UsersService {
     return await this.userRepository.getAll();
   }
 
+  async getUserPurchasedCourses(userId: string) {
+  const user = await this.userRepository.findUserWithPurchasedCourses(userId);
+  
+   if (!user) {
+    throw new NotFoundException('Usuario no encontrado');
+  }
+
+  return user.enrollments.map(enrollment => ({
+    id: enrollment.course.id,
+    title: enrollment.course.title,
+    description: enrollment.course.description,
+    price: enrollment.course.price,
+    category: enrollment.course.category,
+    difficulty: enrollment.course.difficulty,
+    progress: enrollment.progress,
+    purchaseDate: enrollment.inscripcionDate,
+    priceAtPurchase: enrollment.priceAtPurchase,
+    completed: !!enrollment.completedAt,
+    enrollmentId: enrollment.id,
+  }));
+}
+
   async getUserById(id: string) {
     const userFind = await this.userRepository.findUserWithProfile(id);
     const { password, ...userWithoutPassword } = userFind;

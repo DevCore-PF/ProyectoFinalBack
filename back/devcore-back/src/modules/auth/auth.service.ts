@@ -21,6 +21,7 @@ import { SocialProfileDto } from './dto/socialProfile.dto';
 import { SetPasswordDto } from './dto/set-password.dto';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { use } from 'passport';
+import { ChangePasswordRequestDto } from './dto/change-password-request.dto';
 
 @Injectable()
 export class AuthService {
@@ -248,6 +249,78 @@ export class AuthService {
     return { 
       message: 'Si este correo está registrado, recibirás un nuevo enlace de verificación.' 
     };
+  }
+
+  /**
+   * Metodo para solicitar el cambio de contraseña desde el panel del usuario logueado
+   */
+  async requestPasswordChange(
+    userId: string,
+    changePasswordDto: ChangePasswordRequestDto,
+  ) {
+    const { newPassword, confirmNewPassword } = changePasswordDto;
+
+    if (newPassword !== confirmNewPassword) {
+      throw new BadRequestException('Las contraseñas no coinciden');
+    }
+
+    const user = await this.userRepository.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    //aqui validamos si el usuario se registro con google y quiere solicitar cambio pero aun no tiene le mand eun error de que primero debe asiganrla
+    if (!user.password) {
+      throw new BadRequestException('Las cuentas sociales deben asignar una contraseña primero.');
+    }
+
+    //Hasheams la nueva contraseña
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    //Genera el token de confirmación
+    const confirmationToken = uuidv4();
+
+    //Guarda el hash y el token en la BD esto es temporal
+    user.newPasswordRequest = hashedNewPassword;
+    user.newPasswordToken = confirmationToken;
+    await this.userRepository.save(user);
+
+    //Envía el correo de confirmación
+    await this.mailService.sendPasswordChangeConfirmation(
+      user.email,
+      confirmationToken,
+    );
+
+    return {
+      message: 'Solicitud recibida. Revisa tu correo para confirmar el cambio.',
+    };
+  }
+
+  /**
+   * Metodo para confirmar el cambio de contraseña en el mail que le llego al usuario
+   */
+  async confirmPasswordChange(token: string) {
+    //Busca al usuario por el token de cambio
+    const user = await this.userRepository.findUserByChangeToken(token);
+
+    if (!user || !user.newPasswordRequest) {
+      throw new BadRequestException(
+        'El token es inválido o ha expirado.',
+      );
+    }
+
+    // el token es validado
+    //y cambiamos la contraseña original por la temporal
+    user.password = user.newPasswordRequest;
+    
+    //Limpiamos los campos temporales
+    user.newPasswordRequest = undefined;
+    user.newPasswordToken = undefined;
+
+    // 4. Guardamos el usuario con su contraseña actualizada
+    await this.userRepository.save(user);
+
+    return { message: 'Contraseña actualizada exitosamente.' };
   }
 
   /**
