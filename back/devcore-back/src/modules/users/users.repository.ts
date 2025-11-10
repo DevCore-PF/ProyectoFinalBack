@@ -3,20 +3,29 @@ import { User } from './entities/user.entity';
 import { Repository, DeepPartial } from 'typeorm'; // <-- 1. Importa DeepPartial
 import { CreateUserDto } from './dto/create-user.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { UserRole } from './enums/user-role.enum';
 
 @Injectable()
 export class UsersRepository {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-  ) { }
+  ) {}
 
-  async getAll() {
-    const users = await this.userRepository.find({
-      where: { isActive: true },
+  async getAll(filters: { isActive?: boolean; role?: UserRole }) {
+    const where: any = {};
+
+    if (filters.isActive !== undefined) {
+      where.isActive = filters.isActive;
+    }
+
+    if (filters.role) {
+      where.role = filters.role;
+    }
+    const users = await this.userRepository.find({ where });
+    return users.map((u) => {
+      const { password, ...rest } = u;
+      return rest;
     });
-    return users.map(
-      ({ password, ...userWithoutPassword }) => userWithoutPassword,
-    );
   }
 
   //Metodo que obtiene todos los usuarios de la base de datos
@@ -75,8 +84,8 @@ export class UsersRepository {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: {
-        professorProfile: true
-      }
+        professorProfile: true,
+      },
     });
     if (!user) throw new NotFoundException('Usuario no encontrado');
     return user;

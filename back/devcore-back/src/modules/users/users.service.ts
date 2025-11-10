@@ -13,10 +13,10 @@ import { GoogleUserDto } from '../auth/dto/google-user.dto';
 import { User } from './entities/user.entity';
 import { GithubUserDto } from '../auth/dto/github-user.dto';
 import { SocialProfileDto } from '../auth/dto/socialProfile.dto';
+import { UserRole } from './enums/user-role.enum';
 
 @Injectable()
 export class UsersService {
-
   constructor(
     private userRepository: UsersRepository,
     private readonly dataSource: DataSource,
@@ -99,29 +99,28 @@ export class UsersService {
     }
   }
 
-  //Metodo para manejar los dos tipos de sesion 
-    createSocialUser(profile: SocialProfileDto): Promise<User> {
-      const {email, name, image, provider, providerId} = profile;
+  //Metodo para manejar los dos tipos de sesion
+  createSocialUser(profile: SocialProfileDto): Promise<User> {
+    const { email, name, image, provider, providerId } = profile;
 
-      const newUser = this.userRepository.create({
-        email,
-        name,
-        image,
-        role: undefined,
-        hasCompletedProfile: false,
-        isEmailVerified: true,
+    const newUser = this.userRepository.create({
+      email,
+      name,
+      image,
+      role: undefined,
+      hasCompletedProfile: false,
+      isEmailVerified: true,
 
-        //vinculamos la cuenta correcta
-        isGoogleAccount: provider === 'google',
-        googleId: provider === 'google' ? providerId : undefined,
-        isGitHubAccount: provider === 'github',
-        githubId: provider === 'github' ? providerId: undefined,
+      //vinculamos la cuenta correcta
+      isGoogleAccount: provider === 'google',
+      googleId: provider === 'google' ? providerId : undefined,
+      isGitHubAccount: provider === 'github',
+      githubId: provider === 'github' ? providerId : undefined,
 
-        password: undefined,
-      })
-      return this.userRepository.save(newUser);
+      password: undefined,
+    });
+    return this.userRepository.save(newUser);
   }
-  
 
   async updateUserImage(id: string, imageUrl: string) {
     try {
@@ -139,8 +138,8 @@ export class UsersService {
     }
   }
 
-  async getAllUser() {
-    return await this.userRepository.getAll();
+  async getAllUser(filters: { isActive?: boolean; role?: UserRole }) {
+    return await this.userRepository.getAll(filters);
   }
 
   async getUserById(id: string) {

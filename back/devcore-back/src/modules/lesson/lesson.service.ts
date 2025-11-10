@@ -20,6 +20,10 @@ export class LessonsService {
     return this.lessonsRepository.getAllLessons();
   }
 
+  async findLessonsByCourseId(courseId: string): Promise<Lesson[]> {
+    return await this.lessonsRepository.findLessonsByCourseId(courseId);
+  }
+
   async getLessonById(id: string): Promise<Lesson> {
     const lesson = await this.lessonsRepository.getLessonById(id);
     if (!lesson) throw new NotFoundException('Lesson not found');

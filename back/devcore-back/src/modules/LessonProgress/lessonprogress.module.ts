@@ -7,13 +7,15 @@ import { Lesson } from 'src/modules/lesson/entities/lesson.entity';
 import { User } from 'src/modules/users/entities/user.entity';
 import { LessonProgressRepository } from './lessonprogress.repository';
 import { Enrollment } from '../enrollments/entities/enrollment.entity';
+import { LessonsModule } from '../lesson/lesson.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([LessonProgress, Lesson, User, Enrollment]),
+    LessonsModule,
   ],
   controllers: [LessonProgressController],
   providers: [LessonProgressService, LessonProgressRepository],
-  exports: [LessonProgressService],
+  exports: [LessonProgressService, LessonProgressRepository],
 })
 export class LessonProgressModule {}

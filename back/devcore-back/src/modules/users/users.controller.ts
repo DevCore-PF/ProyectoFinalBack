@@ -13,6 +13,7 @@ import {
   MaxFileSizeValidator,
   ParseFilePipe,
   FileTypeValidator,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
@@ -31,6 +32,7 @@ import { ApigetAllUsersDocs } from './doc/getAllUsers.doc';
 import { ApiGetUserById } from './doc/getUserById.doc';
 import { ApiDeleteUserById } from './doc/deleteUserById.doc';
 import { ApiUpdateChecboxbyId } from './doc/updateChecbox.doc';
+import { UserRole } from './enums/user-role.enum';
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
@@ -83,8 +85,15 @@ export class UsersController {
 
   @Get()
   @ApigetAllUsersDocs()
-  findAll() {
-    return this.usersService.getAllUser();
+  findAll(
+    @Query('isActive') isActive?: string,
+    @Query('role') role?: UserRole,
+  ) {
+    const filters = {
+      isActive: isActive ? isActive === 'true' : undefined,
+      role,
+    };
+    return this.usersService.getAllUser(filters);
   }
 
   @Get(':id')
