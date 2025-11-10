@@ -4,6 +4,7 @@ import { Repository, DeepPartial } from 'typeorm'; // <-- 1. Importa DeepPartial
 import { CreateUserDto } from './dto/create-user.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRole } from './enums/user-role.enum';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @Injectable()
 export class UsersRepository {
@@ -13,6 +14,14 @@ export class UsersRepository {
 
   async getAllActiveUser() {
     const users = await this.userRepository.find({ where: { isActive: true } });
+    return users.map((u) => {
+      const { password, ...rest } = u;
+      return rest;
+    });
+  }
+
+  async getAllUsers() {
+    const users = await this.userRepository.find();
     return users.map((u) => {
       const { password, ...rest } = u;
       return rest;
@@ -150,5 +159,11 @@ export class UsersRepository {
     findUser.isActive = false;
     await this.userRepository.save(findUser);
     return findUser;
+  }
+
+  async findInactiveUser(userId: string) {
+    return await this.userRepository.findOne({
+      where: { id: userId, isActive: false },
+    });
   }
 }

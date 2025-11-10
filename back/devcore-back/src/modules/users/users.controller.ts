@@ -34,6 +34,9 @@ import { ApiUpdateChecboxbyId } from './doc/updateChecbox.doc';
 import { UserRole } from './enums/user-role.enum';
 import { AuthGuard } from '@nestjs/passport';
 import { ApigetAllInactiveUsersDocs } from './doc/getAllInactiveUsers.doc';
+import { UserResponseDto } from './dto/user-response.dto';
+import { ApigetAllUsersDocs } from './doc/getAllUsers.doc';
+import { ApiActivateUserDocs } from './doc/activateUserById.doc';
 
 @ApiTags('users')
 @Controller('users')
@@ -85,6 +88,12 @@ export class UsersController {
     return this.usersService.updateUserImage(id, result.secure_url);
   }
 
+  @Get()
+  @ApigetAllUsersDocs()
+  getAllUsers() {
+    return this.usersService.getAllUsers();
+  }
+
   @Get('active')
   @ApigetAllActiveUsersDocs()
   getAllActiveUser() {
@@ -130,5 +139,11 @@ export class UsersController {
   @ApiUpdateChecboxbyId()
   updateCheckbox(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.updateCheckbox(id);
+  }
+
+  @Patch('activate/:userId')
+  @ApiActivateUserDocs()
+  activateUser(@Param('userId', ParseUUIDPipe) userId: string) {
+    return this.usersService.activateUser(userId);
   }
 }
