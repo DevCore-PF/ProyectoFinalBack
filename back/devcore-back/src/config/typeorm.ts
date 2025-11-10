@@ -12,6 +12,7 @@ const config = {
   autoLoadEntities: true,
   synchronize: true,
   // logging: true,
+  //logging: true,
   //dropSchema:true
 };
 
