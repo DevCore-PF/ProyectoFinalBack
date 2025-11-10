@@ -14,6 +14,7 @@ import { User } from './entities/user.entity';
 import { GithubUserDto } from '../auth/dto/github-user.dto';
 import { SocialProfileDto } from '../auth/dto/socialProfile.dto';
 import { UserRole } from './enums/user-role.enum';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @Injectable()
 export class UsersService {
@@ -137,6 +138,9 @@ export class UsersService {
       );
     }
   }
+  async getAllUsers() {
+    return await this.userRepository.getAllUsers();
+  }
 
   async getAllActiveUser() {
     return await this.userRepository.getAllActiveUser();
@@ -179,7 +183,8 @@ export class UsersService {
   }
 
   async deleteUser(id: string) {
-    return await this.userRepository.deleteUserRepo(id);
+    await this.userRepository.deleteUserRepo(id);
+    return 'Usuario desactivado correctamente';
   }
 
   async updateCheckbox(id: string) {
@@ -187,5 +192,14 @@ export class UsersService {
     userFind.checkBoxTerms = true;
     await this.userRepository.save(userFind);
     return userFind;
+  }
+
+  async activateUser(userId: string) {
+    const userFind = await this.userRepository.findInactiveUser(userId);
+    if (!userFind)
+      throw new NotFoundException('No se encontro el usuario inactivo');
+    userFind.isActive = true;
+    await this.userRepository.save(userFind);
+    return 'Usuario activado correctamente';
   }
 }
