@@ -36,6 +36,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApigetAllInactiveUsersDocs } from './doc/getAllInactiveUsers.doc';
 import { UserResponseDto } from './dto/user-response.dto';
 import { ApigetAllUsersDocs } from './doc/getAllUsers.doc';
+import { ApiActivateUserDocs } from './doc/activateUserById.doc';
 
 @ApiTags('users')
 @Controller('users')
@@ -141,6 +142,7 @@ export class UsersController {
   }
 
   @Patch('activate/:userId')
+  @ApiActivateUserDocs()
   activateUser(@Param('userId', ParseUUIDPipe) userId: string) {
     return this.usersService.activateUser(userId);
   }
