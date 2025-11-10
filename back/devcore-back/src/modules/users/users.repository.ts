@@ -132,6 +132,7 @@ return user;
       where: { id: userId },
       relations: {
         professorProfile: true,
+        enrollments: true,
       },
     });
     if (!user) throw new NotFoundException('Usuario no encontrado');
