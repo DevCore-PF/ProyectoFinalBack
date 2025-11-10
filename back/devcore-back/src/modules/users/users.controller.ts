@@ -27,13 +27,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ApiUpdateImageDocs } from './doc/updateImage.doc';
-import { ApigetAllUsersDocs } from './doc/getAllUsers.doc';
+import { ApigetAllActiveUsersDocs } from './doc/getAllActiveUsers.doc';
 import { ApiGetUserById } from './doc/getUserById.doc';
 import { ApiDeleteUserById } from './doc/deleteUserById.doc';
 import { ApiUpdateChecboxbyId } from './doc/updateChecbox.doc';
 import { UserRole } from './enums/user-role.enum';
 import { AuthGuard } from '@nestjs/passport';
-
+import { ApigetAllInactiveUsersDocs } from './doc/getAllInactiveUsers.doc';
 
 @ApiTags('users')
 @Controller('users')
@@ -85,17 +85,16 @@ export class UsersController {
     return this.usersService.updateUserImage(id, result.secure_url);
   }
 
-  @Get()
-  @ApigetAllUsersDocs()
-  findAll(
-    @Query('isActive') isActive?: string,
-    @Query('role') role?: UserRole,
-  ) {
-    const filters = {
-      isActive: isActive ? isActive === 'true' : undefined,
-      role,
-    };
-    return this.usersService.getAllUser(filters);
+  @Get('active')
+  @ApigetAllActiveUsersDocs()
+  getAllActiveUser() {
+    return this.usersService.getAllActiveUser();
+  }
+
+  @Get('inactive')
+  @ApigetAllInactiveUsersDocs()
+  getAllInactiveUser() {
+    return this.usersService.getAllInactiveUser();
   }
 
   @Get('me/purchased-courses')
@@ -105,7 +104,7 @@ export class UsersController {
   async getMyPurchasedCourses(@Req() req) {
     const userId = req.user.sub;
     return this.usersService.getUserPurchasedCourses(userId);
-}
+  }
 
   @Get(':id')
   @ApiGetUserById()
