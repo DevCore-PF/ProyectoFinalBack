@@ -10,6 +10,6 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
   controllers: [LessonsController],
   providers: [LessonsService, LessonsRepository],
   imports: [TypeOrmModule.forFeature([Lesson]), CloudinaryModule],
-  exports: [],
+  exports: [LessonsRepository],
 })
 export class LessonsModule {}

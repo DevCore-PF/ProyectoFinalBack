@@ -12,6 +12,7 @@ import { ProfilesModule } from './modules/profiles/profiles.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { LessonProgressModule } from './modules/LessonProgress/lessonprogress.module';
 import { CourseFeedbackModule } from './modules/CourseFeedback/courseFeedback.module';
+import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { CourseFeedbackModule } from './modules/CourseFeedback/courseFeedback.mo
     PaymentsModule,
     LessonProgressModule,
     CourseFeedbackModule,
+    EnrollmentsModule,
   ],
 })
 export class AppModule {}
