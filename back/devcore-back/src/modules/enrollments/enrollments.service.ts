@@ -14,7 +14,7 @@ export class EnrollmentService {
 
   async createEnrollmentsForUser(
     userId: string,
-    enrollmentData: { courseId: string; priceInCents: number }[],
+    enrollmentData: { courseId: string; priceInCents: number, paymentId: string}[],
   ) {
     const enrollments = enrollmentData.map((data) => {
       return this.enrollmentRepository.create({
@@ -22,6 +22,7 @@ export class EnrollmentService {
         course: { id: data.courseId },
         progress: 0,
         priceAtPurchase: data.priceInCents / 100.0,
+        payment: {id: data.paymentId}
       });
     });
 
