@@ -47,6 +47,8 @@ import { ApiGetCourseByIdDoc } from './doc/getCourseById.doc';
 import { AuthGuard } from '@nestjs/passport';
 import { CourseFeedback } from '../CourseFeedback/entities/courseFeedback.entity';
 import { CourseFeedbackService } from '../CourseFeedback/courseFeedback.service';
+import { ApiChangeCourseVisibilityDoc } from './doc/chageVisibility.doc';
+import { ApiChangeStatusCourseDoc } from './doc/changeStatus.doc';
 
 @Controller('courses')
 export class CoursesController {
@@ -136,13 +138,7 @@ export class CoursesController {
 
       const fileUrls = uploadResults
         .filter((result): result is UploadApiResponse => !!result?.secure_url)
-        .map((result) => {
-          // Si es PDF, agregar fl_attachment:false para que se visualice en el navegador
-          if (fileType === 'pdf') {
-            return result.secure_url;
-          }
-          return result.secure_url;
-        });
+        .map((result) => result.secure_url);
 
       if (fileUrls.length !== files.length) {
         throw new BadRequestException(
@@ -192,8 +188,15 @@ export class CoursesController {
     return { hasFeedback };
   }
 
-  @Patch('change/visibility//:courseId')
+  @Patch('change/visibility/:courseId')
+  @ApiChangeCourseVisibilityDoc()
   async changeVisivility(@Param('courseId', ParseUUIDPipe) courseId: string) {
     return await this.coursesService.changeVisivility(courseId);
+  }
+
+  @Patch('/:courseId/status')
+  @ApiChangeStatusCourseDoc()
+  async changeStatus(@Param('courseId', ParseUUIDPipe) courseId: string) {
+    return await this.coursesService.changeStatus(courseId);
   }
 }

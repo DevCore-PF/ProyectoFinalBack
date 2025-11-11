@@ -33,4 +33,8 @@ export class LessonsRepository {
   async deleteLesson(data: Lesson) {
     return this.lessonRepository.save(data);
   }
+
+  async addAditionalData(lessonFind) {
+    return this.lessonRepository.save(lessonFind);
+  }
 }
