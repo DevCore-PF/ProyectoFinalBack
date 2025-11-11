@@ -1,4 +1,12 @@
-import { Controller, Post, Param, Req, UseGuards, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Param,
+  Req,
+  UseGuards,
+  Get,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { LessonProgressService } from './lessonprogress.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiMarkLessonCompleteDocs } from './doc/lessonprogress.docs';
@@ -11,7 +19,10 @@ export class LessonProgressController {
   @UseGuards(AuthGuard('jwt'))
   @Post(':lessonId/complete')
   @ApiMarkLessonCompleteDocs()
-  async completeLesson(@Param('lessonId') lessonId: string, @Req() req) {
+  async completeLesson(
+    @Param('lessonId', ParseUUIDPipe) lessonId: string,
+    @Req() req,
+  ) {
     const userId = req.user.sub;
     return await this.lessonProgressService.markLessonCompleted(
       userId,
@@ -22,7 +33,10 @@ export class LessonProgressController {
   @Get('completed/:courseId')
   @UseGuards(AuthGuard('jwt'))
   @ApiGetCompletedLessonbyCourse()
-  async getCompletedLessons(@Param('courseId') courseId: string, @Req() req) {
+  async getCompletedLessons(
+    @Param('courseId', ParseUUIDPipe) courseId: string,
+    @Req() req,
+  ) {
     const userId = req.user.sub;
     return this.lessonProgressService.getCompletedLessons(userId, courseId);
   }

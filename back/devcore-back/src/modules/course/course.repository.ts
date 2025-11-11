@@ -30,7 +30,7 @@ export class CoursesRepository {
   async findById(id: string): Promise<Course | null> {
     return this.courseRepository.findOne({
       where: { id },
-      relations: ['lessons', 'professor.user'],
+      relations: ['lessons', 'courseFeedback'],
     });
   }
 

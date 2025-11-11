@@ -6,6 +6,7 @@ import { User } from 'src/modules/users/entities/user.entity';
 import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { LessonProgress } from './entities/lessoprogress.entity';
 import { Lesson } from '../lesson/entities/lesson.entity';
+import { log } from 'console';
 
 @Injectable()
 export class LessonProgressRepository {
@@ -83,5 +84,54 @@ export class LessonProgressRepository {
         },
       },
     });
+  }
+
+  async countCompleted(userId: string, courseId: string): Promise<number> {
+    return await this.progressRepo.count({
+      where: {
+        user: { id: userId },
+        lesson: { course: { id: courseId } },
+        completed: true,
+      },
+    });
+  }
+
+  async updateEnrollmentProgress(
+    userId: string,
+    courseId: string,
+    progress: number,
+  ) {
+    const enrollment = await this.enrollmentRepo.findOne({
+      where: { user: { id: userId }, course: { id: courseId } },
+    });
+
+    if (!enrollment) {
+      throw new Error('Enrollment not found');
+    }
+
+    const currentProgress = Number(enrollment.progress) || 0;
+    const newProgress = Math.min(
+      Number((currentProgress + progress).toFixed(2)),
+      100,
+    );
+
+    const updateData: Partial<Enrollment> = {
+      progress: newProgress,
+    };
+
+    if (newProgress === 100) {
+      updateData.completed = true;
+      updateData.completedAt = new Date();
+    }
+
+    console.log(newProgress);
+
+    await this.enrollmentRepo.update({ id: enrollment.id }, updateData);
+
+    const updatedEnrollment = await this.enrollmentRepo.findOne({
+      where: { id: enrollment.id },
+    });
+
+    return updatedEnrollment;
   }
 }

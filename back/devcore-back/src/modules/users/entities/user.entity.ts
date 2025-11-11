@@ -17,6 +17,7 @@ import { Enrollment } from 'src/modules/enrollments/entities/enrollment.entity';
 import { Cart } from 'src/modules/cart/entities/cart.entity';
 import { LessonProgress } from 'src/modules/LessonProgress/entities/lessoprogress.entity';
 import { CourseFeedback } from 'src/modules/CourseFeedback/entities/courseFeedback.entity';
+import { Payment } from 'src/modules/payments/entities/payment.entity';
 
 @Entity('users')
 export class User {
@@ -147,6 +148,9 @@ export class User {
   @OneToMany(() => LessonProgress, (progress) => progress.user)
   lessonProgress: LessonProgress[];
 
+  @OneToMany(() => Payment, (payment) => payment.user)
+  payments: Payment[];
+
   isTeacher(): boolean {
     return this.role === UserRole.TEACHER;
   }
@@ -159,3 +163,5 @@ export class User {
     return this.role === UserRole.STUDENT;
   }
 }
+
+export { UserRole };

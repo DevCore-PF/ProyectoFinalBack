@@ -152,7 +152,7 @@ export class AuthController {
    * Solicitar un cambio de contraseña usuario loguedo
    */
   @Post('request-password-change')
-  @UseGuards(AuthGuard('jwt')) // ¡Protegido! El usuario debe estar logueado
+  @UseGuards(AuthGuard('jwt'))
   async requestPasswordChange(
     @Req() req,
     @Body() changePasswordDto: ChangePasswordRequestDto,

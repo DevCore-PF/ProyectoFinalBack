@@ -6,15 +6,21 @@ import { EnrollmentService } from '../enrollments/enrollments.service';
 import { CreateCheckoutDto } from './dto/create-checkout.dto';
 import { CartRepository } from '../cart/cart.repository';
 import { CartService } from '../cart/cart.service';
+import { PaymentRepository } from './payments.repository';
+import { UsersRepository } from '../users/users.repository';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     @Inject('STRIPE_CLIENT') private readonly stripe: Stripe,
     private readonly configService: ConfigService,
-    private readonly courseRepository: CoursesRepository,
     private readonly enrollmentsService: EnrollmentService,
-    private readonly cartService: CartService
+    private readonly cartService: CartService,
+    private readonly paymentRepository: PaymentRepository,
+    private readonly usersRepository: UsersRepository,
+    private readonly courseRepository: CoursesRepository,
+    private readonly mailService: MailService
   ) {}
 
   private readonly logger = new Logger(PaymentsService.name);
@@ -77,7 +83,7 @@ export class PaymentsService {
   }
 
   /**
-   * MANEJA EL WEBHOOK (VERSIÓN CON LOGGER)
+   * Maneja el webhoom de pago exitoso
    */
   async handleWebhook(buffer: Buffer, signature: string) {
     const secret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
@@ -93,22 +99,28 @@ export class PaymentsService {
         throw new BadRequestException(`Webhook Error: ${err.message}`)
     }
 
-    // 3. Usa el logger de NestJS (este SÍ debería aparecer en tu consola)
     this.logger.log(`[Stripe Webhook] Evento recibido: ${event.type}`);
 
-    // Maneja el evento
     if(event.type === 'checkout.session.completed'){
         this.logger.log('[Stripe Webhook] Procesando checkout.session.completed...');
         const session = event.data.object as Stripe.Checkout.Session;
 
+        // 1. Obtiene los detalles completos del pago (para la tarjeta)
+        const paymentIntent = await this.stripe.paymentIntents.retrieve(
+          session.payment_intent as string, 
+          {expand: ['payment_method']}
+        );
+
         const userId = session.client_reference_id;
-        if (!session.metadata) {
+        const metadata = session.metadata;
+        
+        if (!metadata) {
             this.logger.error('[Stripe Webhook] ¡ERROR! No hay metadatos en la sesión.');
             throw new BadRequestException('No metadata found in session');
         }
         
-        const courseIds = JSON.parse(session.metadata.courseIds) as string[];
-        const prices = JSON.parse(session.metadata.prices) as Record<string, number>;
+        const courseIds = JSON.parse(metadata.courseIds) as string[];
+        const prices = JSON.parse(metadata.prices) as Record<string, number>;
 
         if(!userId || !courseIds || !prices){
             this.logger.error('[Stripe Webhook] ¡ERROR! Faltan metadatos (userId, courseIds, o prices).');
@@ -117,26 +129,51 @@ export class PaymentsService {
 
         this.logger.log(`[Stripe Webhook] Datos recuperados: UserID: ${userId}`);
 
-        const enrollmentsData = courseIds.map(id => ({
-            courseId: id,
-            priceInCents: prices[id]
-        }))
-
-        // 4. ¡EL BLOQUE TRY...CATCH CRÍTICO!
+        // ¡AQUÍ ESTÁ LA LÓGICA CRÍTICA!
         try {
+            // --- TAREA 2: GUARDAR EL PAGO (HACER ESTO PRIMERO) ---
+            this.logger.log('[Stripe Webhook] Guardando la transacción...');
+            const newPayment = this.paymentRepository.create({
+              stripeId: paymentIntent.id,
+              user: { id: userId },
+              amount: paymentIntent.amount,
+              currency: paymentIntent.currency,
+              status: paymentIntent.status,
+              cardBrand: (paymentIntent.payment_method as any).card.brand,
+              cardLast4: (paymentIntent.payment_method as any).card.last4,
+            });
+            // Guarda el pago y obtén la entidad guardada (con su ID)
+            const savedPayment = await this.paymentRepository.save(newPayment);
+            this.logger.log(`[Stripe Webhook] Transacción ${savedPayment.id} guardada.`);
+
+
+            // --- Prepara los datos para las inscripciones ---
+            const enrollmentsData = courseIds.map(id => ({
+              courseId: id,
+              priceInCents: prices[id],
+              paymentId: savedPayment.id, // <-- ¡Ahora SÍ pasas el ID del pago!
+            }));
+
+            // --- Crea las inscripciones ---
             this.logger.log('[Stripe Webhook] Intentando crear inscripciones...');
             await this.enrollmentsService.createEnrollmentsForUser(userId, enrollmentsData);
             this.logger.log('[Stripe Webhook] ¡Inscripciones creadas exitosamente!');
 
+            // --- Vacía el carrito ---
             this.logger.log('[Stripe Webhook] Intentando vaciar el carrito...');
             await this.cartService.clearCart(userId);
             this.logger.log(`[Stripe Webhook] Carrito vaciado para Usuario ID: ${userId}`);
 
-        } catch (error) {
-            // 5. ¡AQUÍ ES DONDE VERÁS EL ERROR!
-            // El logger.error SÍ aparecerá en tu consola si el nivel 'error' está activo
-            this.logger.error('[Stripe Webhook] ¡ERROR CRÍTICO al procesar la base de datos!:', error.stack);
+            // --- TAREA 1: ENVIAR EMAIL DE CONFIRMACIÓN ---
+            this.logger.log('[Stripe Webhook] Enviando email de confirmación...');
+            const user = await this.usersRepository.findUserById(userId);
+            const courses = await this.courseRepository.findCoursesByIds(courseIds);
             
+            await this.mailService.sendPurchaseConfirmation(user, savedPayment, courses);
+            this.logger.log('[Stripe Webhook] ¡Email enviado!');
+
+        } catch (error) {
+            this.logger.error('[Stripe Webhook] ¡ERROR CRÍTICO al procesar la base de datos!:', error.stack);
             throw new InternalServerErrorException('Error al procesar la inscripción en la base de datos.');
         }
     }

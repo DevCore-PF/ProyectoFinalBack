@@ -4,11 +4,18 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { LessonProgressRepository } from './lessonprogress.repository';
+import { Enrollment } from '../enrollments/entities/enrollment.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Lesson } from '../lesson/entities/lesson.entity';
+import { Repository } from 'typeorm';
+import { EnrollmentService } from '../enrollments/enrollments.service';
+import { LessonsRepository } from '../lesson/lesson.repository';
 
 @Injectable()
 export class LessonProgressService {
   constructor(
     private readonly lessonProgressRepository: LessonProgressRepository,
+    private readonly lessonRepository: LessonsRepository,
   ) {}
 
   async markLessonCompleted(userId: string, lessonId: string) {
@@ -40,7 +47,12 @@ export class LessonProgressService {
       progress.completedAt = new Date();
     }
 
-    return this.lessonProgressRepository.saveProgress(progress);
+    const saveProgress =
+      await this.lessonProgressRepository.saveProgress(progress);
+
+    await this.updateEnrollmentProgress(user.id, lesson.course.id);
+
+    return saveProgress;
   }
 
   async getCompletedLessons(userId: string, courseId: string) {
@@ -61,5 +73,26 @@ export class LessonProgressService {
       totalCompleted: completedLessons.length,
       lessons: completedLessons.map((p) => p.lesson),
     };
+  }
+
+  private async updateEnrollmentProgress(userId: string, courseId: string) {
+    const courseLessons =
+      await this.lessonRepository.findLessonsByCourseId(courseId);
+    const totalLessons = courseLessons.length;
+
+    if (totalLessons === 0) return;
+
+    const completedLessons = await this.lessonProgressRepository.countCompleted(
+      userId,
+      courseId,
+    );
+
+    const progressPercentage = (completedLessons / totalLessons) * 100;
+
+    await this.lessonProgressRepository.updateEnrollmentProgress(
+      userId,
+      courseId,
+      progressPercentage,
+    );
   }
 }
