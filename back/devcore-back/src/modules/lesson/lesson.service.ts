@@ -37,4 +37,11 @@ export class LessonsService {
     await this.lessonsRepository.deleteLesson(LessonFind);
     return `Leccion ${LessonFind.title} desactiva correctamente`;
   }
+
+  async addAditionalData(lessonId: string, aditionalData: string[]) {
+    const lessonFind = await this.lessonsRepository.getLessonById(lessonId);
+    if (!lessonFind) throw new NotFoundException('Leccion no encontrada');
+    lessonFind.aditionalData = aditionalData;
+    return await this.lessonsRepository.addAditionalData(lessonFind);
+  }
 }

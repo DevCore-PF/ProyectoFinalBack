@@ -8,7 +8,7 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { Course, CourseStatus, Visibility } from './entities/course.entity';
 import { Lesson } from '../lesson/entities/lesson.entity';
 import { CreateLessonDto } from '../lesson/dto/create-lesson.dto';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProfessorProfile } from '../profiles/entities/professor-profile.entity';
 
@@ -101,13 +101,27 @@ export class CoursesService {
     return await this.coursesRepository.updateCourse(courseFind);
   }
 
-  async changeVisivility(courseId) {
+  async changeVisivility(courseId: string) {
     const courseFind = await this.coursesRepository.findById(courseId);
     if (!courseFind) throw new NotFoundException('Curso no encontrado');
     if (courseFind.visibility === Visibility.PRIVATE) {
       courseFind.visibility = Visibility.PUBLIC;
     } else courseFind.visibility = Visibility.PRIVATE;
     await this.coursesRepository.updateCourse(courseFind);
-    return 'Curso en linea';
+    return courseFind;
+  }
+
+  async changeStatus(courseId: string) {
+    const courseFind = await this.coursesRepository.findById(courseId);
+    if (!courseFind) throw new NotFoundException('Curso no encontrado');
+    if (courseFind.isActive === true) {
+      courseFind.isActive = false;
+      await this.coursesRepository.updateCourse(courseFind);
+      return courseFind;
+    } else {
+      courseFind.isActive = true;
+      await this.coursesRepository.updateCourse(courseFind);
+      return courseFind;
+    }
   }
 }
