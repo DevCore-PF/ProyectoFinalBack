@@ -92,4 +92,24 @@ export class CourseFeedbackRepository {
       },
     });
   }
+
+  // metodo del repositorio para feedback
+  async getCourseFeedbacks(courseId: string) {
+    return await this.feedbackRepo.find({
+      where: { course: { id: courseId } },
+      relations: ['user'],
+      select: {
+        id: true,
+        rating: true,
+        feedback: true,
+        createdAt: true,
+        user: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+      order: { createdAt: 'DESC' },
+    });
+  }
 }

@@ -170,10 +170,18 @@ export class UsersRepository {
 
         enrollments: {
           id: true,
+          completed: true,
+          completedAt: true,
+          priceAtPurchase: true,
+          inscripcionDate: true,
+          progress: true,
+          diplomaUrl: true,
+
           course: {
             id: true,
             title: true,
             duration: true,
+
             professor: {
               id: true,
               speciality: true,
