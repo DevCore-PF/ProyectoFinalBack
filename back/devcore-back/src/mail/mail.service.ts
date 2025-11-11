@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
+import { Subject } from 'rxjs';
 
 @Injectable()
 export class MailService {
@@ -15,6 +16,113 @@ export class MailService {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+    });
+  }
+
+  /**
+   * Envía un correo de confirmación de compra
+   */
+  async sendPurchaseConfirmation(user, payment, courses) {
+    const dashboardUrl = `${process.env.FRONTEND_URL}/dashboard`; 
+
+    // 2. Formatea la lista de cursos
+    const courseListHtml = courses.map(course => 
+      `<li style="margin-bottom: 10px; line-height: 1.5; color: #4a5568;">
+         ${course.title} - <strong style="color: #1a202c;">$${(course.price).toFixed(2)} ${payment.currency.toUpperCase()}</strong>
+       </li>`
+    ).join('');
+
+    // 3. Formatea el total (el 'amount' de Stripe está en centavos)
+    const totalAmount = (payment.amount / 100).toFixed(2);
+
+    await this.transporter.sendMail({
+      from: '"DevCore" <noreply@tuapp.com>',
+      to: user.email,
+      subject: '✅ ¡Gracias por tu compra en DevCore!',
+      html: `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Confirmación de Compra</title>
+    </head>
+    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7fa;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f7fa; padding: 40px 20px;">
+        <tr>
+          <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden; max-width: 100%;">
+              
+              <tr>
+                <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+                <img src="https://res.cloudinary.com/dclx6hdpk/image/upload/v1762290639/logo2_gxkhlq.png" 
+                       alt="DevCore Logo" 
+                       style="width: 140px; height: 140px; margin-bottom: 20px; display: inline-block; border-radius: 12px; background-color: rgba(255, 255, 255, 0.1); padding: 8px;">
+                  <p style="margin: 10px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px;">
+                    Tu plataforma de cursos
+                  </p>
+                </td>
+              </tr>
+              
+              <tr>
+                <td style="padding: 50px 40px;">
+                  <h2 style="margin: 0 0 20px 0; color: #1a202c; font-size: 28px; font-weight: 600;">
+                    ¡Tu compra ha sido exitosa!
+                  </h2>
+                  <p style="margin: 0 0 25px 0; color: #4a5568; font-size: 16px; line-height: 1.6;">
+                    ¡Hola <strong>${user.name}</strong>! Gracias por tu confianza. Tu pago ha sido procesado exitosamente y los siguientes cursos ya han sido añadidos a tu cuenta.
+                  </p>
+                  
+                  <div style="margin: 30px 0; padding: 20px; background-color: #f7fafc; border-radius: 8px;">
+                    <h3 style="margin: 0 0 15px 0; color: #1a202c; font-weight: 600;">Cursos Adquiridos:</h3>
+                    <ul style="margin: 0; padding-left: 20px;">
+                      ${courseListHtml}
+                    </ul>
+                  </div>
+                  
+                  <table width="100%" cellpadding="0" cellspacing="0" style="margin: 35px 0;">
+                    <tr>
+                      <td align="center">
+                        <a href="${dashboardUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: transform 0.2s;">
+                          Ir a Mis Cursos
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              
+              <tr>
+                <td style="background-color: #f7fafc; padding: 30px 40px; border-top: 1px solid #e2e8f0;">
+                  <p style="margin: 0 0 15px 0; color: #4a5568; font-size: 16px; line-height: 1.6;">
+                    <strong>Detalles de tu transacción:</strong>
+                  </p>
+                  <ul style="margin: 0; padding-left: 20px; color: #718096; font-size: 14px; line-height: 1.8;">
+                    <li><strong>Total Pagado:</strong> $${totalAmount} ${payment.currency.toUpperCase()}</li>
+                    <li><strong>Pagado con:</strong> ${payment.cardBrand} terminada en **** ${payment.cardLast4}</li>
+                    <li><strong>ID de Transacción:</strong> ${payment.stripeId}</li>
+                  </ul>
+                </td>
+              </tr>
+              
+              <tr>
+                <td style="background-color: #1a202c; padding: 30px 40px; text-align: center;">
+                  <p style="margin: 0 0 10px 0; color: #a0aec0; font-size: 14px;">
+                    © ${new Date().getFullYear()} DevCore. Todos los derechos reservados.
+                  </p>
+                  <p style="margin: 0; color: #718096; font-size: 12px;">
+                    ¿Necesitas ayuda? <a href="mailto:devcoreacademia@gmail.com" style="color: #667eea; text-decoration: none;">Contáctanos</a>
+                  </p>
+                </td>
+              </tr>
+              
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `,
     });
   }
 

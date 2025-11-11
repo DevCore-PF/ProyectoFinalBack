@@ -1,10 +1,12 @@
 import { Course } from 'src/modules/course/entities/course.entity';
+import { Payment } from 'src/modules/payments/entities/payment.entity';
 import { User } from 'src/modules/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -46,4 +48,8 @@ export class Enrollment {
 
   @CreateDateColumn()
   inscripcionDate: Date;
+
+  //relacion hacia los datos del pago del curso
+  @ManyToOne(() => Payment, (payment) => payment.enrollments, {nullable:false})
+  payment: Payment
 }
