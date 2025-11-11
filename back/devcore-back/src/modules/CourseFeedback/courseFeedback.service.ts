@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { CourseFeedbackRepository } from './courseFeedback.repository';
 import { CreateCourseFeedbackDto } from './dto/courseFeedback.dto';
+import { User } from '../users/entities/user.entity';
+import { CourseFeedback } from './entities/courseFeedback.entity';
 
 @Injectable()
 export class CourseFeedbackService {

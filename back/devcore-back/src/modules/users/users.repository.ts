@@ -28,6 +28,14 @@ export class UsersRepository {
     });
   }
 
+  async getUserByRole(role: UserRole) {
+    const users = await this.userRepository.find({ where: { role: role } });
+    return users.map((u) => {
+      const { password, ...rest } = u;
+      return rest;
+    });
+  }
+
   //Metodo que obtiene todos los usuarios de la base de datos
   async getAllInactiveUser() {
     const users = await this.userRepository.find({
@@ -137,7 +145,7 @@ export class UsersRepository {
       where: { id: userId },
       relations: {
         professorProfile: true,
-        enrollments: true,
+        enrollments: { course: true, user: true },
       },
     });
     if (!user) throw new NotFoundException('Usuario no encontrado');

@@ -159,3 +159,5 @@ export class User {
     return this.role === UserRole.STUDENT;
   }
 }
+
+export { UserRole };
