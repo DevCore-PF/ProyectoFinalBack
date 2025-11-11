@@ -41,14 +41,14 @@ export class CourseFeedbackRepository {
     });
   }
 
-  async findExistingFeedback(
-    userId: string,
-    courseId: string,
-  ): Promise<CourseFeedback | null> {
-    return this.feedbackRepo.findOne({
-      where: { user: { id: userId }, course: { id: courseId } },
-    });
-  }
+  async findExistingFeedback(userId: string, courseId: string) {
+  return await this.feedbackRepo.findOne({
+    where: {
+      user: { id: userId },
+      course: { id: courseId }
+    }
+  });
+}
 
   async saveFeedback(feedback: CourseFeedback): Promise<CourseFeedback> {
     return this.feedbackRepo.save(feedback);
