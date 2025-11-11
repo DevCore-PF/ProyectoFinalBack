@@ -166,4 +166,9 @@ export class CoursesController {
   ) {
     return await this.coursesService.updateCourseById(id, data);
   }
+
+  @Patch('visibility/changeToPublic/:courseId')
+  async changeVisivility(@Param('courseId', ParseUUIDPipe) courseId: string) {
+    return await this.coursesService.changeVisivility(courseId);
+  }
 }

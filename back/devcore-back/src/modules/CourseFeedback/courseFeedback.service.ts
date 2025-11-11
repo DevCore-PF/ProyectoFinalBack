@@ -41,4 +41,10 @@ export class CourseFeedbackService {
     const feedback = this.feedbackRepo.createFeedback(user, course, dto);
     return await this.feedbackRepo.saveFeedback(feedback);
   }
+
+  async getAllFeedBacks() {
+    const feedbacksFounds = await this.feedbackRepo.getAllFeedBacks();
+
+    return feedbacksFounds;
+  }
 }
