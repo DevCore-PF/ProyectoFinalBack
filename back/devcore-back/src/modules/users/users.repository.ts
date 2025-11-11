@@ -145,7 +145,28 @@ export class UsersRepository {
       where: { id: userId },
       relations: {
         professorProfile: true,
-        enrollments: { course: true, user: true },
+        enrollments: { course: { professor: { user: true } } },
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+
+        enrollments: {
+          id: true,
+          course: {
+            id: true,
+            title: true,
+            duration: true,
+            professor: {
+              id: true,
+              speciality: true,
+              user: { id: true, name: true },
+            },
+          },
+        },
       },
     });
     if (!user) throw new NotFoundException('Usuario no encontrado');
