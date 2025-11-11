@@ -85,9 +85,6 @@ export class PaymentsService {
   /**
    * Maneja el webhoom de pago exitoso
    */
-  /**
-   * MANEJA EL WEBHOOK (Versión Final Completa)
-   */
   async handleWebhook(buffer: Buffer, signature: string) {
     const secret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
     if (!secret) {
@@ -104,13 +101,11 @@ export class PaymentsService {
 
     this.logger.log(`[Stripe Webhook] Evento recibido: ${event.type}`);
 
-    // Maneja el evento
     if(event.type === 'checkout.session.completed'){
         this.logger.log('[Stripe Webhook] Procesando checkout.session.completed...');
         const session = event.data.object as Stripe.Checkout.Session;
 
-        // --- ¡AQUÍ ESTÁ TU CÓDIGO! (Obtener el PaymentIntent) ---
-        // Esto es crucial para obtener los detalles de la tarjeta
+        // 1. Obtiene los detalles completos del pago (para la tarjeta)
         const paymentIntent = await this.stripe.paymentIntents.retrieve(
           session.payment_intent as string, 
           {expand: ['payment_method']}
@@ -134,19 +129,20 @@ export class PaymentsService {
 
         this.logger.log(`[Stripe Webhook] Datos recuperados: UserID: ${userId}`);
 
-        // ¡EL BLOQUE TRY...CATCH CRÍTICO!
+        // ¡AQUÍ ESTÁ LA LÓGICA CRÍTICA!
         try {
-            // --- TAREA 2: GUARDAR EL PAGO ---
+            // --- TAREA 2: GUARDAR EL PAGO (HACER ESTO PRIMERO) ---
             this.logger.log('[Stripe Webhook] Guardando la transacción...');
             const newPayment = this.paymentRepository.create({
               stripeId: paymentIntent.id,
               user: { id: userId },
-              amount: paymentIntent.amount, // En centavos
+              amount: paymentIntent.amount,
               currency: paymentIntent.currency,
               status: paymentIntent.status,
               cardBrand: (paymentIntent.payment_method as any).card.brand,
               cardLast4: (paymentIntent.payment_method as any).card.last4,
             });
+            // Guarda el pago y obtén la entidad guardada (con su ID)
             const savedPayment = await this.paymentRepository.save(newPayment);
             this.logger.log(`[Stripe Webhook] Transacción ${savedPayment.id} guardada.`);
 
@@ -155,7 +151,7 @@ export class PaymentsService {
             const enrollmentsData = courseIds.map(id => ({
               courseId: id,
               priceInCents: prices[id],
-              paymentId: savedPayment.id, // <-- ¡Vincula la inscripción al pago!
+              paymentId: savedPayment.id, // <-- ¡Ahora SÍ pasas el ID del pago!
             }));
 
             // --- Crea las inscripciones ---
@@ -173,7 +169,6 @@ export class PaymentsService {
             const user = await this.usersRepository.findUserById(userId);
             const courses = await this.courseRepository.findCoursesByIds(courseIds);
             
-            // (Debes crear este método 'sendPurchaseConfirmation' en tu MailService)
             await this.mailService.sendPurchaseConfirmation(user, savedPayment, courses);
             this.logger.log('[Stripe Webhook] ¡Email enviado!');
 
