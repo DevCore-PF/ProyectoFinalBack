@@ -79,6 +79,7 @@ export class CloudinaryService {
           folder: 'lessons_documents',
           resource_type: 'raw',
           public_id: normalizedName,
+          flags: 'attachment:false',
         },
         (error, result) => {
           if (error) return reject(new BadRequestException(error.message));
