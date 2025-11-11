@@ -85,15 +85,16 @@ export class PaymentsService {
   /**
    * Maneja el webhoom de pago exitoso
    */
+  /**
+   * MANEJA EL WEBHOOK (Versión Final Completa)
+   */
   async handleWebhook(buffer: Buffer, signature: string) {
-    // Obtenemos el secreto del webhook
     const secret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
     if (!secret) {
         throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
     }
     let event: Stripe.Event;
 
-    // 1. Verifica la firma
     try {
         event = this.stripe.webhooks.constructEvent(buffer, signature, secret);
     } catch(err){
@@ -105,6 +106,7 @@ export class PaymentsService {
 
     // Maneja el evento
     if(event.type === 'checkout.session.completed'){
+        this.logger.log('[Stripe Webhook] Procesando checkout.session.completed...');
         const session = event.data.object as Stripe.Checkout.Session;
 
         // --- ¡AQUÍ ESTÁ TU CÓDIGO! (Obtener el PaymentIntent) ---
@@ -130,18 +132,41 @@ export class PaymentsService {
             throw new BadRequestException('Webhook Error: Faltan metadatos en la sesion')
         }
 
-        const enrollmentsData = courseIds.map(id => ({
-            courseId: id,
-            priceInCents: prices[id]
-        }))
+        this.logger.log(`[Stripe Webhook] Datos recuperados: UserID: ${userId}`);
 
-        // 4. ¡EL BLOQUE TRY...CATCH CRÍTICO!
+        // ¡EL BLOQUE TRY...CATCH CRÍTICO!
         try {
+            // --- TAREA 2: GUARDAR EL PAGO ---
+            this.logger.log('[Stripe Webhook] Guardando la transacción...');
+            const newPayment = this.paymentRepository.create({
+              stripeId: paymentIntent.id,
+              user: { id: userId },
+              amount: paymentIntent.amount, // En centavos
+              currency: paymentIntent.currency,
+              status: paymentIntent.status,
+              cardBrand: (paymentIntent.payment_method as any).card.brand,
+              cardLast4: (paymentIntent.payment_method as any).card.last4,
+            });
+            const savedPayment = await this.paymentRepository.save(newPayment);
+            this.logger.log(`[Stripe Webhook] Transacción ${savedPayment.id} guardada.`);
+
+
+            // --- Prepara los datos para las inscripciones ---
+            const enrollmentsData = courseIds.map(id => ({
+              courseId: id,
+              priceInCents: prices[id],
+              paymentId: savedPayment.id, // <-- ¡Vincula la inscripción al pago!
+            }));
+
+            // --- Crea las inscripciones ---
             this.logger.log('[Stripe Webhook] Intentando crear inscripciones...');
             await this.enrollmentsService.createEnrollmentsForUser(userId, enrollmentsData);
+            this.logger.log('[Stripe Webhook] ¡Inscripciones creadas exitosamente!');
 
+            // --- Vacía el carrito ---
             this.logger.log('[Stripe Webhook] Intentando vaciar el carrito...');
             await this.cartService.clearCart(userId);
+            this.logger.log(`[Stripe Webhook] Carrito vaciado para Usuario ID: ${userId}`);
 
             // --- TAREA 1: ENVIAR EMAIL DE CONFIRMACIÓN ---
             this.logger.log('[Stripe Webhook] Enviando email de confirmación...');
@@ -153,15 +178,11 @@ export class PaymentsService {
             this.logger.log('[Stripe Webhook] ¡Email enviado!');
 
         } catch (error) {
-            // 5. ¡AQUÍ ES DONDE VERÁS EL ERROR!
-            // El logger.error SÍ aparecerá en tu consola si el nivel 'error' está activo
             this.logger.error('[Stripe Webhook] ¡ERROR CRÍTICO al procesar la base de datos!:', error.stack);
-            
             throw new InternalServerErrorException('Error al procesar la inscripción en la base de datos.');
         }
     }
     
-    // 4. Responde a Stripe
     return {received: true}
   }
 }
