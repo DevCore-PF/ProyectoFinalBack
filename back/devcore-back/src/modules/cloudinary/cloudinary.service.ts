@@ -51,7 +51,7 @@ export class CloudinaryService {
         {
           resource_type: 'video',
           folder: 'lessons_videos',
-          public_id: file.originalname.split('.')[0],
+          public_id: file.originalname,
         },
         (error, result) => {
           if (error) return reject(new BadRequestException(error.message));
@@ -71,7 +71,7 @@ export class CloudinaryService {
         {
           folder: 'lessons_documents',
           resource_type: 'auto', // Detecta PDFs, imágenes, etc.
-          public_id: file.originalname.split('.')[0],
+          public_id: file.originalname,
         },
         (error, result) => {
           if (error) return reject(new BadRequestException(error.message));

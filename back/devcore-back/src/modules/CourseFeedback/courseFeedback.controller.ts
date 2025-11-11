@@ -1,4 +1,12 @@
-import { Controller, Post, Param, Body, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Param,
+  Body,
+  Req,
+  UseGuards,
+  Get,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CourseFeedbackService } from './courseFeedback.service';
 import { ApiCreateCourseFeedbackDocs } from './doc/courseFeedback.doc';
