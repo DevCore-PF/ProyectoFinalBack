@@ -42,6 +42,9 @@ export class CoursesRepository {
     //usa el In para buscar en un arreglo de ids
     return this.courseRepository.find({
       where: { id: In(ids) },
+      relations: {
+        professor: {user: true}
+      }
     });
   }
 
