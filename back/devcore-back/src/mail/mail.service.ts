@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { Subject } from 'rxjs';
+import { Course } from 'src/modules/course/entities/course.entity';
+import { Payment } from 'src/modules/payments/entities/payment.entity';
+import { User } from 'src/modules/users/entities/user.entity';
 
 @Injectable()
 export class MailService {
