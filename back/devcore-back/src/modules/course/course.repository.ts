@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, In, Like, Repository } from 'typeorm';
-import { Course, CourseStatus } from './entities/course.entity';
+import { Course, CourseStatus, Visibility } from './entities/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { ProfessorProfile } from '../profiles/entities/professor-profile.entity';
 
@@ -28,6 +28,12 @@ export class CoursesRepository {
     });
   }
 
+  async getAllPulicCourses() {
+    return await this.courseRepository.find({
+      where: { visibility: Visibility.PUBLIC },
+    });
+  }
+
   async findById(id: string): Promise<Course | null> {
     return this.courseRepository.findOne({
       where: { id },
@@ -43,8 +49,8 @@ export class CoursesRepository {
     return this.courseRepository.find({
       where: { id: In(ids) },
       relations: {
-        professor: {user: true}
-      }
+        professor: { user: true },
+      },
     });
   }
 

@@ -60,6 +60,9 @@ export class CoursesService {
     if (!course) throw new NotFoundException('Course not found');
     return course;
   }
+  async getAllPulicCourses() {
+    return await this.coursesRepository.getAllPulicCourses();
+  }
 
   async addLessonToCourse(
     courseId: string,
