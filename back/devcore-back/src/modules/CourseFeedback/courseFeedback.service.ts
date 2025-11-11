@@ -42,6 +42,14 @@ export class CourseFeedbackService {
     return await this.feedbackRepo.saveFeedback(feedback);
   }
 
+  async hasUserFeedback(userId: string, courseId: string): Promise<boolean> {
+    const existingFeedback = await this.feedbackRepo.findExistingFeedback(
+      userId,
+      courseId,
+    );
+    return !!existingFeedback;
+  }
+
   async getAllFeedBacks() {
     const feedbacksFounds = await this.feedbackRepo.getAllFeedBacks();
 

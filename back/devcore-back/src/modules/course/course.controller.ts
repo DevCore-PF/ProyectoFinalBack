@@ -12,8 +12,10 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UploadedFile,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { CoursesService } from './course.service';
@@ -23,6 +25,7 @@ import {
   FilesInterceptor,
 } from '@nestjs/platform-express';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOperation,
@@ -41,12 +44,16 @@ import { ApiCreateCourseDoc } from './doc/createCourse.doc';
 import { ApiCreateLessonDoc } from './doc/createLesson.doc';
 import { ApiGetCouseDoc } from './doc/getCourse.doc';
 import { ApiGetCourseByIdDoc } from './doc/getCourseById.doc';
+import { AuthGuard } from '@nestjs/passport';
+import { CourseFeedback } from '../CourseFeedback/entities/courseFeedback.entity';
+import { CourseFeedbackService } from '../CourseFeedback/courseFeedback.service';
 
 @Controller('courses')
 export class CoursesController {
   constructor(
     private readonly coursesService: CoursesService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly feedbackService: CourseFeedbackService,
   ) {}
 
   @Post(':professorId/create')
@@ -165,6 +172,18 @@ export class CoursesController {
     @Body() data: UpdateCourseDto,
   ) {
     return await this.coursesService.updateCourseById(id, data);
+  }
+
+  @Get(':courseId/user-feedback')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  async hasUserFeedback(@Param('courseId') courseId: string, @Req() req) {
+    const userId = req.user.sub;
+    const hasFeedback = await this.feedbackService.hasUserFeedback(
+      userId,
+      courseId,
+    );
+    return { hasFeedback };
   }
 
   @Patch('visibility/changeToPublic/:courseId')
