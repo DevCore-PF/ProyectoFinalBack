@@ -141,7 +141,7 @@ export class CoursesController {
           if (fileType === 'pdf') {
             return result.secure_url.replace(
               '/upload/',
-              '/upload/fl_attachment:false/',
+              '/upload/fl_attachment/',
             );
           }
           return result.secure_url;
