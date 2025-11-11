@@ -104,7 +104,9 @@ export class CoursesService {
   async changeVisivility(courseId) {
     const courseFind = await this.coursesRepository.findById(courseId);
     if (!courseFind) throw new NotFoundException('Curso no encontrado');
-    courseFind.visibility = Visibility.PUBLIC;
+    if (courseFind.visibility === Visibility.PRIVATE) {
+      courseFind.visibility = Visibility.PUBLIC;
+    } else courseFind.visibility = Visibility.PRIVATE;
     await this.coursesRepository.updateCourse(courseFind);
     return 'Curso en linea';
   }

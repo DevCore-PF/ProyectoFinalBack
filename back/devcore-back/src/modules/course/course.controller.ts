@@ -192,7 +192,7 @@ export class CoursesController {
     return { hasFeedback };
   }
 
-  @Patch('visibility/changeToPublic/:courseId')
+  @Patch('change/visibility//:courseId')
   async changeVisivility(@Param('courseId', ParseUUIDPipe) courseId: string) {
     return await this.coursesService.changeVisivility(courseId);
   }

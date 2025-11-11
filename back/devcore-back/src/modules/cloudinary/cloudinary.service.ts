@@ -68,17 +68,11 @@ export class CloudinaryService {
     file: Express.Multer.File,
   ): Promise<UploadApiResponse | undefined> {
     return new Promise((resolve, reject) => {
-      const fileNameWithoutExt = file.originalname.replace(/\.[^/.]+$/, '');
-      const normalizedName = fileNameWithoutExt
-        .replace(/\s+/g, '_') // Espacios a guiones bajos
-        .replace(/\+/g, '_') // + a guiones bajos
-        .replace(/[^\w\-]/g, '_') // Otros caracteres especiales a guiones bajos
-        .toLowerCase();
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: 'lessons_documents',
           resource_type: 'auto',
-          public_id: normalizedName,
+          public_id: file.originalname,
         },
         (error, result) => {
           if (error) return reject(new BadRequestException(error.message));
