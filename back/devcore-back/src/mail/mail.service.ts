@@ -27,9 +27,7 @@ export class MailService {
 
     // 2. Formatea la lista de cursos
     const courseListHtml = courses.map(course => 
-      `<li style="margin-bottom: 10px; line-height: 1.5; color: #4a5568;">
-         ${course.title} - <strong style="color: #1a202c;">$${(course.price).toFixed(2)} ${payment.currency.toUpperCase()}</strong>
-       </li>`
+      `<li>${course.title} - $${(Number(course.price)).toFixed(2)} ${payment.currency.toUpperCase()}</li>` // <-- ¡CORREGIDO!
     ).join('');
 
     // 3. Formatea el total (el 'amount' de Stripe está en centavos)
