@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, In, Like, Repository } from 'typeorm';
-import { Course } from './entities/course.entity';
+import { Course, CourseStatus } from './entities/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { ProfessorProfile } from '../profiles/entities/professor-profile.entity';
 
@@ -16,6 +16,7 @@ export class CoursesRepository {
     data: CreateCourseDto & { professor: ProfessorProfile },
   ): Promise<Course> {
     const course = this.courseRepository.create(data);
+    course.status = CourseStatus.DRAFT;
     return await this.courseRepository.save(course);
   }
 

@@ -28,6 +28,11 @@ export enum CourseStatus {
   PUBLISHED = 'PUBLICADO',
 }
 
+export enum Visibility {
+  PUBLIC = 'PUBLICO',
+  PRIVATE = 'PRIVADO',
+}
+
 export enum CourseDifficulty {
   BEGINNER = 'PRINCIPIANTE',
   INTERMEDIATE = 'INTERMEDIO',
@@ -73,7 +78,7 @@ export class Course {
   @Column({
     type: 'enum',
     enum: CourseStatus,
-    default: CourseStatus.PUBLISHED,
+    default: CourseStatus.DRAFT,
   })
   status: CourseStatus;
 
@@ -105,6 +110,9 @@ export class Course {
   })
   @Column({ type: 'enum', enum: CourseDifficulty })
   difficulty: CourseDifficulty;
+
+  @Column({ type: 'enum', enum: Visibility, default: Visibility.PRIVATE })
+  visibility: Visibility;
 
   // @Column({ type: 'decimal', nullable: true })
   // @Min(1, { message: 'El rating no puede ser menor que 1.' })

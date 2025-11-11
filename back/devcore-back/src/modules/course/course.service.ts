@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CoursesRepository } from './course.repository';
 import { CreateCourseDto } from './dto/create-course.dto';
-import { Course, CourseStatus } from './entities/course.entity';
+import { Course, CourseStatus, Visibility } from './entities/course.entity';
 import { Lesson } from '../lesson/entities/lesson.entity';
 import { CreateLessonDto } from '../lesson/dto/create-lesson.dto';
 import { Repository } from 'typeorm';
@@ -98,8 +98,14 @@ export class CoursesService {
     if (category !== undefined) courseFind.category = category;
     if (type !== undefined) courseFind.type = type;
 
-    courseFind.status = CourseStatus.DRAFT;
-
     return await this.coursesRepository.updateCourse(courseFind);
+  }
+
+  async changeVisivility(courseId) {
+    const courseFind = await this.coursesRepository.findById(courseId);
+    if (!courseFind) throw new NotFoundException('Curso no encontrado');
+    courseFind.visibility = Visibility.PUBLIC;
+    await this.coursesRepository.updateCourse(courseFind);
+    return 'Curso en linea';
   }
 }

@@ -175,14 +175,19 @@ export class CoursesController {
   }
 
   @Get(':courseId/user-feedback')
-@UseGuards(AuthGuard('jwt'))
-@ApiBearerAuth()
-async hasUserFeedback(
-  @Param('courseId') courseId: string,
-  @Req() req,
-) {
-  const userId = req.user.sub;
-  const hasFeedback = await this.feedbackService.hasUserFeedback(userId, courseId);
-  return { hasFeedback };
-}
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  async hasUserFeedback(@Param('courseId') courseId: string, @Req() req) {
+    const userId = req.user.sub;
+    const hasFeedback = await this.feedbackService.hasUserFeedback(
+      userId,
+      courseId,
+    );
+    return { hasFeedback };
+  }
+
+  @Patch('visibility/changeToPublic/:courseId')
+  async changeVisivility(@Param('courseId', ParseUUIDPipe) courseId: string) {
+    return await this.coursesService.changeVisivility(courseId);
+  }
 }

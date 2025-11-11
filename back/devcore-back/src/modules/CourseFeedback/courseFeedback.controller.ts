@@ -29,4 +29,9 @@ export class CourseFeedbackController {
     const userId = req.user.sub;
     return await this.feedbackService.createFeedback(userId, courseId, dto);
   }
+
+  @Get('')
+  async getAllFeedBacks() {
+    return await this.feedbackService.getAllFeedBacks();
+  }
 }
