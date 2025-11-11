@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+import { normalize } from 'path';
 import * as streamifier from 'streamifier';
 
 @Injectable()
@@ -67,11 +68,17 @@ export class CloudinaryService {
     file: Express.Multer.File,
   ): Promise<UploadApiResponse | undefined> {
     return new Promise((resolve, reject) => {
+      const fileNameWithoutExt = file.originalname.replace(/\.[^/.]+$/, '');
+      const normalizedName = fileNameWithoutExt
+        .replace(/\s+/g, '_') // Espacios a guiones bajos
+        .replace(/\+/g, '_') // + a guiones bajos
+        .replace(/[^\w\-]/g, '_') // Otros caracteres especiales a guiones bajos
+        .toLowerCase();
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: 'lessons_documents',
-          resource_type: 'auto', // Detecta PDFs, imágenes, etc.
-          public_id: file.originalname,
+          resource_type: 'raw',
+          public_id: normalizedName,
         },
         (error, result) => {
           if (error) return reject(new BadRequestException(error.message));

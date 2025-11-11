@@ -5,8 +5,9 @@ import { Repository } from 'typeorm';
 import { Course } from 'src/modules/course/entities/course.entity';
 import { User } from 'src/modules/users/entities/user.entity';
 import { Enrollment } from 'src/modules/enrollments/entities/enrollment.entity';
-import { CourseFeedback } from './entities/courseFeedback.entity';
+import { CourseFeedback, Rating } from './entities/courseFeedback.entity';
 import { CreateCourseFeedbackDto } from './dto/courseFeedback.dto';
+import { title } from 'process';
 
 @Injectable()
 export class CourseFeedbackRepository {
@@ -41,12 +42,12 @@ export class CourseFeedbackRepository {
     });
   }
 
-  async findExistingFeedback(
-    userId: string,
-    courseId: string,
-  ): Promise<CourseFeedback | null> {
-    return this.feedbackRepo.findOne({
-      where: { user: { id: userId }, course: { id: courseId } },
+  async findExistingFeedback(userId: string, courseId: string) {
+    return await this.feedbackRepo.findOne({
+      where: {
+        user: { id: userId },
+        course: { id: courseId },
+      },
     });
   }
 
@@ -64,6 +65,31 @@ export class CourseFeedbackRepository {
       course,
       rating: dto.rating,
       feedback: dto.feedback,
+    });
+  }
+
+  async getAllFeedBacks() {
+    return await this.feedbackRepo.find({
+      relations: ['course', 'course.professor', 'course.professor.user'],
+      select: {
+        id: true,
+        feedback: true,
+        rating: true,
+        course: {
+          id: true,
+          title: true,
+          description: true,
+          professor: {
+            id: true,
+            speciality: true,
+            biography: true,
+            user: { id: true, name: true },
+          },
+        },
+      },
+      order: {
+        rating: 'DESC',
+      },
     });
   }
 }
