@@ -12,6 +12,9 @@ import { CourseFeedbackService } from './courseFeedback.service';
 import { ApiCreateCourseFeedbackDocs } from './doc/courseFeedback.doc';
 import { CreateCourseFeedbackDto } from './dto/courseFeedback.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiGetAllFeedbacksDocs } from './doc/getAllFeedbacks.doc';
+import { ApiGetCourseFeedbacksDocs } from './doc/getFeedbackByCourseId.doc';
+import { ApiHasUserFeedbackDocs } from './doc/getFeedbackAuthUser.doc';
 
 @ApiTags('Course Feedback')
 @Controller('course-feedback')
@@ -31,7 +34,27 @@ export class CourseFeedbackController {
   }
 
   @Get('')
+  @ApiGetAllFeedbacksDocs()
   async getAllFeedBacks() {
     return await this.feedbackService.getAllFeedBacks();
+  }
+
+  @Get(':courseId/feedbacks')
+  @ApiGetCourseFeedbacksDocs()
+  async getCourseFeedbacks(@Param('courseId') courseId: string) {
+    return await this.feedbackService.getCourseFeedbacks(courseId);
+  }
+
+  @Get(':courseId/user-feedback')
+  @ApiHasUserFeedbackDocs()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  async hasUserFeedback(@Param('courseId') courseId: string, @Req() req) {
+    const userId = req.user.sub;
+    const hasFeedback = await this.feedbackService.hasUserFeedback(
+      userId,
+      courseId,
+    );
+    return { hasFeedback };
   }
 }

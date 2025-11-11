@@ -24,7 +24,7 @@ export class CoursesRepository {
     const where = title ? { title: ILike(`%${title}%`) } : {};
     return this.courseRepository.find({
       where,
-      relations: ['lessons', 'professor.user'],
+      relations: ['lessons', 'professor.user', 'feedbacks'],
     });
   }
 

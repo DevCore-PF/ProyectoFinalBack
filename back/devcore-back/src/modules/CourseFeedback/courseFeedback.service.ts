@@ -55,4 +55,9 @@ export class CourseFeedbackService {
 
     return feedbacksFounds;
   }
+
+  // servicio para feedback
+  async getCourseFeedbacks(courseId: string) {
+    return await this.feedbackRepo.getCourseFeedbacks(courseId);
+  }
 }
