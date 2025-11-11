@@ -43,13 +43,13 @@ export class CourseFeedbackRepository {
   }
 
   async findExistingFeedback(userId: string, courseId: string) {
-  return await this.feedbackRepo.findOne({
-    where: {
-      user: { id: userId },
-      course: { id: courseId }
-    }
-  });
-}
+    return await this.feedbackRepo.findOne({
+      where: {
+        user: { id: userId },
+        course: { id: courseId },
+      },
+    });
+  }
 
   async saveFeedback(feedback: CourseFeedback): Promise<CourseFeedback> {
     return this.feedbackRepo.save(feedback);
@@ -70,7 +70,7 @@ export class CourseFeedbackRepository {
 
   async getAllFeedBacks() {
     return await this.feedbackRepo.find({
-      relations: ['course', 'course.proffesor', 'course.professor.user'],
+      relations: ['course', 'course.professor', 'course.professor.user'],
       select: {
         id: true,
         feedback: true,
