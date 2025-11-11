@@ -150,6 +150,10 @@ export class UsersService {
     return await this.userRepository.getAllInactiveUser();
   }
 
+  async getUserByRole(role: UserRole) {
+    return await this.userRepository.getUserByRole(role);
+  }
+
   async getUserPurchasedCourses(userId: string) {
     const user = await this.userRepository.findUserWithPurchasedCourses(userId);
 

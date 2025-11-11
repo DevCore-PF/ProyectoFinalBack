@@ -37,6 +37,7 @@ import { ApigetAllInactiveUsersDocs } from './doc/getAllInactiveUsers.doc';
 import { UserResponseDto } from './dto/user-response.dto';
 import { ApigetAllUsersDocs } from './doc/getAllUsers.doc';
 import { ApiActivateUserDocs } from './doc/activateUserById.doc';
+import { ApiGetUserByRoleDocs } from './doc/getUserByRole.doc';
 
 @ApiTags('users')
 @Controller('users')
@@ -104,6 +105,12 @@ export class UsersController {
   @ApigetAllInactiveUsersDocs()
   getAllInactiveUser() {
     return this.usersService.getAllInactiveUser();
+  }
+
+  @Get('role')
+  @ApiGetUserByRoleDocs()
+  async getUserByRole(@Query('role') role: UserRole) {
+    return await this.usersService.getUserByRole(role);
   }
 
   @Get('me/purchased-courses')
