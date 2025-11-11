@@ -3,25 +3,40 @@ import { User } from './entities/user.entity';
 import { Repository, DeepPartial } from 'typeorm'; // <-- 1. Importa DeepPartial
 import { CreateUserDto } from './dto/create-user.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { UserRole } from './enums/user-role.enum';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @Injectable()
 export class UsersRepository {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-  ) { }
+  ) {}
 
-  async getAll() {
-    const users = await this.userRepository.find({
-      where: { isActive: true },
+  async getAllActiveUser() {
+    const users = await this.userRepository.find({ where: { isActive: true } });
+    return users.map((u) => {
+      const { password, ...rest } = u;
+      return rest;
     });
-    return users.map(
-      ({ password, ...userWithoutPassword }) => userWithoutPassword,
-    );
+  }
+
+  async getAllUsers() {
+    const users = await this.userRepository.find();
+    return users.map((u) => {
+      const { password, ...rest } = u;
+      return rest;
+    });
   }
 
   //Metodo que obtiene todos los usuarios de la base de datos
-  async getUsers() {
-    return this.userRepository.find();
+  async getAllInactiveUser() {
+    const users = await this.userRepository.find({
+      where: { isActive: false },
+    });
+    return users.map((u) => {
+      const { password, ...rest } = u;
+      return rest;
+    });
   }
 
   //Metodo que crea un usuario nuevo en la base de datos
@@ -53,45 +68,45 @@ export class UsersRepository {
   }
 
   async findUserWithPurchasedCourses(userId: string): Promise<User | null> {
-  const user = await this.userRepository.findOne({
-    where: { id: userId },
-    relations: {
-      enrollments: {
-        course: {
-          professor: {
-            user: true,
-          },
-        },
-      },
-    },
-    select: {
-      enrollments: {
-        id: true,
-        progress: true,
-        priceAtPurchase: true,
-        inscripcionDate: true,
-        completedAt: true,
-        course: {
-          id: true,
-          title: true,
-          description: true,
-          price: true,
-          category: true,
-          difficulty: true,
-          duration: true,
-          professor: {
-            id: true,
-            user: {
-              id: true,
-              name: true,
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: {
+        enrollments: {
+          course: {
+            professor: {
+              user: true,
             },
           },
         },
       },
-    },
-  });
-return user;
-}
+      select: {
+        enrollments: {
+          id: true,
+          progress: true,
+          priceAtPurchase: true,
+          inscripcionDate: true,
+          completedAt: true,
+          course: {
+            id: true,
+            title: true,
+            description: true,
+            price: true,
+            category: true,
+            difficulty: true,
+            duration: true,
+            professor: {
+              id: true,
+              user: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return user;
+  }
 
   async findUserByEmail(email: string) {
     return this.userRepository.findOneBy({ email });
@@ -103,7 +118,6 @@ return user;
   async findUserByChangeToken(token: string): Promise<User | null> {
     return this.userRepository.findOneBy({ newPasswordToken: token });
   }
-
 
   /**
    * Método 'create'
@@ -122,8 +136,9 @@ return user;
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: {
-        professorProfile: true
-      }
+        professorProfile: true,
+        enrollments: true,
+      },
     });
     if (!user) throw new NotFoundException('Usuario no encontrado');
     return user;
@@ -144,5 +159,11 @@ return user;
     findUser.isActive = false;
     await this.userRepository.save(findUser);
     return findUser;
+  }
+
+  async findInactiveUser(userId: string) {
+    return await this.userRepository.findOne({
+      where: { id: userId, isActive: false },
+    });
   }
 }

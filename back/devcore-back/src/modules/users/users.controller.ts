@@ -13,6 +13,7 @@ import {
   MaxFileSizeValidator,
   ParseFilePipe,
   FileTypeValidator,
+  Query,
   Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -26,12 +27,16 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ApiUpdateImageDocs } from './doc/updateImage.doc';
-import { ApigetAllUsersDocs } from './doc/getAllUsers.doc';
+import { ApigetAllActiveUsersDocs } from './doc/getAllActiveUsers.doc';
 import { ApiGetUserById } from './doc/getUserById.doc';
 import { ApiDeleteUserById } from './doc/deleteUserById.doc';
 import { ApiUpdateChecboxbyId } from './doc/updateChecbox.doc';
+import { UserRole } from './enums/user-role.enum';
 import { AuthGuard } from '@nestjs/passport';
-
+import { ApigetAllInactiveUsersDocs } from './doc/getAllInactiveUsers.doc';
+import { UserResponseDto } from './dto/user-response.dto';
+import { ApigetAllUsersDocs } from './doc/getAllUsers.doc';
+import { ApiActivateUserDocs } from './doc/activateUserById.doc';
 
 @ApiTags('users')
 @Controller('users')
@@ -85,8 +90,20 @@ export class UsersController {
 
   @Get()
   @ApigetAllUsersDocs()
-  findAll() {
-    return this.usersService.getAllUser();
+  getAllUsers() {
+    return this.usersService.getAllUsers();
+  }
+
+  @Get('active')
+  @ApigetAllActiveUsersDocs()
+  getAllActiveUser() {
+    return this.usersService.getAllActiveUser();
+  }
+
+  @Get('inactive')
+  @ApigetAllInactiveUsersDocs()
+  getAllInactiveUser() {
+    return this.usersService.getAllInactiveUser();
   }
 
   @Get('me/purchased-courses')
@@ -96,7 +113,7 @@ export class UsersController {
   async getMyPurchasedCourses(@Req() req) {
     const userId = req.user.sub;
     return this.usersService.getUserPurchasedCourses(userId);
-}
+  }
 
   @Get(':id')
   @ApiGetUserById()
@@ -122,5 +139,11 @@ export class UsersController {
   @ApiUpdateChecboxbyId()
   updateCheckbox(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.updateCheckbox(id);
+  }
+
+  @Patch('activate/:userId')
+  @ApiActivateUserDocs()
+  activateUser(@Param('userId', ParseUUIDPipe) userId: string) {
+    return this.usersService.activateUser(userId);
   }
 }

@@ -6,15 +6,21 @@ import { EnrollmentService } from '../enrollments/enrollments.service';
 import { CreateCheckoutDto } from './dto/create-checkout.dto';
 import { CartRepository } from '../cart/cart.repository';
 import { CartService } from '../cart/cart.service';
+import { PaymentRepository } from './payments.repository';
+import { UsersRepository } from '../users/users.repository';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     @Inject('STRIPE_CLIENT') private readonly stripe: Stripe,
     private readonly configService: ConfigService,
-    private readonly courseRepository: CoursesRepository,
     private readonly enrollmentsService: EnrollmentService,
-    private readonly cartService: CartService
+    private readonly cartService: CartService,
+    private readonly paymentRepository: PaymentRepository,
+    private readonly usersRepository: UsersRepository,
+    private readonly courseRepository: CoursesRepository,
+    private readonly mailService: MailService
   ) {}
 
   private readonly logger = new Logger(PaymentsService.name);
@@ -95,18 +101,29 @@ export class PaymentsService {
         throw new BadRequestException(`Webhook Error: ${err.message}`)
     }
 
-    // 2. Maneja el evento
+    this.logger.log(`[Stripe Webhook] Evento recibido: ${event.type}`);
+
+    // Maneja el evento
     if(event.type === 'checkout.session.completed'){
         const session = event.data.object as Stripe.Checkout.Session;
 
+        // --- ¡AQUÍ ESTÁ TU CÓDIGO! (Obtener el PaymentIntent) ---
+        // Esto es crucial para obtener los detalles de la tarjeta
+        const paymentIntent = await this.stripe.paymentIntents.retrieve(
+          session.payment_intent as string, 
+          {expand: ['payment_method']}
+        );
+
         const userId = session.client_reference_id;
-        if (!session.metadata) {
+        const metadata = session.metadata;
+        
+        if (!metadata) {
             this.logger.error('[Stripe Webhook] ¡ERROR! No hay metadatos en la sesión.');
             throw new BadRequestException('No metadata found in session');
         }
         
-        const courseIds = JSON.parse(session.metadata.courseIds) as string[];
-        const prices = JSON.parse(session.metadata.prices) as Record<string, number>;
+        const courseIds = JSON.parse(metadata.courseIds) as string[];
+        const prices = JSON.parse(metadata.prices) as Record<string, number>;
 
         if(!userId || !courseIds || !prices){
             this.logger.error('[Stripe Webhook] ¡ERROR! Faltan metadatos (userId, courseIds, o prices).');
@@ -118,18 +135,28 @@ export class PaymentsService {
             priceInCents: prices[id]
         }))
 
-        // 3. Bloque try...catch para las operaciones de BD
+        // 4. ¡EL BLOQUE TRY...CATCH CRÍTICO!
         try {
-            // Crea las inscripciones
+            this.logger.log('[Stripe Webhook] Intentando crear inscripciones...');
             await this.enrollmentsService.createEnrollmentsForUser(userId, enrollmentsData);
 
-            // Vacía el carrito
+            this.logger.log('[Stripe Webhook] Intentando vaciar el carrito...');
             await this.cartService.clearCart(userId);
 
+            // --- TAREA 1: ENVIAR EMAIL DE CONFIRMACIÓN ---
+            this.logger.log('[Stripe Webhook] Enviando email de confirmación...');
+            const user = await this.usersRepository.findUserById(userId);
+            const courses = await this.courseRepository.findCoursesByIds(courseIds);
+            
+            // (Debes crear este método 'sendPurchaseConfirmation' en tu MailService)
+            await this.mailService.sendPurchaseConfirmation(user, savedPayment, courses);
+            this.logger.log('[Stripe Webhook] ¡Email enviado!');
+
         } catch (error) {
-            // Si algo falla al crear la inscripción o vaciar el carrito,
-            // lo logueamos y lanzamos un error para que Stripe reintente.
-            this.logger.error('[Stripe Webhook] Error al procesar la base de datos:', error.stack);
+            // 5. ¡AQUÍ ES DONDE VERÁS EL ERROR!
+            // El logger.error SÍ aparecerá en tu consola si el nivel 'error' está activo
+            this.logger.error('[Stripe Webhook] ¡ERROR CRÍTICO al procesar la base de datos!:', error.stack);
+            
             throw new InternalServerErrorException('Error al procesar la inscripción en la base de datos.');
         }
     }

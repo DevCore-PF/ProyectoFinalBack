@@ -13,10 +13,11 @@ import { GoogleUserDto } from '../auth/dto/google-user.dto';
 import { User } from './entities/user.entity';
 import { GithubUserDto } from '../auth/dto/github-user.dto';
 import { SocialProfileDto } from '../auth/dto/socialProfile.dto';
+import { UserRole } from './enums/user-role.enum';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @Injectable()
 export class UsersService {
-
   constructor(
     private userRepository: UsersRepository,
     private readonly dataSource: DataSource,
@@ -99,29 +100,28 @@ export class UsersService {
     }
   }
 
-  //Metodo para manejar los dos tipos de sesion 
-    createSocialUser(profile: SocialProfileDto): Promise<User> {
-      const {email, name, image, provider, providerId} = profile;
+  //Metodo para manejar los dos tipos de sesion
+  createSocialUser(profile: SocialProfileDto): Promise<User> {
+    const { email, name, image, provider, providerId } = profile;
 
-      const newUser = this.userRepository.create({
-        email,
-        name,
-        image,
-        role: undefined,
-        hasCompletedProfile: false,
-        isEmailVerified: true,
+    const newUser = this.userRepository.create({
+      email,
+      name,
+      image,
+      role: undefined,
+      hasCompletedProfile: false,
+      isEmailVerified: true,
 
-        //vinculamos la cuenta correcta
-        isGoogleAccount: provider === 'google',
-        googleId: provider === 'google' ? providerId : undefined,
-        isGitHubAccount: provider === 'github',
-        githubId: provider === 'github' ? providerId: undefined,
+      //vinculamos la cuenta correcta
+      isGoogleAccount: provider === 'google',
+      googleId: provider === 'google' ? providerId : undefined,
+      isGitHubAccount: provider === 'github',
+      githubId: provider === 'github' ? providerId : undefined,
 
-        password: undefined,
-      })
-      return this.userRepository.save(newUser);
+      password: undefined,
+    });
+    return this.userRepository.save(newUser);
   }
-  
 
   async updateUserImage(id: string, imageUrl: string) {
     try {
@@ -138,32 +138,39 @@ export class UsersService {
       );
     }
   }
+  async getAllUsers() {
+    return await this.userRepository.getAllUsers();
+  }
 
-  async getAllUser() {
-    return await this.userRepository.getAll();
+  async getAllActiveUser() {
+    return await this.userRepository.getAllActiveUser();
+  }
+
+  async getAllInactiveUser() {
+    return await this.userRepository.getAllInactiveUser();
   }
 
   async getUserPurchasedCourses(userId: string) {
-  const user = await this.userRepository.findUserWithPurchasedCourses(userId);
-  
-   if (!user) {
-    throw new NotFoundException('Usuario no encontrado');
-  }
+    const user = await this.userRepository.findUserWithPurchasedCourses(userId);
 
-  return user.enrollments.map(enrollment => ({
-    id: enrollment.course.id,
-    title: enrollment.course.title,
-    description: enrollment.course.description,
-    price: enrollment.course.price,
-    category: enrollment.course.category,
-    difficulty: enrollment.course.difficulty,
-    progress: enrollment.progress,
-    purchaseDate: enrollment.inscripcionDate,
-    priceAtPurchase: enrollment.priceAtPurchase,
-    completed: !!enrollment.completedAt,
-    enrollmentId: enrollment.id,
-  }));
-}
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    return user.enrollments.map((enrollment) => ({
+      id: enrollment.course.id,
+      title: enrollment.course.title,
+      description: enrollment.course.description,
+      price: enrollment.course.price,
+      category: enrollment.course.category,
+      difficulty: enrollment.course.difficulty,
+      progress: enrollment.progress,
+      purchaseDate: enrollment.inscripcionDate,
+      priceAtPurchase: enrollment.priceAtPurchase,
+      completed: !!enrollment.completedAt,
+      enrollmentId: enrollment.id,
+    }));
+  }
 
   async getUserById(id: string) {
     const userFind = await this.userRepository.findUserWithProfile(id);
@@ -176,7 +183,8 @@ export class UsersService {
   }
 
   async deleteUser(id: string) {
-    return await this.userRepository.deleteUserRepo(id);
+    await this.userRepository.deleteUserRepo(id);
+    return 'Usuario desactivado correctamente';
   }
 
   async updateCheckbox(id: string) {
@@ -184,5 +192,14 @@ export class UsersService {
     userFind.checkBoxTerms = true;
     await this.userRepository.save(userFind);
     return userFind;
+  }
+
+  async activateUser(userId: string) {
+    const userFind = await this.userRepository.findInactiveUser(userId);
+    if (!userFind)
+      throw new NotFoundException('No se encontro el usuario inactivo');
+    userFind.isActive = true;
+    await this.userRepository.save(userFind);
+    return 'Usuario activado correctamente';
   }
 }
