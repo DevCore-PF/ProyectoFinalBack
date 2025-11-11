@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository, DeepPartial } from 'typeorm'; // <-- 1. Importa DeepPartial
+import { Repository, DeepPartial, MoreThan } from 'typeorm'; // <-- 1. Importa DeepPartial
 import { CreateUserDto } from './dto/create-user.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRole } from './enums/user-role.enum';
@@ -73,6 +73,19 @@ export class UsersRepository {
     }
 
     return user;
+  }
+
+  /**
+   * Metodo que busca un usuario por el token de olvide mi contraseña
+   */
+  async findUserByResetToken(token: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: {
+        resetPasswordToken: token,
+        //comprobamos la fecha de expiracion
+        resetPasswordExpires: MoreThan(new Date()),
+      }
+    })
   }
 
   async findUserWithPurchasedCourses(userId: string): Promise<User | null> {

@@ -15,6 +15,10 @@ import { GithubUserDto } from '../auth/dto/github-user.dto';
 import { SocialProfileDto } from '../auth/dto/socialProfile.dto';
 import { UserRole } from './enums/user-role.enum';
 import { UserResponseDto } from './dto/user-response.dto';
+import { ForgotPasswordDto } from '../auth/dto/forgot-password.dto';
+import { v4 as uuidv4 } from 'uuid';
+import { MailService } from 'src/mail/mail.service';
+import { ResetPasswordDto } from '../auth/dto/reset-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -138,6 +142,8 @@ export class UsersService {
       );
     }
   }
+
+
   async getAllUsers() {
     return await this.userRepository.getAllUsers();
   }
