@@ -77,7 +77,7 @@ export class CloudinaryService {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: 'lessons_documents',
-          resource_type: 'raw',
+          resource_type: 'auto',
           public_id: normalizedName,
         },
         (error, result) => {
