@@ -139,10 +139,7 @@ export class CoursesController {
         .map((result) => {
           // Si es PDF, agregar fl_attachment:false para que se visualice en el navegador
           if (fileType === 'pdf') {
-            return result.secure_url.replace(
-              '/upload/',
-              '/upload/fl_attachment/',
-            );
+            return result.secure_url;
           }
           return result.secure_url;
         });
