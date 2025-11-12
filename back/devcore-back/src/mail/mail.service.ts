@@ -295,7 +295,7 @@ export class MailService {
     await this.transporter.sendMail({
       from: '"DevCore" <noreply@tuapp.com>',
       to: email,
-      subject: '🚫 Notificación: Tu cuenta DevCore ha sido suspendida',
+      subject: '⚠️ Notificación: Tu cuenta DevCore ha sido suspendida',
       html: `
     <!DOCTYPE html>
     <html lang="es">
@@ -363,7 +363,7 @@ export class MailService {
                         font-weight: 700;
                       "
                     >
-                      Tu cuenta ha sido suspendida 🚫
+                      Tu cuenta ha sido suspendida ⚠️
                     </h1>
                     <p
                       style="
@@ -390,7 +390,7 @@ export class MailService {
                     >
                       Hola <strong style="color: #a78bfa">${userName}</strong>,
                       lamentamos informarte que tu cuenta ha sido
-                      <strong style="color: #f87171"
+                      <strong style="color: #fbbf24"
                         >suspendida temporalmente</strong
                       >
                       por incumplir nuestras normas de uso.
@@ -430,7 +430,7 @@ export class MailService {
                           font-size: 15px;
                         "
                       >
-                        🚫 Estado: Cuenta suspendida
+                        ⚠️ Estado: Cuenta suspendida 
                       </div>
                     </td>
                   </tr>
