@@ -12,6 +12,7 @@ import { ApprovalStatus } from './enums/approval-status.enum';
 import { CreateProfessorProfileDto } from './dto/create-professon-profile.dto';
 import { UpdateProfessorProfileDto } from './dto/update-professor-profile.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { Not } from 'typeorm/browser';
 
 @Injectable()
 export class ProfilesService {
@@ -180,5 +181,19 @@ export class ProfilesService {
   async getProfessorById(id: string) {
     const professorFind = await this.profilesRepository.findById(id);
     return professorFind;
+  }
+
+  async aprovedProfesor(professorId: string) {
+    const professorFind = await this.profilesRepository.findById(professorId);
+    if (!professorFind) throw new NotFoundException('Profesor no encontrado');
+    professorFind.approvalStatus = ApprovalStatus.APPROVED;
+    return this.profilesRepository.save(professorFind);
+  }
+
+  async declineProfesor(professorId: string) {
+    const professorFind = await this.profilesRepository.findById(professorId);
+    if (!professorFind) throw new NotFoundException('Profesor no encontrado');
+    professorFind.approvalStatus = ApprovalStatus.REJECTED;
+    return this.profilesRepository.save(professorFind);
   }
 }

@@ -30,6 +30,9 @@ import { CreateCourseDto } from '../course/dto/create-course.dto';
 import { ApiCreateProfessorProfileDoc } from './doc/createProfessorProfile.doc';
 import { ApiUpdateProfessorProfile } from './doc/updateProfessorProfile.doc';
 import { ApiGetProffessorByIdDoc } from './doc/getProfessorProfileById.doc';
+import { Roles, RolesGuard } from '../auth/guards/verify-role.guard';
+import { ApiApprovedProfessorDoc } from './doc/aprovedProfessor.doc';
+import { ApiDeclineProfessorDoc } from './doc/declineProfessor.doc';
 
 @Controller('profiles')
 export class ProfilesController {
@@ -92,5 +95,25 @@ export class ProfilesController {
   @ApiGetProffessorByIdDoc()
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.profilesService.getProfessorById(id);
+  }
+
+  @Patch('aproved/professorId')
+  @ApiApprovedProfessorDoc()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  async aprovedProfesor(
+    @Param('profesorId', ParseUUIDPipe) profesorId: string,
+  ) {
+    return await this.profilesService.aprovedProfesor(profesorId);
+  }
+
+  @Patch('decline/professorId')
+  @ApiDeclineProfessorDoc()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  async declineProfesor(
+    @Param('profesorId', ParseUUIDPipe) profesorId: string,
+  ) {
+    return await this.profilesService.declineProfesor(profesorId);
   }
 }

@@ -19,11 +19,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { CoursesService } from './course.service';
-import {
-  FileFieldsInterceptor,
-  FileInterceptor,
-  FilesInterceptor,
-} from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -42,7 +38,7 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import { ApiUpdateCourseDocs } from './doc/update-course.doc';
 import { ApiCreateCourseDoc } from './doc/createCourse.doc';
 import { ApiCreateLessonDoc } from './doc/createLesson.doc';
-import { ApiGetCouseDoc } from './doc/getCourse.doc';
+import { ApiGetAllCoursesDocs } from './doc/getCourse.doc';
 import { ApiGetCourseByIdDoc } from './doc/getCourseById.doc';
 import { AuthGuard } from '@nestjs/passport';
 import { CourseFeedback } from '../CourseFeedback/entities/courseFeedback.entity';
@@ -51,6 +47,10 @@ import { ApiChangeCourseVisibilityDoc } from './doc/chageVisibility.doc';
 import { ApiChangeStatusCourseDoc } from './doc/changeStatus.doc';
 import { ApiGetAllPublicCourses } from './doc/getAllPublicCourses.doc';
 import { Category, CourseDifficulty } from './entities/course.entity';
+import { Roles, RolesGuard } from '../auth/guards/verify-role.guard';
+import { ApiApprovedCourseDoc } from './doc/aprovedCourse.doc';
+import { ApiDeclineCourseDoc } from './doc/declineCourse.doc';
+import { ApiGetAllCoursesAdminDocs } from './doc/getCourseAdmin.doc';
 
 @Controller('courses')
 export class CoursesController {
@@ -157,13 +157,67 @@ export class CoursesController {
   }
 
   @Get()
-  @ApiGetCouseDoc()
+  @ApiGetAllCoursesDocs()
   async getAllCourses(
     @Query('title') title?: string,
     @Query('category') category?: Category,
     @Query('difficulty') difficulty?: CourseDifficulty,
+    @Query('isActive') isActive?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: string,
   ) {
-    return await this.coursesService.getAllCourses(title, category, difficulty);
+    const validSortBy = ['title', 'price', 'createdAt', 'rating'];
+    const finalSortBy =
+      sortBy && validSortBy.includes(sortBy) ? sortBy : 'createdAt';
+
+    const validSortOrder = ['asc', 'desc'];
+    const finalSortOrder =
+      sortOrder && validSortOrder.includes(sortOrder.toLowerCase())
+        ? (sortOrder.toLowerCase() as 'asc' | 'desc')
+        : 'desc';
+
+    return await this.coursesService.getAllCourses(
+      title,
+      category,
+      difficulty,
+      finalSortBy,
+      finalSortOrder,
+    );
+  }
+
+  @Get('admin')
+  @ApiGetAllCoursesAdminDocs()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  async getAllCoursesAdmin(
+    @Query('title') title?: string,
+    @Query('category') category?: Category,
+    @Query('difficulty') difficulty?: CourseDifficulty,
+    @Query('isActive') isActive?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: string,
+  ) {
+    const isActiveBoolean =
+      isActive === 'true' ? true : isActive === 'false' ? false : undefined;
+
+    const validSortBy = ['title', 'price', 'createdAt', 'rating'];
+    const finalSortBy =
+      sortBy && validSortBy.includes(sortBy) ? sortBy : 'createdAt';
+
+    const validSortOrder = ['asc', 'desc'];
+    const finalSortOrder =
+      sortOrder && validSortOrder.includes(sortOrder.toLowerCase())
+        ? (sortOrder.toLowerCase() as 'asc' | 'desc')
+        : 'desc';
+
+    return await this.coursesService.getAllCoursesAdmin(
+      title,
+      category,
+      difficulty,
+      isActiveBoolean,
+      finalSortBy,
+      finalSortOrder,
+    );
   }
   @Get('/public')
   @ApiGetAllPublicCourses()
@@ -175,16 +229,6 @@ export class CoursesController {
   @ApiGetCourseByIdDoc()
   async getUserById(@Param('id', ParseUUIDPipe) id: string) {
     return await this.coursesService.getCourseById(id);
-  }
-
-  @Patch(':id')
-  @ApiUpdateCourseDocs()
-  @ApiBody({ type: UpdateCourseDto })
-  async updateCourseById(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() data: UpdateCourseDto,
-  ) {
-    return await this.coursesService.updateCourseById(id, data);
   }
 
   @Get(':courseId/user-feedback')
@@ -209,5 +253,21 @@ export class CoursesController {
   @ApiChangeStatusCourseDoc()
   async changeStatus(@Param('courseId', ParseUUIDPipe) courseId: string) {
     return await this.coursesService.changeStatus(courseId);
+  }
+
+  @Patch(':courseId/aproved')
+  @ApiApprovedCourseDoc()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  async aprovedCourse(@Param('courseId', ParseUUIDPipe) courseId: string) {
+    return await this.coursesService.aprovedCourse(courseId);
+  }
+
+  @Patch(':courseId/decline')
+  @ApiDeclineCourseDoc()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  async declineCourse(@Param('courseId', ParseUUIDPipe) courseId: string) {
+    return await this.coursesService.declineCourse(courseId);
   }
 }
