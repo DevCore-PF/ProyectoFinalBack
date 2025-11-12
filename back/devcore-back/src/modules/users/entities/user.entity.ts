@@ -19,6 +19,12 @@ import { LessonProgress } from 'src/modules/LessonProgress/entities/lessoprogres
 import { CourseFeedback } from 'src/modules/CourseFeedback/entities/courseFeedback.entity';
 import { Payment } from 'src/modules/payments/entities/payment.entity';
 
+export enum Gender {
+  MASCULINO = 'masculino',
+  FEMENINO = 'femenino',
+  OTRO = 'otro',
+}
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -53,6 +59,47 @@ export class User {
     nullable: true,
   })
   role: UserRole;
+
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
+  ciudad?: string;
+
+  @Column({
+    type: 'varchar',
+    length: 200,
+    nullable: true,
+  })
+  direccion?: string;
+
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
+  dni?: string;
+
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
+  telefono?: string;
+
+  @Column({
+    type: 'date',
+    nullable: true,
+  })
+  fechaNacimiento?: Date;
+
+  @Column({
+    type: 'enum',
+    enum: Gender,
+    nullable: true,
+  })
+  genero?: Gender;
 
   @Column({
     type: 'boolean',
@@ -100,6 +147,9 @@ export class User {
   })
   image: string;
 
+  @Column({
+    type: 'string',
+  })
   @Column({ default: false })
   isEmailVerified: boolean; //Se pondrá a true si es de Google
 

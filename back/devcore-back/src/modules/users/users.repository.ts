@@ -75,6 +75,10 @@ export class UsersRepository {
     return user;
   }
 
+  async updateUser(updatedUser) {
+    return this.userRepository.save(updatedUser);
+  }
+
   async findUserWithPurchasedCourses(userId: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
