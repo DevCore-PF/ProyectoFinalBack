@@ -14,16 +14,14 @@ import { User } from './entities/user.entity';
 import { GithubUserDto } from '../auth/dto/github-user.dto';
 import { SocialProfileDto } from '../auth/dto/socialProfile.dto';
 import { UserRole } from './enums/user-role.enum';
-import { ForgotPasswordDto } from '../auth/dto/forgot-password.dto';
-import { v4 as uuidv4 } from 'uuid';
 import { MailService } from 'src/mail/mail.service';
-import { ResetPasswordDto } from '../auth/dto/reset-password.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     private userRepository: UsersRepository,
     private readonly dataSource: DataSource,
+    private readonly mailService: MailService
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -197,7 +195,22 @@ export class UsersService {
   }
 
   async deleteUser(id: string) {
-    await this.userRepository.deleteUserRepo(id);
+    const desactivatedUSer = await this.userRepository.deleteUserRepo(id);
+
+    //manejamos el caso de no encontrarlo
+    if(desactivatedUSer instanceof NotFoundException){
+      throw desactivatedUSer;
+    }
+
+    //enviamos el correo de la suspension pasandole el email y el name del usuario
+    try {
+      await this.mailService.sendBannedEmail(
+        desactivatedUSer.email,
+        desactivatedUSer.name,
+      );
+    } catch(emailError) {
+      throw new BadRequestException(`Error al enviar el email de suspension del usuario: ${desactivatedUSer.id}:`, emailError)
+    }
     return 'Usuario desactivado correctamente';
   }
 
