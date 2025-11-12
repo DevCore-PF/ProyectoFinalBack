@@ -25,6 +25,20 @@ export class ProfilesRepository {
   /**
    * Busca un perfil de profesor usando el ID del usuario (la relación)
    */
+
+  async getProfessors(status?: string) {
+    const where: any = {};
+
+    if (status) {
+      where.approvalStatus = status;
+    }
+
+    return this.profileRepository.find({
+      where,
+      relations: ['user'],
+    });
+  }
+
   async findByUserId(userId: string): Promise<ProfessorProfile> {
     const profile = await this.profileRepository.findOne({
       where: {
