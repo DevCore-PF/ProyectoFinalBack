@@ -50,6 +50,7 @@ import { CourseFeedbackService } from '../CourseFeedback/courseFeedback.service'
 import { ApiChangeCourseVisibilityDoc } from './doc/chageVisibility.doc';
 import { ApiChangeStatusCourseDoc } from './doc/changeStatus.doc';
 import { ApiGetAllPublicCourses } from './doc/getAllPublicCourses.doc';
+import { Category, CourseDifficulty } from './entities/course.entity';
 
 @Controller('courses')
 export class CoursesController {
@@ -157,8 +158,12 @@ export class CoursesController {
 
   @Get()
   @ApiGetCouseDoc()
-  async getAllCourses(@Query('title') title?: string) {
-    return await this.coursesService.getAllCourses(title);
+  async getAllCourses(
+    @Query('title') title?: string,
+    @Query('category') category?: Category,
+    @Query('difficulty') difficulty?: CourseDifficulty,
+  ) {
+    return await this.coursesService.getAllCourses(title, category, difficulty);
   }
   @Get('/public')
   @ApiGetAllPublicCourses()

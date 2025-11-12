@@ -20,9 +20,26 @@ export class CoursesRepository {
     return await this.courseRepository.save(course);
   }
 
-  async findAll(title?: string): Promise<Course[]> {
-    const where = title ? { title: ILike(`%${title}%`) } : {};
-    return this.courseRepository.find({
+  async findAll(
+    title?: string,
+    category?: string,
+    difficulty?: string,
+  ): Promise<Course[]> {
+    const where: any = { isActive: true };
+
+    if (title) {
+      where.title = ILike(`%${title}%`);
+    }
+
+    if (category) {
+      where.category = category;
+    }
+
+    if (difficulty) {
+      where.difficulty = difficulty;
+    }
+
+    return await this.courseRepository.find({
       where,
       relations: ['lessons', 'professor.user', 'feedbacks'],
     });
