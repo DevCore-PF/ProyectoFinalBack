@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, In, Like, Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { Course, CourseStatus, Visibility } from './entities/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { ProfessorProfile } from '../profiles/entities/professor-profile.entity';
@@ -24,6 +24,8 @@ export class CoursesRepository {
     title?: string,
     category?: string,
     difficulty?: string,
+    sortBy: string = 'createdAt',
+    sortOrder: 'asc' | 'desc' = 'desc',
   ): Promise<Course[]> {
     const where: any = { isActive: true };
 
@@ -42,12 +44,50 @@ export class CoursesRepository {
     return await this.courseRepository.find({
       where,
       relations: ['lessons', 'professor.user', 'feedbacks'],
+      order: {
+        [sortBy]: sortOrder.toUpperCase(),
+      },
     });
   }
 
   async getAllPulicCourses() {
     return await this.courseRepository.find({
       where: { visibility: Visibility.PUBLIC },
+    });
+  }
+
+  async findAllAdmin(
+    title?: string,
+    category?: string,
+    difficulty?: string,
+    isActive?: boolean,
+    sortBy: string = 'createdAt',
+    sortOrder: 'asc' | 'desc' = 'desc',
+  ): Promise<Course[]> {
+    const where: any = {};
+
+    if (isActive !== undefined) {
+      where.isActive = isActive;
+    }
+
+    if (title) {
+      where.title = ILike(`%${title}%`);
+    }
+
+    if (category) {
+      where.category = category;
+    }
+
+    if (difficulty) {
+      where.difficulty = difficulty;
+    }
+
+    return await this.courseRepository.find({
+      where,
+      relations: ['lessons', 'professor.user', 'feedbacks'],
+      order: {
+        [sortBy]: sortOrder.toUpperCase(),
+      },
     });
   }
 

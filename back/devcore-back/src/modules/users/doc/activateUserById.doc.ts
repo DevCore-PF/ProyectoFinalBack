@@ -1,9 +1,15 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { UserResponseDto } from '../dto/user-response.dto';
 
 export function ApiActivateUserDocs() {
   return applyDecorators(
+    ApiBearerAuth(),
     ApiOperation({
       summary: 'Activar un usuario desactivado',
       description:

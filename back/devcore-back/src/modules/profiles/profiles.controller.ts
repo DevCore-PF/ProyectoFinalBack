@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   Req,
   UploadedFiles,
   UseGuards,
@@ -30,6 +31,10 @@ import { CreateCourseDto } from '../course/dto/create-course.dto';
 import { ApiCreateProfessorProfileDoc } from './doc/createProfessorProfile.doc';
 import { ApiUpdateProfessorProfile } from './doc/updateProfessorProfile.doc';
 import { ApiGetProffessorByIdDoc } from './doc/getProfessorProfileById.doc';
+import { Roles, RolesGuard } from '../auth/guards/verify-role.guard';
+import { ApiApprovedProfessorDoc } from './doc/aprovedProfessor.doc';
+import { ApiDeclineProfessorDoc } from './doc/declineProfessor.doc';
+import { ApiGetProfessorsDocs } from './doc/getProfessors.doc';
 
 @Controller('profiles')
 export class ProfilesController {
@@ -88,9 +93,43 @@ export class ProfilesController {
     return this.profilesService.updateProfile(userId, updateDto, files);
   }
 
+  @Get('profesor')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  @ApiGetProfessorsDocs()
+  async getProfessors(@Query('approvalStatus') approvalStatus?: string) {
+    const validStatuses = ['approved', 'pending', 'rejected'];
+
+    const normalizedStatus = validStatuses.includes(approvalStatus ?? '')
+      ? approvalStatus
+      : undefined;
+
+    return await this.profilesService.getProfessors(normalizedStatus);
+  }
+
   @Get(':id')
   @ApiGetProffessorByIdDoc()
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.profilesService.getProfessorById(id);
+  }
+
+  @Patch('aproved/professorId')
+  @ApiApprovedProfessorDoc()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  async aprovedProfesor(
+    @Param('profesorId', ParseUUIDPipe) profesorId: string,
+  ) {
+    return await this.profilesService.aprovedProfesor(profesorId);
+  }
+
+  @Patch('decline/professorId')
+  @ApiDeclineProfessorDoc()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  async declineProfesor(
+    @Param('profesorId', ParseUUIDPipe) profesorId: string,
+  ) {
+    return await this.profilesService.declineProfesor(profesorId);
   }
 }
