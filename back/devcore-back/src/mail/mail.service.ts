@@ -23,26 +23,526 @@ export class MailService {
   }
 
   /**
+   * Envía un correo para restablecer la contraseña (olvidé mi contraseña)
+   */
+  async sendPasswordResetEmail(email: string, name: string, token: string) {
+    // 1. Esta es la URL de tu frontend donde el usuario
+    //    introducirá su NUEVA contraseña.
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    const userName = name;
+
+    await this.transporter.sendMail({
+      from: '"DevCore" <noreply@tuapp.com>',
+      to: email,
+      subject: '🔒 Restablece tu contraseña de DevCore',
+      html: `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Restablece tu contraseña | DevCore</title>
+      </head>
+      <body
+        style="
+          margin: 0;
+          padding: 0;
+          background-color: #131425;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            'Helvetica Neue', Arial, sans-serif;
+          color: #e2e8f0;
+        "
+      >
+        <table
+          width="100%"
+          cellpadding="0"
+          cellspacing="0"
+          style="padding: 40px 20px; background-color: #131425"
+        >
+          <tr>
+            <td align="center">
+              <table
+                width="600"
+                cellpadding="0"
+                cellspacing="0"
+                style="
+                  background-color: #242645;
+                  border-radius: 18px;
+                  overflow: hidden;
+                  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                  border: 1px solid rgba(255, 255, 255, 0.05);
+                  max-width: 100%;
+                "
+              >
+                <tr>
+                  <td
+                    style="
+                      background-color: #363968;
+                      text-align: center;
+                      padding: 50px 30px;
+                    "
+                  >
+                    <img
+                      src="https://res.cloudinary.com/dclx6hdpk/image/upload/v1762290639/logo2_gxkhlq.png"
+                      alt="DevCore Logo"
+                      style="
+                        width: 120px;
+                        height: auto;
+                        margin-bottom: 20px;
+                        border: 1px solid #8b5cf6;
+                        border-radius: 12px;
+                        padding: 6px;
+                      "
+                    />
+                    <h1
+                      style="
+                        color: #ffffff;
+                        font-size: 26px;
+                        font-weight: 800;
+                        margin: 0;
+                      "
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </h1>
+                    <p
+                      style="
+                        color: rgba(255, 255, 255, 0.85);
+                        font-size: 15px;
+                        margin: 10px 0 0;
+                      "
+                    >
+                      No te preocupes, estamos aquí para ayudarte.
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding: 45px 40px; background-color: #242645">
+                    <p
+                      style="
+                        color: #d1d5db;
+                        font-size: 16px;
+                        line-height: 1.7;
+                        margin: 0 0 25px;
+                      "
+                    >
+                      Hola
+                      <strong style="color: #a78bfa">${userName}</strong>,<br /><br />
+                      Recibimos una solicitud para restablecer la contraseña de
+                      tu cuenta en
+                      <strong style="color: #a78bfa">DevCore</strong>.
+                    </p>
+
+                    <p
+                      style="
+                        color: #d1d5db;
+                        font-size: 16px;
+                        line-height: 1.7;
+                        margin: 0 0 25px;
+                      "
+                    >
+                      Para crear una nueva contraseña, haz clic en el botón de
+                      abajo. Este enlace es válido por 1 hora.
+                    </p>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 35px 0"
+                    >
+                      <tr>
+                        <td align="center">
+                          <a
+                            href="${resetUrl}"
+                            style="
+                              display: inline-block;
+                              color: #e5e7eb;
+                              background: transparent;
+                              text-decoration: none;
+                              padding: 14px 40px;
+                              border: 1px solid #a78bfa;
+                              border-radius: 10px;
+                              font-weight: 500;
+                              font-size: 16px;
+                              letter-spacing: 0.4px;
+                              transition: all 0.25s ease-in-out;
+                            "
+                            onmouseover="this.style.background='linear-gradient(135deg,#7E4BDE 0%,#8b5cf6 100%)';"
+                            onmouseout="this.style.background='transparent';"
+                          >
+                            Restablecer Contraseña
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="
+                        background-color: #1d1f3a;
+                        border-radius: 10px;
+                        padding: 25px;
+                        border: 1px solid rgba(255, 255, 255, 0.08);
+                      "
+                    >
+                      <tr>
+                        <td>
+                          <h3
+                            style="
+                              margin: 0 0 12px 0;
+                              color: #f0e130; /* Amarillo de advertencia */
+                              font-size: 17px;
+                            "
+                          >
+                            ⚠️ ¿No solicitaste esto?
+                          </h3>
+                          <p
+                            style="
+                              color: #d1d5db;
+                              font-size: 15px;
+                              line-height: 1.7;
+                              margin: 0;
+                            "
+                          >
+                            Si no solicitaste un cambio de contraseña, puedes
+                            ignorar este correo de forma segura. No se ha
+                            realizado ningún cambio en tu cuenta.
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p
+                      style="
+                        color: #a0aec0;
+                        font-size: 14px;
+                        line-height: 1.6;
+                        margin: 35px 0 10px;
+                      "
+                    >
+                      Si el botón no funciona, copia y pega este enlace en tu
+                      navegador:
+                    </p>
+
+                    <p
+                      style="
+                        margin: 0;
+                        padding: 15px;
+                        background-color: #1d1f3a;
+                        border-radius: 8px;
+                        border-left: 4px solid #8b5cf6;
+                        word-break: break-all;
+                      "
+                    >
+                      <a
+                        href="${resetUrl}"
+                        style="
+                          color: #a78bfa;
+                          text-decoration: none;
+                          font-size: 14px;
+                        "
+                        >${resetUrl}</a
+                      >
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      background-color: #131425;
+                      padding: 35px 40px;
+                      text-align: center;
+                    "
+                  >
+                    <p style="color: #9ca3af; font-size: 14px; margin: 0 0 8px">
+                      🎓 Sigue aprendiendo con
+                      <strong style="color: #a78bfa">DevCore</strong>.
+                    </p>
+                    <p style="color: #6b7280; font-size: 13px; margin: 10px 0 0">
+                      ¿Necesitás ayuda?
+                      <a
+                        href="mailto:devcoreacademia@gmail.com"
+                        style="color: #a78bfa; text-decoration: none"
+                        >Contáctanos</a
+                      >
+                    </p>
+                    <p style="color: #8b8fa9; font-size: 12px; margin: 10px 0 0">
+                      © ${new Date().getFullYear()} DevCore. Todos los derechos
+                      reservados.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `,
+    });
+  }
+
+  /**
+   * Envia correo al usuario cuando fue baneado
+   */
+  async sendBannedEmail(email: string, name: string) {
+    const userName = name; // Asigna el nombre a la variable de la plantilla
+
+    await this.transporter.sendMail({
+      from: '"DevCore" <noreply@tuapp.com>',
+      to: email,
+      subject: '🚫 Notificación: Tu cuenta DevCore ha sido suspendida',
+      html: `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tu cuenta ha sido suspendida</title>
+      </head>
+      <body
+        style="
+          margin: 0;
+          padding: 0;
+          background-color: #131425;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            'Helvetica Neue', Arial, sans-serif;
+          color: #e2e8f0;
+        "
+      >
+        <table
+          width="100%"
+          cellpadding="0"
+          cellspacing="0"
+          style="padding: 40px 20px; background-color: #131425"
+        >
+          <tr>
+            <td align="center">
+              <table
+                width="600"
+                cellpadding="0"
+                cellspacing="0"
+                style="
+                  background-color: #242645;
+                  border-radius: 18px;
+                  overflow: hidden;
+                  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                  border: 1px solid rgba(255, 255, 255, 0.05);
+                  max-width: 100%;
+                "
+              >
+                <tr>
+                  <td
+                    style="
+                      background-color: #363968;
+                      text-align: center;
+                      padding: 45px 30px;
+                    "
+                  >
+                    <img
+                      src="https://res.cloudinary.com/dclx6hdpk/image/upload/v1762290639/logo2_gxkhlq.png"
+                      alt="DevCore Logo"
+                      style="
+                        width: 120px;
+                        height: auto;
+                        margin-bottom: 20px;
+                        border: 1px solid #8b5cf6;
+                        border-radius: 12px;
+                        padding: 6px;
+                      "
+                    />
+                    <h1
+                      style="
+                        margin: 0;
+                        color: #ffffff;
+                        font-size: 26px;
+                        font-weight: 700;
+                      "
+                    >
+                      Tu cuenta ha sido suspendida 🚫
+                    </h1>
+                    <p
+                      style="
+                        margin: 10px 0 0;
+                        color: rgba(255, 255, 255, 0.8);
+                        font-size: 15px;
+                      "
+                    >
+                      Queremos informarte sobre el estado actual de tu cuenta en
+                      <strong style="color: #a78bfa">DevCore</strong>.
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding: 50px 40px; background-color: #242645">
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 16px;
+                        line-height: 1.7;
+                      "
+                    >
+                      Hola <strong style="color: #a78bfa">${userName}</strong>,
+                      lamentamos informarte que tu cuenta ha sido
+                      <strong style="color: #f87171"
+                        >suspendida temporalmente</strong
+                      >
+                      por incumplir nuestras normas de uso.
+                    </p>
+
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 15px;
+                        line-height: 1.7;
+                      "
+                    >
+                      Esta medida tiene como objetivo mantener un entorno seguro y
+                      respetuoso para toda nuestra comunidad. Si considerás que se
+                      trata de un error, podés comunicarte con nuestro equipo de
+                      soporte para solicitar una revisión.
+                    </p>
+
+                    <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="margin: 35px 0"
+                >
+                  <tr>
+                    <td align="center">
+                      <div
+                        style="
+                          display: inline-block;
+                          background-color: #3b2f1e; /* Fondo marrón oscuro (para contraste con amarillo) */
+                          border: 1px solid rgba(251, 191, 36, 0.4); /* Borde amarillo más suave */
+                          color: #fbbf24; /* Texto amarillo/naranja suave */
+                          padding: 12px 28px;
+                          border-radius: 8px;
+                          font-weight: 600;
+                          font-size: 15px;
+                        "
+                      >
+                        🚫 Estado: Cuenta suspendida
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 20px 0"
+                    >
+                      <tr>
+                        <td align="center">
+                          <a
+                            href="mailto:devcoreacademia@gmail.com"
+                            style="
+                              display: inline-block;
+                              border: 1px solid #8b5cf6;
+                              color: #a78bfa;
+                              text-decoration: none;
+                              padding: 12px 34px;
+                              border-radius: 8px;
+                              font-weight: 600;
+                              font-size: 15px;
+                              transition: all 0.3s ease;
+                            "
+                            onmouseover="this.style.backgroundColor='#8b5cf6';this.style.color='#fff';"
+                            onmouseout="this.style.backgroundColor='transparent';this.style.color='#a78bfa';"
+                            >Contactar al soporte de DevCore</a
+                          >
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p
+                      style="
+                        margin: 0;
+                        color: #a0aec0;
+                        font-size: 14px;
+                        line-height: 1.6;
+                      "
+                    >
+                      Si la suspensión se revisa favorablemente, te notificaremos
+                      por este mismo medio. Agradecemos tu comprensión y
+                      colaboración 💜
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      background-color: #131425;
+                      padding: 35px 40px;
+                      text-align: center;
+                    "
+                  >
+                    <p style="margin: 0 0 8px; color: #9ca3af; font-size: 14px">
+                      El equipo de <strong style="color: #a78bfa">DevCore</strong>
+                    </p>
+                    <p style="margin: 10px 0 0; color: #6b7280; font-size: 13px">
+                      ¿Tienes dudas?
+                      <a
+                        href="mailto:devcoreacademia@gmail.com"
+                        style="color: #a78bfa; text-decoration: none"
+                        >Contáctanos</a
+                      >
+                    </p>
+                    <p style="margin: 10px 0 0; color: #8b8fa9; font-size: 12px">
+                      © ${new Date().getFullYear()} DevCore. Todos los derechos
+                      reservados.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `,
+    });
+  }
+
+  /**
    * Envía un correo de confirmación de compra
    */
-  async sendPurchaseConfirmation(user: User, payment: Payment, courses: Course[]) {
-    
+  async sendPurchaseConfirmation(
+    user: User,
+    payment: Payment,
+    courses: Course[],
+  ) {
     // --- 1. Preparamos las variables para la plantilla ---
     const userName = user.name;
     const orderId = payment.stripeId; // Usamos el ID de Stripe como ID de orden
-    const purchaseDate = new Date(payment.createdAt).toLocaleDateString('es-ES', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
+    const purchaseDate = new Date(payment.createdAt).toLocaleDateString(
+      'es-ES',
+      {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      },
+    );
     const totalAmount = `$${(payment.amount / 100).toFixed(2)} ${payment.currency.toUpperCase()}`;
     const myCoursesUrl = `${process.env.FRONTEND_URL}/dashboard`;
 
     // --- 2. Construimos la tabla de cursos (con el nombre del profesor) ---
-    const courseListHtml = courses.map((course) => {
+    const courseListHtml = courses
+      .map((course) => {
         // Obtenemos el nombre del profesor de la relación que cargamos
         const teacherName = course.professor?.user?.name || 'DevCore Academia';
-        const coursePrice = `$${(Number(course.price)).toFixed(2)}`;
+        const coursePrice = `$${Number(course.price).toFixed(2)}`;
 
         return `
           <tr style="border-top: 1px solid rgba(255, 255, 255, 0.05)">
@@ -64,7 +564,8 @@ export class MailService {
             </td>
           </tr>
         `;
-      }).join("");
+      })
+      .join('');
 
     // --- 3. Enviamos el email ---
     await this.transporter.sendMail({

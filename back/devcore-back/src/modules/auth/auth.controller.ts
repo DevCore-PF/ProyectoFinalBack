@@ -32,6 +32,8 @@ import { ApiVerifyEmailDoc } from './doc/verifyEmail.doc';
 import { ApiRedirectGithubDoc } from './doc/getGithub.doc';
 import { ApiRedirectHomeGithubDoc } from './doc/redirectGithub.doc';
 import { ChangePasswordRequestDto } from './dto/change-password-request.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 @UseFilters(new OauthExceptionFilter())
@@ -233,6 +235,22 @@ export class AuthController {
   @UseGuards(SocialActionGuard('github', 'register'))
   async githubRegister() {}
 
+  /**
+   * Endpoind para solicitar el reseto de contraseña
+   */
+  @Post('forgot-password')
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto){
+    return this.authService.requestPasswordReset(forgotPasswordDto)
+  }
+
+  /**
+   * Ednpoint que confirma la nueva contraseña
+   * el front recibe el token del link y lo mandao aqui
+   */
+  @Patch('reset-password')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto){
+    return this.authService.resetPassword(resetPasswordDto)
+  }
   /**
    * Para asignar una contraseña cuando el usuario uso github o google en el registro
    */
