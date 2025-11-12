@@ -15,6 +15,7 @@ import {
   FileTypeValidator,
   Query,
   Req,
+  Body,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
@@ -34,10 +35,11 @@ import { ApiUpdateChecboxbyId } from './doc/updateChecbox.doc';
 import { UserRole } from './enums/user-role.enum';
 import { AuthGuard } from '@nestjs/passport';
 import { ApigetAllInactiveUsersDocs } from './doc/getAllInactiveUsers.doc';
-import { UserResponseDto } from './dto/user-response.dto';
 import { ApigetAllUsersDocs } from './doc/getAllUsers.doc';
 import { ApiActivateUserDocs } from './doc/activateUserById.doc';
 import { ApiGetUserByRoleDocs } from './doc/getUserByRole.doc';
+import { UpdateUserProfileDto } from './dto/update-user.dto';
+import { ApiUpdateUserProfile } from './doc/updateUser.doc';
 
 @ApiTags('users')
 @Controller('users')
@@ -128,13 +130,13 @@ export class UsersController {
     return this.usersService.getUserById(id);
   }
 
-  // @Patch(':id')
-  // update(
-  //   @Param('id', ParseUUIDPipe) id: string,
-  //   @Body() updateUserDto: UpdateUserDto,
-  // ) {
-  //   return this.usersService.update(+id, updateUserDto);
-  // }
+  @Patch('/update')
+  @ApiUpdateUserProfile()
+  @UseGuards(AuthGuard('jwt'))
+  updateUser(@Req() req, @Body() data: UpdateUserProfileDto) {
+    const userId = req.user.sub;
+    return this.usersService.updateUser(userId, data);
+  }
 
   @Delete(':id')
   @ApiDeleteUserById()
