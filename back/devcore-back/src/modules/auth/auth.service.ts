@@ -22,6 +22,8 @@ import { SetPasswordDto } from './dto/set-password.dto';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { use } from 'passport';
 import { ChangePasswordRequestDto } from './dto/change-password-request.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -194,6 +196,7 @@ export class AuthService {
       throw new BadRequestException('El correo electrónico ya está en uso');
     }
 
+
     //validamos que las contraseñas coincidan
     if (registerUser.password !== registerUser.confirmPassword) {
       throw new BadRequestException('Las contraseñas no coinciden');
@@ -224,6 +227,78 @@ export class AuthService {
     //retornamos el usaurio con su token y el rol
     return this.login(newUser);
   }
+
+
+
+    /**
+     * Metodo para cambio de contraseña usario la olvido
+     */
+    async requestPasswordReset(forgotPasswordDto: ForgotPasswordDto) {
+      const {email} = forgotPasswordDto;
+      const user = await this.userRepository.findUserByEmail(email);
+  
+      //aqui si el usuario no existe o si el usuario se registro con google o git pero aun no asigno contraseña
+      //mandaremos un mensaje generico en vez de un error
+      if(!user || !user.password) {
+        return {
+          message: 'Si este correo esta registrado y tiene contraseña local, recibira un enlace para restablecer su contraseña'
+        }
+      }
+  
+      //generamos el token y la fecha de expiracion se coloca  1 hora
+      const resetToken = uuidv4();
+      const expires = new Date(Date.now() + 3600000);
+  
+      //guardamos el token y la expirsacion en el usuario
+      user.resetPasswordToken = resetToken;
+      user.resetPasswordExpires = expires;
+  
+      await this.userRepository.save(user)
+  
+      //enviamos el email del reseteo
+      try{
+        await this.mailService.sendPasswordResetEmail(user.email, user.name, resetToken)
+      } catch(error) {
+        throw new BadRequestException(`Error al enviar el email de reseteo: ${error.message}`)
+      }
+  
+      return {
+        message: 'Si este correo esta registrado y tiene contraseña local, recibira un enlace para restablecer su contraseña'
+      }
+    }
+  
+    /**
+     * Metodo para confirmar la contraseña desde el email que recibio el usuario por olvido de contraseña
+     */
+    async resetPassword(resetPassword: ResetPasswordDto){
+      const {token, newPassword, confirmNewPassword} = resetPassword;
+  
+      if(newPassword !== confirmNewPassword){
+        throw new BadRequestException('Las contraseñas no coinciden')
+      }
+  
+      //buscamos al usuario por el token y que no este expirado
+      const user = await this.userRepository.findUserByResetToken(token);
+  
+      if(!user) {
+        throw new BadRequestException('Token invalido o expirado')
+      }
+  
+      //si el token es valido hasehamos y actualizamos la contraseña
+      user.password = await bcrypt.hash(newPassword, 10);
+  
+      //limpiamos los datos del reseteo
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+  
+      //guarda al usuario con su nueva contraseña
+      await this.userRepository.save(user);
+      
+      return {
+        message: 'Contraseña actualizada correctamente'
+      }
+  
+    }
 
   /**
    * Metodo para reenviar correo de validacion
