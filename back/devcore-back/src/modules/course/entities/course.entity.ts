@@ -26,6 +26,7 @@ import { CourseFeedback } from 'src/modules/CourseFeedback/entities/courseFeedba
 export enum CourseStatus {
   DRAFT = 'EN REVISION',
   PUBLISHED = 'PUBLICADO',
+  REJECT = 'RECHAZADO',
 }
 
 export enum Visibility {

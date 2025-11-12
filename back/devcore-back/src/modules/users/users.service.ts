@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserProfileDto } from './dto/update-user.dto';
 import { UsersRepository } from './users.repository';
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -14,7 +14,6 @@ import { User } from './entities/user.entity';
 import { GithubUserDto } from '../auth/dto/github-user.dto';
 import { SocialProfileDto } from '../auth/dto/socialProfile.dto';
 import { UserRole } from './enums/user-role.enum';
-import { UserResponseDto } from './dto/user-response.dto';
 import { ForgotPasswordDto } from '../auth/dto/forgot-password.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { MailService } from 'src/mail/mail.service';
@@ -188,8 +187,13 @@ export class UsersService {
     return userWithoutPassword;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async updateUser(userId: string, data: UpdateUserProfileDto) {
+    const userFind = await this.userRepository.findUserById(userId);
+    const updatedUser = {
+      ...userFind, // Toma todos los campos actuales del usuario
+      ...data, // Sobrescribe solo los que vienen en data
+    };
+    return await this.userRepository.updateUser(updatedUser);
   }
 
   async deleteUser(id: string) {

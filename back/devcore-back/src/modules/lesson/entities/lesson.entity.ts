@@ -41,6 +41,9 @@ export class Lesson {
   @Column({ default: false })
   esPreview: boolean;
 
+  @Column({ type: 'simple-array', nullable: true })
+  aditionalData: string[];
+
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 

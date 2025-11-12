@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, In, Like, Repository } from 'typeorm';
-import { Course, CourseStatus } from './entities/course.entity';
+import { Course, CourseStatus, Visibility } from './entities/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { ProfessorProfile } from '../profiles/entities/professor-profile.entity';
 
@@ -20,11 +20,34 @@ export class CoursesRepository {
     return await this.courseRepository.save(course);
   }
 
-  async findAll(title?: string): Promise<Course[]> {
-    const where = title ? { title: ILike(`%${title}%`) } : {};
-    return this.courseRepository.find({
+  async findAll(
+    title?: string,
+    category?: string,
+    difficulty?: string,
+  ): Promise<Course[]> {
+    const where: any = { isActive: true };
+
+    if (title) {
+      where.title = ILike(`%${title}%`);
+    }
+
+    if (category) {
+      where.category = category;
+    }
+
+    if (difficulty) {
+      where.difficulty = difficulty;
+    }
+
+    return await this.courseRepository.find({
       where,
       relations: ['lessons', 'professor.user', 'feedbacks'],
+    });
+  }
+
+  async getAllPulicCourses() {
+    return await this.courseRepository.find({
+      where: { visibility: Visibility.PUBLIC },
     });
   }
 
@@ -43,8 +66,8 @@ export class CoursesRepository {
     return this.courseRepository.find({
       where: { id: In(ids) },
       relations: {
-        professor: {user: true}
-      }
+        professor: { user: true },
+      },
     });
   }
 

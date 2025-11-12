@@ -75,6 +75,10 @@ export class UsersRepository {
     return user;
   }
 
+  async updateUser(updatedUser) {
+    return this.userRepository.save(updatedUser);
+  }
+
   /**
    * Metodo que busca un usuario por el token de olvide mi contraseña
    */
