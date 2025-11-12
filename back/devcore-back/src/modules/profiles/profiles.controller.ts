@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   Req,
   UploadedFiles,
   UseGuards,
@@ -33,6 +34,7 @@ import { ApiGetProffessorByIdDoc } from './doc/getProfessorProfileById.doc';
 import { Roles, RolesGuard } from '../auth/guards/verify-role.guard';
 import { ApiApprovedProfessorDoc } from './doc/aprovedProfessor.doc';
 import { ApiDeclineProfessorDoc } from './doc/declineProfessor.doc';
+import { ApiGetProfessorsDocs } from './doc/getProfessors.doc';
 
 @Controller('profiles')
 export class ProfilesController {
@@ -89,6 +91,20 @@ export class ProfilesController {
   ) {
     const userId = req.user.sub;
     return this.profilesService.updateProfile(userId, updateDto, files);
+  }
+
+  @Get('profesor')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  @ApiGetProfessorsDocs()
+  async getProfessors(@Query('approvalStatus') approvalStatus?: string) {
+    const validStatuses = ['approved', 'pending', 'rejected'];
+
+    const normalizedStatus = validStatuses.includes(approvalStatus ?? '')
+      ? approvalStatus
+      : undefined;
+
+    return await this.profilesService.getProfessors(normalizedStatus);
   }
 
   @Get(':id')

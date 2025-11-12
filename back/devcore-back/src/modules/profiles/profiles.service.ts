@@ -178,6 +178,10 @@ export class ProfilesService {
     return this.profilesRepository.save(profile);
   }
 
+  async getProfessors(status) {
+    return await this.profilesRepository.getProfessors(status);
+  }
+
   async getProfessorById(id: string) {
     const professorFind = await this.profilesRepository.findById(id);
     return professorFind;
