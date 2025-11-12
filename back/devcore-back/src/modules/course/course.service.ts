@@ -51,8 +51,12 @@ export class CoursesService {
     }
   }
 
-  async getAllCourses(title?: string): Promise<Course[]> {
-    return this.coursesRepository.findAll(title);
+  async getAllCourses(
+    title?: string,
+    category?: string,
+    difficulty?: string,
+  ): Promise<Course[]> {
+    return this.coursesRepository.findAll(title, category, difficulty);
   }
 
   async getCourseById(id: string): Promise<Course> {
