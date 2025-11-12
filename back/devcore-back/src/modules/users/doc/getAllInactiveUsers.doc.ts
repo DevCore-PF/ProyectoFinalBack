@@ -1,9 +1,10 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserResponseDto } from '../dto/user-response.dto';
 
 export function ApigetAllInactiveUsersDocs() {
   return applyDecorators(
+    ApiBearerAuth(),
     ApiOperation({
       summary: 'Obtener lista de usuarios inactivos',
       description:
