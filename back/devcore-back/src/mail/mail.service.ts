@@ -7,6 +7,7 @@ import { User } from 'src/modules/users/entities/user.entity';
 
 @Injectable()
 export class MailService {
+  
   //metodos para nodemailer el envio de confirmacion de cuenta de correo
   private transporter;
 
@@ -295,7 +296,7 @@ export class MailService {
     await this.transporter.sendMail({
       from: '"DevCore" <noreply@tuapp.com>',
       to: email,
-      subject: '🚫 Notificación: Tu cuenta DevCore ha sido suspendida',
+      subject: '⚠️ Notificación: Tu cuenta DevCore ha sido suspendida',
       html: `
     <!DOCTYPE html>
     <html lang="es">
@@ -363,7 +364,7 @@ export class MailService {
                         font-weight: 700;
                       "
                     >
-                      Tu cuenta ha sido suspendida 🚫
+                      Tu cuenta ha sido suspendida ⚠️
                     </h1>
                     <p
                       style="
@@ -390,7 +391,7 @@ export class MailService {
                     >
                       Hola <strong style="color: #a78bfa">${userName}</strong>,
                       lamentamos informarte que tu cuenta ha sido
-                      <strong style="color: #f87171"
+                      <strong style="color: #fbbf24"
                         >suspendida temporalmente</strong
                       >
                       por incumplir nuestras normas de uso.
@@ -430,7 +431,7 @@ export class MailService {
                           font-size: 15px;
                         "
                       >
-                        🚫 Estado: Cuenta suspendida
+                        ⚠️ Estado: Cuenta suspendida 
                       </div>
                     </td>
                   </tr>
@@ -476,6 +477,227 @@ export class MailService {
                       Si la suspensión se revisa favorablemente, te notificaremos
                       por este mismo medio. Agradecemos tu comprensión y
                       colaboración 💜
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      background-color: #131425;
+                      padding: 35px 40px;
+                      text-align: center;
+                    "
+                  >
+                    <p style="margin: 0 0 8px; color: #9ca3af; font-size: 14px">
+                      El equipo de <strong style="color: #a78bfa">DevCore</strong>
+                    </p>
+                    <p style="margin: 10px 0 0; color: #6b7280; font-size: 13px">
+                      ¿Tienes dudas?
+                      <a
+                        href="mailto:devcoreacademia@gmail.com"
+                        style="color: #a78bfa; text-decoration: none"
+                        >Contáctanos</a
+                      >
+                    </p>
+                    <p style="margin: 10px 0 0; color: #8b8fa9; font-size: 12px">
+                      © ${new Date().getFullYear()} DevCore. Todos los derechos
+                      reservados.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `,
+    });
+  }
+
+  /**
+   *
+   * Envía un email al usuario cuando su cuenta es reactivada.
+   */
+  async sendActivateUser(email: string, name: string) {
+    const userName = name;
+    // Construimos la URL de login usando la variable de entorno
+    const loginUrl = `${process.env.FRONTEND_URL}/login`;
+
+    await this.transporter.sendMail({
+      from: '"DevCore" <noreply@tuapp.com>',
+      to: email,
+      subject: '✅ ¡Tu cuenta DevCore ha sido reactivada!',
+      html: `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cuenta reactivada</title>
+      </head>
+      <body
+        style="
+          margin: 0;
+          padding: 0;
+          background-color: #131425;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            'Helvetica Neue', Arial, sans-serif;
+          color: #e2e8f0;
+        "
+      >
+        <table
+          width="100%"
+          cellpadding="0"
+          cellspacing="0"
+          style="padding: 40px 20px; background-color: #131425"
+        >
+          <tr>
+            <td align="center">
+              <table
+                width="600"
+                cellpadding="0"
+                cellspacing="0"
+                style="
+                  background-color: #242645;
+                  border-radius: 18px;
+                  overflow: hidden;
+                  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                  border: 1px solid rgba(255, 255, 255, 0.05);
+                  max-width: 100%;
+                "
+              >
+                <tr>
+                  <td
+                    style="
+                      background-color: #363968;
+                      text-align: center;
+                      padding: 45px 30px;
+                    "
+                  >
+                    <img
+                      src="https://res.cloudinary.com/dclx6hdpk/image/upload/v1762290639/logo2_gxkhlq.png"
+                      alt="DevCore Logo"
+                      style="
+                        width: 120px;
+                        height: auto;
+                        margin-bottom: 20px;
+                        border: 1px solid #8b5cf6;
+                        border-radius: 12px;
+                        padding: 6px;
+                      "
+                    />
+                    <h1
+                      style="
+                        margin: 0;
+                        color: #ffffff;
+                        font-size: 26px;
+                        font-weight: 700;
+                      "
+                    >
+                      ¡Tu cuenta ha sido reactivada! 🎉
+                    </h1>
+                    <p
+                      style="
+                        margin: 10px 0 0;
+                        color: rgba(255, 255, 255, 0.8);
+                        font-size: 15px;
+                      "
+                    >
+                      Nos alegra informarte que ya puedes volver a disfrutar de tu
+                      cuenta DevCore.
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding: 50px 40px; background-color: #242645">
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 16px;
+                        line-height: 1.7;
+                      "
+                    >
+                      Hola <strong style="color: #a78bfa">${userName}</strong>,
+                      <br /><br />
+                      Tras una revisión detallada, tu cuenta ha sido reactivada y
+                      restaurada con normalidad. Ya puedes acceder nuevamente a
+                      nuestros cursos, talleres y recursos.
+                    </p>
+
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 15px;
+                        line-height: 1.7;
+                      "
+                    >
+                      Te recordamos mantener una conducta respetuosa y seguir las
+                      políticas de la comunidad para garantizar una buena
+                      experiencia para todos los usuarios.
+                    </p>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 35px 0"
+                    >
+                      <tr>
+                        <td align="center">
+                          <div
+                            style="
+                              display: inline-block;
+                              background-color: #1d1f3a;
+                              border: 1px solid rgba(110, 231, 183, 0.4);
+                              color: #6ee7b7;
+                              padding: 12px 28px;
+                              border-radius: 8px;
+                              font-weight: 600;
+                              font-size: 15px;
+                            "
+                          >
+                            ✅ Estado: Cuenta activa
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <div style="text-align: center; margin-top: 20px">
+                      <a
+                        href="${loginUrl}" style="
+                          display: inline-block;
+                          color: #e5e7eb; /* gris 200 */
+                          border: 1px solid rgba(229, 231, 235, 0.4);
+                          text-decoration: none;
+                          font-weight: 600;
+                          font-size: 15px;
+                          border-radius: 8px;
+                          padding: 10px 26px;
+                          background: transparent;
+                          transition: background-color 0.2s ease;
+                        "
+                        onmouseover="this.style.backgroundColor='#7E4BDE'"
+                        onmouseout="this.style.backgroundColor='transparent'"
+                      >
+                        Iniciar sesión
+                      </a>
+                    </div>
+
+                    <p
+                      style="
+                        margin: 40px 0 0;
+                        color: #a0aec0;
+                        font-size: 14px;
+                        line-height: 1.6;
+                        text-align: center;
+                      "
+                    >
+                      ¡Gracias por continuar siendo parte de nuestra comunidad 💜!
                     </p>
                   </td>
                 </tr>
