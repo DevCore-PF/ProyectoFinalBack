@@ -223,10 +223,24 @@ export class UsersService {
 
   async activateUser(userId: string) {
     const userFind = await this.userRepository.findInactiveUser(userId);
-    if (!userFind)
+
+    if (!userFind){
       throw new NotFoundException('No se encontro el usuario inactivo');
+    }
+
+    if(userFind.isActive === true) {
+      throw new BadRequestException('El usuario ya esta activo');
+    }
+    
     userFind.isActive = true;
     await this.userRepository.save(userFind);
+
+    try {
+      await this.mailService.sendActivateUser(userFind.email, userFind.name);
+    } catch(emailError) {
+      throw new BadRequestException(`Error al enviar el email de activacion del usuario: ${userFind.id}:`, emailError)
+    }
+    
     return 'Usuario activado correctamente';
   }
 }
