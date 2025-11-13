@@ -61,6 +61,11 @@ export class CoursesRepository {
   async getAllPulicCourses() {
     return await this.courseRepository.find({
       where: { visibility: Visibility.PUBLIC },
+      relations: {
+        lessons: true,
+        professor: { user: true },
+        feedbacks: true,
+      },
     });
   }
 
