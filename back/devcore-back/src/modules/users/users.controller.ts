@@ -41,6 +41,7 @@ import { ApiGetUserByRoleDocs } from './doc/getUserByRole.doc';
 import { UpdateUserProfileDto } from './dto/update-user.dto';
 import { ApiUpdateUserProfile } from './doc/updateUser.doc';
 import { Roles, RolesGuard } from '../auth/guards/verify-role.guard';
+import { DesactivatedUserDto } from './dto/desactivate-user.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -149,8 +150,8 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
   @ApiDeleteUserById()
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.usersService.deleteUser(id);
+  remove(@Param('id', ParseUUIDPipe) id: string,@Body() desactivateDto: DesactivatedUserDto) {
+    return this.usersService.deleteUser(id, desactivateDto);
   }
 
   @Patch('checkbox/:id')

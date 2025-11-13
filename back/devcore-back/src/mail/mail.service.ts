@@ -7,7 +7,6 @@ import { User } from 'src/modules/users/entities/user.entity';
 
 @Injectable()
 export class MailService {
-  
   //metodos para nodemailer el envio de confirmacion de cuenta de correo
   private transporter;
 
@@ -290,7 +289,7 @@ export class MailService {
   /**
    * Envia correo al usuario cuando fue baneado
    */
-  async sendBannedEmail(email: string, name: string) {
+  async sendBannedEmail(email: string, name: string, reason: string) {
     const userName = name; // Asigna el nombre a la variable de la plantilla
 
     await this.transporter.sendMail({
@@ -393,9 +392,32 @@ export class MailService {
                       lamentamos informarte que tu cuenta ha sido
                       <strong style="color: #fbbf24"
                         >suspendida temporalmente</strong
-                      >
-                      por incumplir nuestras normas de uso.
+                      >.
                     </p>
+                    <p
+                  style="
+                    margin: 0 0 25px;
+                    color: #d1d5db;
+                    font-size: 15px;
+                    line-height: 1.7;
+                  "
+                >
+                  El motivo de esta suspensión es el siguiente:
+                </p>
+                <p
+                  style="
+                    margin: 0 0 30px;
+                    padding: 20px;
+                    background-color: #1d1f3a;
+                    border-radius: 8px;
+                    border-left: 4px solid #fbbf24;
+                    color: #e5e7eb;
+                    font-style: italic;
+                    line-height: 1.6;
+                  "
+                >
+                  "${reason}"
+                </p>
 
                     <p
                       style="

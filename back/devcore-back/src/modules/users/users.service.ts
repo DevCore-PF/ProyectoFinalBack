@@ -15,6 +15,7 @@ import { GithubUserDto } from '../auth/dto/github-user.dto';
 import { SocialProfileDto } from '../auth/dto/socialProfile.dto';
 import { UserRole } from './enums/user-role.enum';
 import { MailService } from 'src/mail/mail.service';
+import { DesactivatedUserDto } from './dto/desactivate-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -194,8 +195,12 @@ export class UsersService {
     return await this.userRepository.updateUser(updatedUser);
   }
 
-  async deleteUser(id: string) {
-    const desactivatedUSer = await this.userRepository.deleteUserRepo(id);
+  async deleteUser(id: string, desactivateDto: DesactivatedUserDto) {
+
+    const { reason } = desactivateDto;
+
+
+    const desactivatedUSer = await this.userRepository.deleteUserRepo(id,reason);
 
     //manejamos el caso de no encontrarlo
     if(desactivatedUSer instanceof NotFoundException){
@@ -207,6 +212,7 @@ export class UsersService {
       await this.mailService.sendBannedEmail(
         desactivatedUSer.email,
         desactivatedUSer.name,
+        reason
       );
     } catch(emailError) {
       throw new BadRequestException(`Error al enviar el email de suspension del usuario: ${desactivatedUSer.id}:`, emailError)
@@ -233,6 +239,8 @@ export class UsersService {
     }
     
     userFind.isActive = true;
+    userFind.suspensionReason = null;
+
     await this.userRepository.save(userFind);
 
     try {
@@ -240,7 +248,7 @@ export class UsersService {
     } catch(emailError) {
       throw new BadRequestException(`Error al enviar el email de activacion del usuario: ${userFind.id}:`, emailError)
     }
-    
+
     return 'Usuario activado correctamente';
   }
 }
