@@ -11,6 +11,7 @@ import { CreateLessonDto } from '../lesson/dto/create-lesson.dto';
 import { Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProfessorProfile } from '../profiles/entities/professor-profile.entity';
+import { UsersRepository } from '../users/users.repository';
 
 @Injectable()
 export class CoursesService {
@@ -20,6 +21,7 @@ export class CoursesService {
     private readonly lessonsRepository: Repository<Lesson>,
     @InjectRepository(ProfessorProfile)
     private readonly professorRepository: Repository<ProfessorProfile>,
+    private readonly usersRepository: UsersRepository,
   ) {}
 
   async createCourse(
@@ -51,13 +53,23 @@ export class CoursesService {
     }
   }
 
-  // async getAllCourses(
-  //   title?: string,
-  //   category?: string,
-  //   difficulty?: string,
-  // ): Promise<Course[]> {
-  //   return this.coursesRepository.findAll(title, category, difficulty);
-  // }
+  async createCourseAdmin(
+    adminId: string,
+    data: CreateCourseDto,
+  ): Promise<Course> {
+    const admin = await this.usersRepository.findUserById(adminId);
+    if (!admin) {
+      throw new NotFoundException('Usuario administrador no encontrado');
+    }
+    const newCourse = await this.coursesRepository.createCourseAdmin({
+      ...data,
+      user: admin,
+      isActive: true,
+      status: CourseStatus.PUBLISHED,
+    });
+
+    return newCourse;
+  }
 
   async getAllCourses(
     title?: string,
