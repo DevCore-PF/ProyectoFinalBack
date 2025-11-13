@@ -98,6 +98,7 @@ export class ProfilesController {
    * Endpoint para solicitud de cambio de rol estudiante a profesor
    */
   @Post('request-upgrade')
+  @ApiCreateProfessorProfileDoc()
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FilesInterceptor('certificates', 10))
   async requestTeacherRole(@Req() req, @Body() createProfileDto: CreateProfessorProfileDto, @UploadedFiles(
