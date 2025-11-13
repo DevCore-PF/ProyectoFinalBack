@@ -226,10 +226,11 @@ export class UsersRepository {
     return this.userRepository.save(user);
   }
 
-  async deleteUserRepo(id: string) {
+  async deleteUserRepo(id: string, reason: string) {
     const findUser = await this.findUserById(id);
     if (!findUser) return new NotFoundException('Usuario no encontrado');
     findUser.isActive = false;
+    findUser.suspensionReason = reason;
     await this.userRepository.save(findUser);
     return findUser;
   }
