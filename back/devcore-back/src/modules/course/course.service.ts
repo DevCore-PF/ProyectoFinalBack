@@ -51,12 +51,28 @@ export class CoursesService {
     }
   }
 
+  // async getAllCourses(
+  //   title?: string,
+  //   category?: string,
+  //   difficulty?: string,
+  // ): Promise<Course[]> {
+  //   return this.coursesRepository.findAll(title, category, difficulty);
+  // }
+
   async getAllCourses(
     title?: string,
     category?: string,
     difficulty?: string,
+    sortBy: string = 'createdAt',
+    sortOrder: 'asc' | 'desc' = 'desc',
   ): Promise<Course[]> {
-    return this.coursesRepository.findAll(title, category, difficulty);
+    return this.coursesRepository.findAll(
+      title,
+      category,
+      difficulty,
+      sortBy,
+      sortOrder,
+    );
   }
 
   async getCourseById(id: string): Promise<Course> {
@@ -66,6 +82,24 @@ export class CoursesService {
   }
   async getAllPulicCourses() {
     return await this.coursesRepository.getAllPulicCourses();
+  }
+
+  async getAllCoursesAdmin(
+    title?: string,
+    category?: string,
+    difficulty?: string,
+    isActive?: boolean,
+    sortBy: string = 'createdAt',
+    sortOrder: 'asc' | 'desc' = 'desc',
+  ): Promise<Course[]> {
+    return this.coursesRepository.findAllAdmin(
+      title,
+      category,
+      difficulty,
+      isActive,
+      sortBy,
+      sortOrder,
+    );
   }
 
   async addLessonToCourse(
@@ -91,23 +125,6 @@ export class CoursesService {
     return await this.lessonsRepository.save(lesson);
   }
 
-  async updateCourseById(id, data) {
-    const courseFind = await this.coursesRepository.findById(id);
-    if (!courseFind) throw new NotFoundException('Curso no encontrado');
-    const { title, description, price, duration, difficulty, category, type } =
-      data;
-
-    if (title !== undefined) courseFind.title = title;
-    if (description !== undefined) courseFind.description = description;
-    if (price !== undefined) courseFind.price = price;
-    if (duration !== undefined) courseFind.duration = duration;
-    if (difficulty !== undefined) courseFind.difficulty = difficulty;
-    if (category !== undefined) courseFind.category = category;
-    if (type !== undefined) courseFind.type = type;
-
-    return await this.coursesRepository.updateCourse(courseFind);
-  }
-
   async changeVisivility(courseId: string) {
     const courseFind = await this.coursesRepository.findById(courseId);
     if (!courseFind) throw new NotFoundException('Curso no encontrado');
@@ -130,5 +147,19 @@ export class CoursesService {
       await this.coursesRepository.updateCourse(courseFind);
       return courseFind;
     }
+  }
+
+  async aprovedCourse(courseId: string) {
+    const courseFind = await this.coursesRepository.findById(courseId);
+    if (!courseFind) throw new NotFoundException('Curso no encontrado');
+    courseFind.status = CourseStatus.PUBLISHED;
+    await this.coursesRepository.updateCourse(courseFind);
+  }
+
+  async declineCourse(courseId: string) {
+    const courseFind = await this.coursesRepository.findById(courseId);
+    if (!courseFind) throw new NotFoundException('Curso no encontrado');
+    courseFind.status = CourseStatus.REJECT;
+    await this.coursesRepository.updateCourse(courseFind);
   }
 }

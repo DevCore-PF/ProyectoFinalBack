@@ -184,7 +184,12 @@ export class UsersRepository {
         githubId: true,
         newPasswordRequest: true,
         newPasswordToken: true,
-
+        ciudad: true,
+        direccion: true,
+        dni: true,
+        telefono: true,
+        fechaNacimiento: true,
+        genero: true,
         enrollments: {
           id: true,
           completed: true,

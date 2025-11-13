@@ -1,8 +1,9 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 export function ApiDeleteUserById() {
   return applyDecorators(
+    ApiBearerAuth(),
     ApiOperation({
       summary: 'Desactivar un usuario por ID',
       description:
