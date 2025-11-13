@@ -35,6 +35,7 @@ import { Roles, RolesGuard } from '../auth/guards/verify-role.guard';
 import { ApiApprovedProfessorDoc } from './doc/aprovedProfessor.doc';
 import { ApiDeclineProfessorDoc } from './doc/declineProfessor.doc';
 import { ApiGetProfessorsDocs } from './doc/getProfessors.doc';
+import { RejectRequestDto } from './dto/reject-request.dto';
 
 @Controller('profiles')
 export class ProfilesController {
@@ -93,6 +94,25 @@ export class ProfilesController {
     return this.profilesService.updateProfile(userId, updateDto, files);
   }
 
+  /**
+   * Endpoint para solicitud de cambio de rol estudiante a profesor
+   */
+  @Post('request-upgrade')
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(FilesInterceptor('certificates', 10))
+  async requestTeacherRole(@Req() req, @Body() createProfileDto: CreateProfessorProfileDto, @UploadedFiles(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|pdf)$/i }),
+        ],
+      }),
+    )
+    files: Array<Express.Multer.File>,){
+      const userId = req.user.sub;
+      return this.profilesService.requestTeacherRole(userId, createProfileDto, files)
+  }
+
   @Get('profesor')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
@@ -106,6 +126,29 @@ export class ProfilesController {
 
     return await this.profilesService.getProfessors(normalizedStatus);
   }
+
+  /**
+   * Endpoint para aprobar al usuario cambie de rol de alumno a profesor
+   */
+  @Patch('approved-teacher/:userId')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  async approvedTeacherRequest(@Param('userID', ParseUUIDPipe) userId: string){
+    return this.profilesService.approvedTeacherRequest(userId);
+  }
+
+  /**
+   * Endpoint para rechazar la solicitud de cambio de rol de alumno a profesor
+   */
+  @Patch('reject-teacher/:userId')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  async rejectTeacherRequest(@Param('userID', ParseUUIDPipe) userId: string, @Body() rejectDto: RejectRequestDto) {
+    return this.profilesService.rejectTeacherRequest(userId, rejectDto);
+  }
+
+
+
 
   @Get(':id')
   @ApiGetProffessorByIdDoc()

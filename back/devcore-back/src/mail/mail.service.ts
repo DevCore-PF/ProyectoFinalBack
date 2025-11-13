@@ -7,6 +7,7 @@ import { User } from 'src/modules/users/entities/user.entity';
 
 @Injectable()
 export class MailService {
+
   //metodos para nodemailer el envio de confirmacion de cuenta de correo
   private transporter;
 
@@ -1400,6 +1401,757 @@ export class MailService {
                         style="color: #a78bfa; text-decoration: none"
                         >Contáctanos</a
                       >
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `,
+    });
+  }
+
+  /**
+   * MEtodo para que se envie un email cuando el estudiante solicita ser profesor
+   */
+  async sendRoleRequestPendingEmail(email: string, name: string) {
+    const userName = name;
+
+    await this.transporter.sendMail({
+      from: '"DevCore" <noreply@tuapp.com>',
+      to: email,
+      subject: '⚙️ Tu solicitud de rol de Profesor está en revisión',
+      html: `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Solicitud de cambio de rol en revisión</title>
+      </head>
+      <body
+        style="
+          margin: 0;
+          padding: 0;
+          background-color: #131425;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            'Helvetica Neue', Arial, sans-serif;
+          color: #e2e8f0;
+        "
+      >
+        <table
+          width="100%"
+          cellpadding="0"
+          cellspacing="0"
+          style="padding: 40px 20px; background-color: #131425"
+        >
+          <tr>
+            <td align="center">
+              <table
+                width="600"
+                cellpadding="0"
+                cellspacing="0"
+                style="
+                  background-color: #242645;
+                  border-radius: 18px;
+                  overflow: hidden;
+                  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                  border: 1px solid rgba(255, 255, 255, 0.05);
+                  max-width: 100%;
+                "
+              >
+                <tr>
+                  <td
+                    style="
+                      background-color: #363968;
+                      text-align: center;
+                      padding: 45px 30px;
+                    "
+                  >
+                    <img
+                      src="https://res.cloudinary.com/dclx6hdpk/image/upload/v1762290639/logo2_gxkhlq.png"
+                      alt="DevCore Logo"
+                      style="
+                        width: 120px;
+                        height: auto;
+                        margin-bottom: 20px;
+                        border: 1px solid #8b5cf6;
+                        border-radius: 12px;
+                        padding: 6px;
+                      "
+                    />
+                    <h1
+                      style="
+                        margin: 0;
+                        color: #ffffff;
+                        font-size: 26px;
+                        font-weight: 700;
+                      "
+                    >
+                      Tu solicitud de cambio de rol está en revisión ⚙️
+                    </h1>
+                    <p
+                      style="
+                        margin: 10px 0 0;
+                        color: rgba(255, 255, 255, 0.85);
+                        font-size: 15px;
+                      "
+                    >
+                      Gracias por tu interés en crecer dentro de la comunidad 💜
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding: 50px 40px; background-color: #242645">
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 16px;
+                        line-height: 1.7;
+                      "
+                    >
+                      Hola <strong style="color: #a78bfa">${userName}</strong>,
+                      <br /><br />
+                      Hemos recibido tu solicitud de cambio de rol y actualmente
+                      está siendo revisada por nuestro equipo.
+                    </p>
+
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 15px;
+                        line-height: 1.7;
+                      "
+                    >
+                      Este proceso puede tomar unos días. Te notificaremos
+                      inmediatamente si tu solicitud es aprobada o si requerimos
+                      información adicional.
+                    </p>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 35px 0"
+                    >
+                      <tr>
+                        <td align="center">
+                          <div
+                            style="
+                              display: inline-block;
+                              background-color: #1f1b2e; /* Fondo de revisión */
+                              border: 1px solid rgba(167, 139, 250, 0.4); /* Borde morado claro */
+                              color: #a78bfa; /* Color de texto morado */
+                              padding: 12px 28px;
+                              border-radius: 8px;
+                              font-weight: 600;
+                              font-size: 15px;
+                            "
+                          >
+                            ⚙️ Estado: En revisión
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 30px 0"
+                    >
+                      <tr>
+                        <td align="center">
+                          <a
+                            href="mailto:devcoreacademia@gmail.com"
+                            style="
+                              display: inline-block;
+                              text-decoration: none;
+                              border: 1px solid rgba(255, 255, 255, 0.25);
+                              color: #e5e7eb;
+                              background-color: transparent;
+                              padding: 14px 38px;
+                              border-radius: 8px;
+                              font-weight: 600;
+                              font-size: 15px;
+                              transition: all 0.3s ease;
+                            "
+                            onmouseover="this.style.backgroundColor='#7E4BDE'"
+                            onmouseout="this.style.backgroundColor='transparent'"
+                          >
+                            Contactar al equipo DevCore
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p
+                      style="
+                        margin: 0;
+                        color: #a0aec0;
+                        font-size: 14px;
+                        line-height: 1.6;
+                      "
+                    >
+                      Agradecemos sinceramente tu tiempo e interés en
+                      <strong>DevCore</strong>. ¡Mantente atento a tu correo! 💫
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      background-color: #131425;
+                      padding: 35px 40px;
+                      text-align: center;
+                    "
+                  >
+                    <p style="margin: 0 0 8px; color: #9ca3af; font-size: 14px">
+                      El equipo de <strong style="color: #a78bfa">DevCore</strong>
+                    </p>
+                    <p style="margin: 10px 0 0; color: #6b7280; font-size: 13px">
+                      ¿Tienes dudas?
+                      <a
+                        href="mailto:devcoreacademia@gmail.com"
+                        style="color: #a78bfa; text-decoration: none"
+                        >Contáctanos</a
+                      >
+                    </p>
+                    <p style="margin: 10px 0 0; color: #8b8fa9; font-size: 12px">
+                      © ${new Date().getFullYear()} DevCore. Todos los derechos
+                      reservados.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `,
+    });
+  }
+
+  /**
+   * NUEVO MÉTODO
+   * Envía un email al usuario informando que su solicitud
+   * de cambio de rol a Profesor ha sido APROBADA.
+   */
+  async sendRoleRequestApprovedEmail(email: string, name: string, newRole: string) {
+    // Variables para la plantilla
+    const userName = name;
+    const nuevoRol = newRole; // (Le pasaremos "Profesor" desde el ProfilesService)
+    const loginUrl = `${process.env.API_URL}/login`; // URL del frontend
+
+    await this.transporter.sendMail({
+      from: '"DevCore" <noreply@tuapp.com>',
+      to: email,
+      subject: '✅ ¡Tu solicitud de rol de Profesor fue aprobada!',
+      html: `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tu solicitud de cambio de rol fue aprobada</title>
+      </head>
+      <body
+        style="
+          margin: 0;
+          padding: 0;
+          background-color: #131425;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            'Helvetica Neue', Arial, sans-serif;
+          color: #e2e8f0;
+        "
+      >
+        <table
+          width="100%"
+          cellpadding="0"
+          cellspacing="0"
+          style="padding: 40px 20px; background-color: #131425"
+        >
+          <tr>
+            <td align="center">
+              <table
+                width="600"
+                cellpadding="0"
+                cellspacing="0"
+                style="
+                  background-color: #242645;
+                  border-radius: 18px;
+                  overflow: hidden;
+                  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                  border: 1px solid rgba(34, 197, 94, 0.25);
+                  max-width: 100%;
+                "
+              >
+                <tr>
+                  <td
+                    style="
+                      background: linear-gradient(135deg, #7e4bde 0%, #22c55e 100%);
+                      text-align: center;
+                      padding: 45px 30px;
+                    "
+                  >
+                    <img
+                      src="https://res.cloudinary.com/dclx6hdpk/image/upload/v1762290639/logo2_gxkhlq.png"
+                      alt="DevCore Logo"
+                      style="
+                        width: 120px;
+                        height: auto;
+                        margin-bottom: 20px;
+                        border: 1px solid #a78bfa;
+                        border-radius: 12px;
+                        padding: 6px;
+                      "
+                    />
+                    <h1
+                      style="
+                        margin: 0;
+                        color: #ffffff;
+                        font-size: 26px;
+                        font-weight: 700;
+                      "
+                    >
+                      ¡Tu solicitud de cambio de rol fue aprobada! 🎉
+                    </h1>
+                    <p
+                      style="
+                        margin: 10px 0 0;
+                        color: rgba(255, 255, 255, 0.85);
+                        font-size: 15px;
+                      "
+                    >
+                      ¡Felicitaciones por tu ascenso en la comunidad DevCore! 💜
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding: 50px 40px; background-color: #242645">
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 16px;
+                        line-height: 1.7;
+                      "
+                    >
+                      ¡Felicitaciones,
+                      <strong style="color: #a78bfa">${userName}</strong>! Tu
+                      solicitud de cambio de rol ha sido
+                      <strong style="color: #4ade80">aprobada exitosamente</strong>.
+                    </p>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 25px 0 35px"
+                    >
+                      <tr>
+                        <td
+                          style="
+                            background-color: #1a3622;
+                            border: 1px solid rgba(34, 197, 94, 0.4);
+                            border-radius: 8px;
+                            padding: 20px;
+                            color: #4ade80;
+                            font-size: 15px;
+                            line-height: 1.6;
+                          "
+                        >
+                          <strong>Tu nuevo rol es:</strong><br />
+                          <span style="color: #4ade80; font-size: 18px; font-weight: 600;">${nuevoRol}</span>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 15px;
+                        line-height: 1.7;
+                      "
+                    >
+                      Tu cuenta ha sido actualizada. Podés iniciar sesión para
+                      acceder a las nuevas funcionalidades y herramientas de tu
+                      nuevo rol.
+                    </p>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 35px 0"
+                    >
+                      <tr>
+                        <td align="center">
+                          <div
+                            style="
+                              display: inline-block;
+                              background-color: #1f1b2e;
+                              border: 1px solid rgba(34, 197, 94, 0.4);
+                              color: #4ade80;
+                              padding: 12px 28px;
+                              border-radius: 8px;
+                              font-weight: 600;
+                              font-size: 15px;
+                            "
+                          >
+                            ✅ Estado: Aprobado
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 35px 0"
+                    >
+                      <tr>
+                        <td align="center">
+                          <a
+                            href="${loginUrl}"
+                            style="
+                              display: inline-block;
+                              text-decoration: none;
+                              border: 1px solid rgba(34, 197, 94, 0.4);
+                              color: #e5e7eb;
+                              background-color: transparent;
+                              padding: 14px 38px;
+                              border-radius: 8px;
+                              font-weight: 600;
+                              font-size: 15px;
+                              transition: all 0.3s ease;
+                            "
+                            onmouseover="this.style.backgroundColor='#7E4BDE'"
+                            onmouseout="this.style.backgroundColor='transparent'"
+                          >
+                            Iniciar sesión
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p
+                      style="
+                        margin: 0;
+                        color: #a0aec0;
+                        font-size: 14px;
+                        line-height: 1.6;
+                      "
+                    >
+                      Nos alegra tenerte con nosotros y verte crecer en nuestra
+                      comunidad de aprendizaje 🚀
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      background-color: #131425;
+                      padding: 35px 40px;
+                      text-align: center;
+                    "
+                  >
+                    <p style="margin: 0 0 8px; color: #9ca3af; font-size: 14px">
+                      El equipo de <strong style="color: #a78bfa">DevCore</strong>
+                    </p>
+                    <p style="margin: 10px 0 0; color: #6b7280; font-size: 13px">
+                      ¿Tienes dudas?
+                      <a
+                        href="mailto:devcoreacademia@gmail.com"
+                        style="color: #a78bfa; text-decoration: none"
+                        >Contáctanos</a
+                      >
+                    </p>
+                    <p style="margin: 10px 0 0; color: #8b8fa9; font-size: 12px">
+                      © ${new Date().getFullYear()} DevCore. Todos los derechos
+                      reservados.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `,
+    });
+  }
+
+  /**
+   * Envía un email al usuario informando que su solicitud de cambio de rol fue rechazada
+   */
+  async sendRoleRequestRejectedEmail(
+    email: string, 
+    name: string, 
+    reason: string // <-- Acepta el motivo del rechazo
+  ) {
+    const userName = name;
+    const rejectionReason = reason; // Asigna el motivo a la variable
+
+    await this.transporter.sendMail({
+      from: '"DevCore" <noreply@tuapp.com>',
+      to: email,
+      subject: '⚠️ Actualización sobre tu solicitud de rol en DevCore',
+      html: `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Solicitud de cambio de rol no aprobada</title>
+      </head>
+      <body
+        style="
+          margin: 0;
+          padding: 0;
+          background-color: #131425;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            'Helvetica Neue', Arial, sans-serif;
+          color: #e2e8f0;
+        "
+      >
+        <table
+          width="100%"
+          cellpadding="0"
+          cellspacing="0"
+          style="padding: 40px 20px; background-color: #131425"
+        >
+          <tr>
+            <td align="center">
+              <table
+                width="600"
+                cellpadding="0"
+                cellspacing="0"
+                style="
+                  background-color: #242645;
+                  border-radius: 18px;
+                  overflow: hidden;
+                  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                  border: 1px solid rgba(255, 255, 255, 0.05);
+                  max-width: 100%;
+                "
+              >
+                <tr>
+                  <td
+                    style="
+                      background-color: #363968;
+                      text-align: center;
+                      padding: 45px 30px;
+                    "
+                  >
+                    <img
+                      src="https://res.cloudinary.com/dclx6hdpk/image/upload/v1762290639/logo2_gxkhlq.png"
+                      alt="DevCore Logo"
+                      style="
+                        width: 120px;
+                        height: auto;
+                        margin-bottom: 20px;
+                        border: 1px solid #8b5cf6;
+                        border-radius: 12px;
+                        padding: 6px;
+                      "
+                    />
+                    <h1
+                      style="
+                        margin: 0;
+                        color: #ffffff;
+                        font-size: 26px;
+                        font-weight: 700;
+                      "
+                    >
+                      Tu solicitud de cambio de rol no ha sido aprobada ⚠️
+                    </h1>
+                    <p
+                      style="
+                        margin: 10px 0 0;
+                        color: rgba(255, 255, 255, 0.85);
+                        font-size: 15px;
+                      "
+                    >
+                      Gracias por tu interés en crecer dentro de la comunidad 💜
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding: 50px 40px; background-color: #242645">
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 16px;
+                        line-height: 1.7;
+                      "
+                    >
+                      Hola <strong style="color: #a78bfa">${userName}</strong>,
+                      <br /><br />
+                      Tras revisar cuidadosamente tu solicitud de cambio de rol,
+                      lamentamos informarte que en esta ocasión no fue aprobada.
+                    </p>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="
+                        background-color: #1d1f3a;
+                        border-radius: 10px;
+                        padding: 25px;
+                        border-left: 4px solid #fbbf24; /* Borde amarillo */
+                        margin-bottom: 30px;
+                      "
+                    >
+                      <tr>
+                        <td>
+                          <h3
+                            style="
+                              margin: 0 0 12px 0;
+                              color: #fbbf24; /* Texto amarillo */
+                              font-size: 17px;
+                            "
+                          >
+                            Motivo del rechazo
+                          </h3>
+                          <p
+                            style="
+                              color: #d1d5db;
+                              font-size: 15px;
+                              line-height: 1.7;
+                              margin: 0;
+                              font-style: italic;
+                            "
+                          >
+                            "${rejectionReason}"
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 15px;
+                        line-height: 1.7;
+                      "
+                    >
+                      Esto no significa un cierre definitivo — podés revisar los
+                      requisitos específicos para el nuevo rol y volver a postularte
+                      más adelante, o comunicarte con nuestro equipo si querés más
+                      información.
+                    </p>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 35px 0"
+                    >
+                      <tr>
+                        <td align="center">
+                          <div
+                            style="
+                              display: inline-block;
+                              background-color: #3a321b;
+                              border: 1px solid rgba(251, 191, 36, 0.4);
+                              color: #fbbf24;
+                              padding: 12px 28px;
+                              border-radius: 8px;
+                              font-weight: 600;
+                              font-size: 15px;
+                            "
+                          >
+                            ⚠️ Estado: No aprobado
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 30px 0"
+                    >
+                      <tr>
+                        <td align="center">
+                          <a
+                            href="mailto:devcoreacademia@gmail.com"
+                            style="
+                              display: inline-block;
+                              text-decoration: none;
+                              border: 1px solid rgba(255, 255, 255, 0.25);
+                              color: #e5e7eb;
+                              background-color: transparent;
+                              padding: 14px 38px;
+                              border-radius: 8px;
+                              font-weight: 600;
+                              font-size: 15px;
+                              transition: all 0.3s ease;
+                            "
+                            onmouseover="this.style.backgroundColor='#7E4BDE'"
+                            onmouseout="this.style.backgroundColor='transparent'"
+                          >
+                            Contactar al equipo DevCore
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p
+                      style="
+                        margin: 0;
+                        color: #a0aec0;
+                        font-size: 14px;
+                        line-height: 1.6;
+                      "
+                    >
+                      Agradecemos sinceramente tu tiempo e interés en
+                      <strong>DevCore</strong>. Esperamos poder colaborar contigo en
+                      el futuro 💫
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      background-color: #131425;
+                      padding: 35px 40px;
+                      text-align: center;
+                    "
+                  >
+                    <p style="margin: 0 0 8px; color: #9ca3af; font-size: 14px">
+                      El equipo de <strong style="color: #a78bfa">DevCore</strong>
+                    </p>
+                    <p style="margin: 10px 0 0; color: #6b7280; font-size: 13px">
+                      ¿Tienes dudas?
+                      <a
+                        href="mailto:devcoreacademia@gmail.com"
+                        style="color: #a78bfa; text-decoration: none"
+                        >Contáctanos</a
+                      >
+                    </p>
+                    <p style="margin: 10px 0 0; color: #8b8fa9; font-size: 12px">
+                      © ${new Date().getFullYear()} DevCore. Todos los derechos
+                      reservados.
                     </p>
                   </td>
                 </tr>
