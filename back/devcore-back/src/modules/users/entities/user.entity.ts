@@ -172,6 +172,9 @@ export class User {
   @Column({ default: false })
   hasCompletedProfile: boolean;
 
+  @Column({type: 'text', nullable: true})
+  suspensionReason: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 
