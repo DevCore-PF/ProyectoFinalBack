@@ -20,7 +20,6 @@ import { GithubUserDto } from './dto/github-user.dto';
 import { SocialProfileDto } from './dto/socialProfile.dto';
 import { SetPasswordDto } from './dto/set-password.dto';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
-import { use } from 'passport';
 import { ChangePasswordRequestDto } from './dto/change-password-request.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -47,6 +46,7 @@ export class AuthService {
       const user = await this.userRepository.findUserByEmail(email);
 
       // si el el usuario "SI" existe ---
+
       if (user) {
         // Si el email existe PERO no es de Google, es un conflicto.
         if (!user.isGoogleAccount) {
@@ -59,6 +59,7 @@ export class AuthService {
         if (image) {
           user.image = image;
         }
+
         // y guardamos el usuario
         await this.userRepository.save(user);
         return user;
@@ -125,47 +126,52 @@ export class AuthService {
   }
 
   //Nuevo metodo para probar el registro de ambos provedores github y google
-  async validateAndHandleSocialUser(profile: SocialProfileDto, action: 'login' | 'register'){
+  async validateAndHandleSocialUser(
+    profile: SocialProfileDto,
+    action: 'login' | 'register',
+  ) {
     const { email, name, image, provider, providerId } = profile;
 
     const user = await this.userRepository.findUserByEmail(email);
 
-
     //Logica de registro
-    if(action === 'register'){
-      if(user) {
+    if (action === 'register') {
+      if (user) {
+        if (user?.isActive === false && user.isEmailVerified === true) {
+          console.log('🚫 Usuario baneado detectado');
+          throw new BadRequestException('El email ha sido baneado');
+        }
         //aqui se valida para que no pueda registrarse de nuevo sin importar si fue con gihub, propio o google
         throw new ConflictException(`El email ${email} ya está registrado.`);
         //redirigimos al usuario al login
-        
       }
 
       //si el mail del usuario no existe se registra
-      const newUser = await this.userService.createSocialUser(profile)
+      const newUser = await this.userService.createSocialUser(profile);
       return newUser;
     }
 
     //Logica para el login
-    if(action === 'login'){
-      if(!user) {
+    if (action === 'login') {
+      if (!user) {
         throw new NotFoundException(`El email ${email} no está registrado.`);
       }
 
       //pero si existe con google, github o el nuestro lo dejamos entrar y vinculamos su cuenta al registro que ya tiene
-      if(provider === 'google'){
+      if (provider === 'google') {
         user.isGoogleAccount = true;
         user.googleId = providerId;
       }
-      if(provider === 'github') {
+      if (provider === 'github') {
         user.isGitHubAccount = true;
         user.githubId = providerId;
       }
 
       //Actualizamos la imagen solamente si el usuario no tiene una
-      if(!user.image && image){
+      if (!user.image && image) {
         user.image = image;
       }
-      
+
       await this.userRepository.save(user);
       return user;
     }
@@ -193,9 +199,14 @@ export class AuthService {
       //   )
       // }
       // Si existe y no es de google marca error de que ya existe
+      if (
+        userExists.isActive === false &&
+        userExists.isEmailVerified === true
+      ) {
+        throw new BadRequestException('El email ha sido baneado');
+      }
       throw new BadRequestException('El correo electrónico ya está en uso');
     }
-
 
     //validamos que las contraseñas coincidan
     if (registerUser.password !== registerUser.confirmPassword) {
@@ -228,101 +239,113 @@ export class AuthService {
     return this.login(newUser);
   }
 
+  /**
+   * Metodo para cambio de contraseña usario la olvido
+   */
+  async requestPasswordReset(forgotPasswordDto: ForgotPasswordDto) {
+    const { email } = forgotPasswordDto;
+    const user = await this.userRepository.findUserByEmail(email);
 
+    //aqui si el usuario no existe o si el usuario se registro con google o git pero aun no asigno contraseña
+    //mandaremos un mensaje generico en vez de un error
+    if (!user || !user.password) {
+      return {
+        message:
+          'Si este correo esta registrado y tiene contraseña local, recibira un enlace para restablecer su contraseña',
+      };
+    }
 
-    /**
-     * Metodo para cambio de contraseña usario la olvido
-     */
-    async requestPasswordReset(forgotPasswordDto: ForgotPasswordDto) {
-      const {email} = forgotPasswordDto;
-      const user = await this.userRepository.findUserByEmail(email);
-  
-      //aqui si el usuario no existe o si el usuario se registro con google o git pero aun no asigno contraseña
-      //mandaremos un mensaje generico en vez de un error
-      if(!user || !user.password) {
-        return {
-          message: 'Si este correo esta registrado y tiene contraseña local, recibira un enlace para restablecer su contraseña'
-        }
-      }
-  
-      //generamos el token y la fecha de expiracion se coloca  1 hora
-      const resetToken = uuidv4();
-      const expires = new Date(Date.now() + 3600000);
-  
-      //guardamos el token y la expirsacion en el usuario
-      user.resetPasswordToken = resetToken;
-      user.resetPasswordExpires = expires;
-  
-      await this.userRepository.save(user)
-  
-      //enviamos el email del reseteo
-      try{
-        await this.mailService.sendPasswordResetEmail(user.email, user.name, resetToken)
-      } catch(error) {
-        throw new BadRequestException(`Error al enviar el email de reseteo: ${error.message}`)
-      }
-  
-      return {
-        message: 'Si este correo esta registrado y tiene contraseña local, recibira un enlace para restablecer su contraseña'
-      }
+    //generamos el token y la fecha de expiracion se coloca  1 hora
+    const resetToken = uuidv4();
+    const expires = new Date(Date.now() + 3600000);
+
+    //guardamos el token y la expirsacion en el usuario
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = expires;
+
+    await this.userRepository.save(user);
+
+    //enviamos el email del reseteo
+    try {
+      await this.mailService.sendPasswordResetEmail(
+        user.email,
+        user.name,
+        resetToken,
+      );
+    } catch (error) {
+      throw new BadRequestException(
+        `Error al enviar el email de reseteo: ${error.message}`,
+      );
     }
-  
-    /**
-     * Metodo para confirmar la contraseña desde el email que recibio el usuario por olvido de contraseña
-     */
-    async resetPassword(resetPassword: ResetPasswordDto){
-      const {token, newPassword, confirmNewPassword} = resetPassword;
-  
-      if(newPassword !== confirmNewPassword){
-        throw new BadRequestException('Las contraseñas no coinciden')
-      }
-  
-      //buscamos al usuario por el token y que no este expirado
-      const user = await this.userRepository.findUserByResetToken(token);
-  
-      if(!user) {
-        throw new BadRequestException('Token invalido o expirado')
-      }
-  
-      //si el token es valido hasehamos y actualizamos la contraseña
-      user.password = await bcrypt.hash(newPassword, 10);
-  
-      //limpiamos los datos del reseteo
-      user.resetPasswordToken = undefined;
-      user.resetPasswordExpires = undefined;
-  
-      //guarda al usuario con su nueva contraseña
-      await this.userRepository.save(user);
-      
-      return {
-        message: 'Contraseña actualizada correctamente'
-      }
-  
+
+    return {
+      message:
+        'Si este correo esta registrado y tiene contraseña local, recibira un enlace para restablecer su contraseña',
+    };
+  }
+
+  /**
+   * Metodo para confirmar la contraseña desde el email que recibio el usuario por olvido de contraseña
+   */
+  async resetPassword(resetPassword: ResetPasswordDto) {
+    const { token, newPassword, confirmNewPassword } = resetPassword;
+
+    if (newPassword !== confirmNewPassword) {
+      throw new BadRequestException('Las contraseñas no coinciden');
     }
+
+    //buscamos al usuario por el token y que no este expirado
+    const user = await this.userRepository.findUserByResetToken(token);
+
+    if (!user) {
+      throw new BadRequestException('Token invalido o expirado');
+    }
+
+    //si el token es valido hasehamos y actualizamos la contraseña
+    user.password = await bcrypt.hash(newPassword, 10);
+
+    //limpiamos los datos del reseteo
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    //guarda al usuario con su nueva contraseña
+    await this.userRepository.save(user);
+
+    return {
+      message: 'Contraseña actualizada correctamente',
+    };
+  }
 
   /**
    * Metodo para reenviar correo de validacion
    */
-  async resendVerificationEmail(resendDto: ResendVerificationDto){
-    const {email} = resendDto;
+  async resendVerificationEmail(resendDto: ResendVerificationDto) {
+    const { email } = resendDto;
 
     //Buscamos al usuario por el email que se ingreso
     const user = await this.userRepository.findUserByEmail(email);
 
     //validamos si el usuario existe, o si ya esta verificado, o si es una cuenta con login terceros y aun no tiene contraseña
-    if(!user || user.isEmailVerified || !user.password){
-      return {message: 'Si este correo esta registrado, recibiras un nuevo enlace de verificacion.'}
+    if (!user || user.isEmailVerified || !user.password) {
+      return {
+        message:
+          'Si este correo esta registrado, recibiras un nuevo enlace de verificacion.',
+      };
     }
 
     //si el usuario es valido y necesita la verificacion
     const newVerificationToken = uuidv4();
     user.emailVerificationToken = newVerificationToken;
 
-    await this.mailService.sendVerificationEmail(user.email, newVerificationToken);
+    await this.mailService.sendVerificationEmail(
+      user.email,
+      newVerificationToken,
+    );
 
     // Retornamos el mismo mensaje genérico
-    return { 
-      message: 'Si este correo está registrado, recibirás un nuevo enlace de verificación.' 
+    return {
+      message:
+        'Si este correo está registrado, recibirás un nuevo enlace de verificación.',
     };
   }
 
@@ -346,7 +369,9 @@ export class AuthService {
 
     //aqui validamos si el usuario se registro con google y quiere solicitar cambio pero aun no tiene le mand eun error de que primero debe asiganrla
     if (!user.password) {
-      throw new BadRequestException('Las cuentas sociales deben asignar una contraseña primero.');
+      throw new BadRequestException(
+        'Las cuentas sociales deben asignar una contraseña primero.',
+      );
     }
 
     //Hasheams la nueva contraseña
@@ -379,15 +404,13 @@ export class AuthService {
     const user = await this.userRepository.findUserByChangeToken(token);
 
     if (!user || !user.newPasswordRequest) {
-      throw new BadRequestException(
-        'El token es inválido o ha expirado.',
-      );
+      throw new BadRequestException('El token es inválido o ha expirado.');
     }
 
     // el token es validado
     //y cambiamos la contraseña original por la temporal
     user.password = user.newPasswordRequest;
-    
+
     //Limpiamos los campos temporales
     user.newPasswordRequest = undefined;
     user.newPasswordToken = undefined;
@@ -403,18 +426,23 @@ export class AuthService {
    * Este método es llamado por el login local y por el callback de Google o Github
    */
   async login(user: User) {
-
     //Obtenemos la relacion
     let userRelations = user;
 
-    if(user.role === UserRole.TEACHER) {
-      userRelations = await this.userRepository.findUserByIdWithRelations(user.id, ['professorProfile']);
+    if (user.role === UserRole.TEACHER) {
+      userRelations = await this.userRepository.findUserByIdWithRelations(
+        user.id,
+        ['professorProfile'],
+      );
     } else if (user.role === UserRole.STUDENT) {
-      userRelations = await this.userRepository.findUserByIdWithRelations(user.id, ['studentProfile'])
+      userRelations = await this.userRepository.findUserByIdWithRelations(
+        user.id,
+        ['studentProfile'],
+      );
     } else {
-    // Si es admin o cualquier otro rol, no cargamos relaciones
-    userRelations = await this.userRepository.findUserById(user.id);
-  }
+      // Si es admin o cualquier otro rol, no cargamos relaciones
+      userRelations = await this.userRepository.findUserById(user.id);
+    }
 
     // El payload es la información que guardamos en el token
     const payload = {
@@ -423,8 +451,8 @@ export class AuthService {
       role: user.role,
     };
 
-    const {password, ...userReturn} = userRelations;
-    
+    const { password, ...userReturn } = userRelations;
+
     return {
       userReturn,
       access_token: this.jwtService.sign(payload),
@@ -489,14 +517,13 @@ export class AuthService {
     return null;
   }
 
-
   async validateLocalUser(email: string, pass: string): Promise<any> {
     const user = await this.userRepository.findUserByEmail(email);
 
     // Revisa si el usuario existe y no es de Google
     if (!user) {
       throw new NotFoundException(
-        'Esta cuenta no está registrada. Por favor, regístrate primero.'
+        'Esta cuenta no está registrada. Por favor, regístrate primero.',
       );
     }
 

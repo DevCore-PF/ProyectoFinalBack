@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, In, Repository } from 'typeorm';
+import { Admin, ILike, In, Repository } from 'typeorm';
 import { Course, CourseStatus, Visibility } from './entities/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { ProfessorProfile } from '../profiles/entities/professor-profile.entity';
+import { UsersRepository } from '../users/users.repository';
+import { UserRole } from '../users/enums/user-role.enum';
 
 @Injectable()
 export class CoursesRepository {
   constructor(
     @InjectRepository(Course)
     private readonly courseRepository: Repository<Course>,
+    private readonly usersRepository: UsersRepository,
   ) {}
 
   async createCourse(
@@ -18,6 +21,11 @@ export class CoursesRepository {
     const course = this.courseRepository.create(data);
     course.status = CourseStatus.DRAFT;
     return await this.courseRepository.save(course);
+  }
+
+  async createCourseAdmin(courseData: Partial<Course>): Promise<Course> {
+    const newCourse = this.courseRepository.create(courseData);
+    return await this.courseRepository.save(newCourse);
   }
 
   async findAll(
