@@ -8,13 +8,16 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { Lesson } from '../lesson/entities/lesson.entity';
 import { ProfessorProfile } from '../profiles/entities/professor-profile.entity';
 import { CourseFeedbackModule } from '../CourseFeedback/courseFeedback.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   controllers: [CoursesController],
   providers: [CoursesService, CoursesRepository],
   imports: [
     TypeOrmModule.forFeature([Course, Lesson, ProfessorProfile]),
-    CloudinaryModule, CourseFeedbackModule
+    UsersModule,
+    CloudinaryModule,
+    CourseFeedbackModule,
   ],
   exports: [CoursesRepository],
 })

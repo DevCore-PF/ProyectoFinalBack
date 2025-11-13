@@ -13,9 +13,12 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { LessonProgressModule } from './modules/LessonProgress/lessonprogress.module';
 import { CourseFeedbackModule } from './modules/CourseFeedback/courseFeedback.module';
 import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TaskService } from './task.service';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.development'],
@@ -42,5 +45,6 @@ import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
     CourseFeedbackModule,
     EnrollmentsModule,
   ],
+  providers: [TaskService],
 })
 export class AppModule {}

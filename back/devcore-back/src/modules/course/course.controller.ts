@@ -51,6 +51,7 @@ import { Roles, RolesGuard } from '../auth/guards/verify-role.guard';
 import { ApiApprovedCourseDoc } from './doc/aprovedCourse.doc';
 import { ApiDeclineCourseDoc } from './doc/declineCourse.doc';
 import { ApiGetAllCoursesAdminDocs } from './doc/getCourseAdmin.doc';
+import { ApiCreateCourseAdminDoc } from './doc/createCourseAdmin.doc';
 
 @Controller('courses')
 export class CoursesController {
@@ -62,11 +63,21 @@ export class CoursesController {
 
   @Post(':professorId/create')
   @ApiCreateCourseDoc()
+  @UseGuards(AuthGuard('jwt'))
   async createCourse(
     @Param('professorId') professorId: string,
     @Body() data: CreateCourseDto,
   ) {
     return this.coursesService.createCourse(professorId, data);
+  }
+
+  @Post('create/admin')
+  @ApiCreateCourseAdminDoc()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  async createCourseAdmin(@Body() data: CreateCourseDto, @Req() req) {
+    const adminId = req.user.sub;
+    return await this.coursesService.createCourseAdmin(adminId, data);
   }
 
   @Post(':courseId/lessons')
