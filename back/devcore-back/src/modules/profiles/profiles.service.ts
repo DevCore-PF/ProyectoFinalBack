@@ -19,6 +19,7 @@ import { RejectRequestDto } from './dto/reject-request.dto';
 
 @Injectable()
 export class ProfilesService {
+  
 
   constructor(
     private readonly profilesRepository: ProfilesRepository,
@@ -336,6 +337,46 @@ export class ProfilesService {
     return professorFind;
   }
 
+
+   async getApprovalStatusByUserId(userId: string) {
+    const user = await this.userRepository.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    if (user.role !== UserRole.TEACHER) {
+      throw new ForbiddenException('Solo los profesores pueden consultar su estado de aprobación');
+    }
+
+    const professorProfile = await this.profilesRepository.findByUserId(userId);
+    if (!professorProfile) {
+      return {
+        hasProfile: false,
+        approvalStatus: null,
+        message: 'No has completado tu perfil de profesor'
+      };
+    }
+
+    return {
+      hasProfile: true,
+      approvalStatus: professorProfile.approvalStatus,
+      message: this.getApprovalStatusMessage(professorProfile.approvalStatus)
+    };
+  }
+
+  private getApprovalStatusMessage(status: ApprovalStatus): string {
+    switch (status) {
+      case ApprovalStatus.PENDING:
+        return 'Tu perfil está en revisión. En breve un administrador revisará tu solicitud.';
+      case ApprovalStatus.APPROVED:
+        return 'Tu perfil ha sido aprobado. Ya puedes crear cursos.';
+      case ApprovalStatus.REJECTED:
+        return 'Tu solicitud ha sido rechazada. Contacta con el administrador para más información.';
+      default:
+        return 'Estado desconocido.';
+    }
+  }
+
   async aprovedProfesor(professorId: string) {
     const professorFind = await this.profilesRepository.findById(professorId);
     if (!professorFind) throw new NotFoundException('Profesor no encontrado');
@@ -350,3 +391,4 @@ export class ProfilesService {
     return this.profilesRepository.save(professorFind);
   }
 }
+
