@@ -180,6 +180,10 @@ export class User {
   isRequestingTeacherRole: boolean;
 
   @CreateDateColumn()
+  @Exclude()
+  RequestingTeacherRoleDate: Date;
+
+  @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
