@@ -169,9 +169,9 @@ export class ProfilesController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
   async aprovedProfesor(
-    @Param('professorId', ParseUUIDPipe) profesorId: string,
+    @Param('professorId', ParseUUIDPipe) professorId: string,
   ) {
-    return await this.profilesService.aprovedProfesor(profesorId);
+    return await this.profilesService.aprovedProfesor(professorId);
   }
 
   @Patch('decline/:professorId')
@@ -179,9 +179,9 @@ export class ProfilesController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
   async declineProfesor(
-    @Param('professorId', ParseUUIDPipe) profesorId: string,
+    @Param('professorId', ParseUUIDPipe) professorId: string,
   ) {
-    return await this.profilesService.declineProfesor(profesorId);
+    return await this.profilesService.declineProfesor(professorId);
   }
 
 
