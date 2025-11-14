@@ -18,6 +18,7 @@ import { Cart } from 'src/modules/cart/entities/cart.entity';
 import { LessonProgress } from 'src/modules/LessonProgress/entities/lessoprogress.entity';
 import { CourseFeedback } from 'src/modules/CourseFeedback/entities/courseFeedback.entity';
 import { Payment } from 'src/modules/payments/entities/payment.entity';
+import { Course } from 'src/modules/course/entities/course.entity';
 
 export enum Gender {
   MASCULINO = 'masculino',
@@ -197,6 +198,9 @@ export class User {
 
   @OneToOne(() => Cart, (cart) => cart.user, { cascade: true })
   cart: Cart;
+
+  @OneToMany(() => Course, (course) => course.user)
+  courses: Course[];
 
   @OneToMany(() => CourseFeedback, (feedback) => feedback.user)
   courseFeedbacks: CourseFeedback[];

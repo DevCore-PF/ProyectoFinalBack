@@ -96,7 +96,7 @@ export class ProfilesService {
     const newProfile = this.profilesRepository.create({
       ...createProfileDto,
       user: user, //asignamos la relacion al usuario
-      approvalStatus: ApprovalStatus.APPROVED, //poemosen pendiente provisional para pruebas ya que esto se debe aprobar por el admin
+      approvalStatus: ApprovalStatus.PENDING, //poemosen pendiente provisional para pruebas ya que esto se debe aprobar por el admin
       certificates: certificateUrls, //le pasamos las url de cloudinary
     });
 

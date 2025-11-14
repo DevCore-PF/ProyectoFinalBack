@@ -22,6 +22,7 @@ import { Lesson } from 'src/modules/lesson/entities/lesson.entity';
 import { ProfessorProfile } from 'src/modules/profiles/entities/professor-profile.entity';
 import { Enrollment } from 'src/modules/enrollments/entities/enrollment.entity';
 import { CourseFeedback } from 'src/modules/CourseFeedback/entities/courseFeedback.entity';
+import { User } from 'src/modules/users/entities/user.entity';
 
 export enum CourseStatus {
   DRAFT = 'EN REVISION',
@@ -115,13 +116,13 @@ export class Course {
   @Column({ type: 'enum', enum: Visibility, default: Visibility.PRIVATE })
   visibility: Visibility;
 
-  // @Column({ type: 'decimal', nullable: true })
-  // @Min(1, { message: 'El rating no puede ser menor que 1.' })
-  // @Max(10, { message: 'El rating no puede ser mayor que 5.' })
-  // Rating: number;
-
-  // @Column({ type: 'varchar', length: 250, nullable: true })
-  // Feedback: string;
+  @ManyToOne(() => User, (user) => user.courses, {
+    eager: false,
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'userId' })
+  user: User;
 
   @Column({
     type: 'boolean',
