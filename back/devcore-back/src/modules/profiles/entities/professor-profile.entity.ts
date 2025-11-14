@@ -9,6 +9,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { ApprovalStatus } from '../enums/approval-status.enum';
 import { Course } from 'src/modules/course/entities/course.entity';
+import { text } from 'stream/consumers';
 
 @Entity('professor_profiles')
 export class ProfessorProfile {
@@ -45,6 +46,9 @@ export class ProfessorProfile {
 
   @Column({ type: 'boolean', default: false })
   agreedToAproveed: boolean;
+
+  @Column({type: 'text', nullable: true})
+  rejectionReason: string;
 
   @Column({
     type: 'enum',

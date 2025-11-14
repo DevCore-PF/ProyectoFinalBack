@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -13,14 +14,18 @@ import { CreateProfessorProfileDto } from './dto/create-professon-profile.dto';
 import { UpdateProfessorProfileDto } from './dto/update-professor-profile.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { Not } from 'typeorm/browser';
+import { MailService } from 'src/mail/mail.service';
+import { RejectRequestDto } from './dto/reject-request.dto';
 
 @Injectable()
 export class ProfilesService {
+
   constructor(
     private readonly profilesRepository: ProfilesRepository,
     private readonly userRepository: UsersRepository,
     private readonly authService: AuthService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly mailService: MailService
   ) {}
 
   /**
@@ -176,6 +181,150 @@ export class ProfilesService {
 
     //Guardamos el perfil con los cambiso hechos
     return this.profilesRepository.save(profile);
+  }
+
+  /**
+   * Metodo para que un estudiante solicite ser profesor
+   */
+    async requestTeacherRole(userId: string, createProfileDto: CreateProfessorProfileDto, files: Array<Express.Multer.File>) {
+      //buscamos el usuario
+      const user = await this.userRepository.findUserById(userId);
+      if(!user) {
+        throw new NotFoundException('Usuario no encontrado');
+      }
+
+      //Validamos el rol sea estudiante
+      if(user.role !== UserRole.STUDENT) {
+        throw new ForbiddenException('Solo los estudiantes pueden solicitar el ascenso a profesor')
+      }
+
+      //validamos si ya tiene una solicitud de ascenso
+      if(user.isRequestingTeacherRole) {
+        throw new ConflictException('Ya tiene una solicitud de ascenso a profesor pendiente')
+      }
+
+      //subimos los archivos a cloudinary
+      let certificateUrls: string[] = [];
+      if(files && files.length > 0) {
+        const uploadPromises = files.map(file => this.cloudinaryService.uploadCertificate(file));
+        const results = await Promise.all(uploadPromises);
+        certificateUrls = results.filter(result => result?.secure_url).map(result => result!.secure_url) 
+      } else {
+        throw new BadRequestException('Se requieren adjuntar certificados para la solicitud de ascenso a profesor')
+      }
+
+      //creamos la entidad profesorProfile
+      const newProfile = this.profilesRepository.create({
+        ...createProfileDto,
+        user: user,
+        certificates: certificateUrls,
+        approvalStatus: ApprovalStatus.PENDING
+      })
+
+      //guardamos el nuevo perfil
+      await this.profilesRepository.save(newProfile);
+
+      //actualizamos el estado de solicitud a true
+      user.isRequestingTeacherRole = true;
+      await this.userRepository.save(user);
+      
+      //Enviamos el email de confirmacion
+      try {
+        await this.mailService.sendRoleRequestPendingEmail(user.email, user.name)
+      } catch(emailError) {
+        throw new BadRequestException(`Error al enviar el email de solicitud de profesor: ${user.id}:`, emailError)
+      }
+
+      return {
+        message: 'Solicitud enviada exitosamente. Tu perfil será revisado por un administrador.'
+      }
+  }
+
+  /**
+   * Metodo que aprueba la solicitud de cambio de rol a profesor
+   */
+  async approvedTeacherRequest(userId: string) {
+    //Buscamos al ususrio(por su perfil de profesor)
+    const user = await this.userRepository.findUserWithProfile(userId);
+
+    if(!user) {
+      throw new NotFoundException('Usuario no encontrado')
+    }
+
+    const profile = user.professorProfile;
+    if(!profile) {
+      throw new NotFoundException('Este usuario no tienes una solicitud de perfil de profesor')
+    }
+
+    if(profile.approvalStatus !== ApprovalStatus.PENDING){
+      throw new ConflictException('Esta solicitud ya fue procesada')
+    }
+
+    //actualizamos su estatus
+    profile.approvalStatus = ApprovalStatus.APPROVED;
+
+    //cambiamos el rol
+    user.role = UserRole.TEACHER;
+    //regreamos a false la solicitud
+    user.isRequestingTeacherRole = false;
+
+    //guardamos en los cambios
+    await this.profilesRepository.save(profile);
+    await this.userRepository.save(user);
+
+    try {
+      await this.mailService.sendRoleRequestApprovedEmail(user.email, user.name, "Profesor")
+    } catch(emailError) {
+      throw new BadRequestException('Error al enviar el email de solicitud de profesor:', emailError)
+    }
+
+    return {
+      message: 'Solicitud de ascenso a profesor aprobada correctamente'
+    }
+    
+  }
+
+  /**
+   * MEtodo que rechaza el cambio de rol de estudiante a profesor
+   */
+  async rejectTeacherRequest(userId: string, rejectDto: RejectRequestDto){
+    const {reason} = rejectDto;
+
+    //buscamos al usuario y su perfil
+    const user = await this.userRepository.findUserWithProfile(userId);
+
+    if(!user) {
+      throw new NotFoundException('Usuario no encontrado')
+    }
+
+    const profile = user.professorProfile;
+
+    if(!profile) {
+      throw new NotFoundException('Este usuario no tiene un solicitud de cambio de rol')
+    }
+
+    //valida que la solicitud este en pendiente
+    if(profile.approvalStatus !== ApprovalStatus.PENDING) {
+      throw new ConflictException('Esta solicitud ya fue procesada (aprobada o rechazada')
+    }
+
+    //actualizamos el perfil con el estado y motivo del rechazo
+    profile.approvalStatus = ApprovalStatus.REJECTED;
+    profile.rejectionReason = reason;
+
+    //regresamos a false 
+    user.isRequestingTeacherRole = false;
+
+    //enviamos el email de rechazo
+    try {
+      await this.mailService.sendRoleRequestRejectedEmail(user.email, user.name, reason)
+    } catch(emailError) {
+      throw new BadRequestException(`Solicitud de rol rechazada para el ${user.id}, pero fallo el envio del email`, emailError)
+    }
+
+    return {
+      message: 'Solicitud rechazada exitosamente'
+    }
   }
 
   async getProfessors(status) {
