@@ -227,6 +227,7 @@ export class ProfilesService {
 
       //actualizamos el estado de solicitud a true
       user.isRequestingTeacherRole = true;
+      user.RequestingTeacherRoleDate = new Date();
       await this.userRepository.save(user);
       
       //Enviamos el email de confirmacion
