@@ -169,6 +169,7 @@ export class UsersRepository {
         email: true,
         name: true,
         role: true,
+        password: true,
         isActive: true,
         checkBoxTerms: true,
         image: true,

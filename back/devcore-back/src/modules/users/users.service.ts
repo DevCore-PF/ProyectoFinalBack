@@ -181,10 +181,17 @@ export class UsersService {
   }
 
   async getUserById(id: string) {
-    const userFind = await this.userRepository.findUserWithProfile(id);
-    const { password, ...userWithoutPassword } = userFind;
-    return userWithoutPassword;
-  }
+  const userFind = await this.userRepository.findUserWithProfile(id);
+  const { password, ...userWithoutPassword } = userFind;
+  
+  // Agregar información de si tiene contraseña sin exponer la contraseña misma
+  const userWithPasswordStatus = {
+    ...userWithoutPassword,
+    hasPassword: !!password, // true si tiene contraseña, false si no
+  };
+  
+  return userWithPasswordStatus;
+}
 
   async updateUser(userId: string, data: UpdateUserProfileDto) {
     const userFind = await this.userRepository.findUserById(userId);
