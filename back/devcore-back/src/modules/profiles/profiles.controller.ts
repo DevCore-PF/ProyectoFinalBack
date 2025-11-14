@@ -179,9 +179,9 @@ export class ProfilesController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
   async declineProfesor(
-    @Param('professorId', ParseUUIDPipe) professorId: string,
+    @Param('professorId', ParseUUIDPipe) professorId: string,string, @Body() rejectDto: RejectRequestDto
   ) {
-    return await this.profilesService.declineProfesor(professorId);
+    return await this.profilesService.declineProfesor(professorId, rejectDto);
   }
 
 

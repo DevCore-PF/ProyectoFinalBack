@@ -7,7 +7,6 @@ import { User } from 'src/modules/users/entities/user.entity';
 
 @Injectable()
 export class MailService {
-
   //metodos para nodemailer el envio de confirmacion de cuenta de correo
   private transporter;
 
@@ -1645,7 +1644,11 @@ export class MailService {
    * Envía un email al usuario informando que su solicitud
    * de cambio de rol a Profesor ha sido APROBADA.
    */
-  async sendRoleRequestApprovedEmail(email: string, name: string, newRole: string) {
+  async sendRoleRequestApprovedEmail(
+    email: string,
+    name: string,
+    newRole: string,
+  ) {
     // Variables para la plantilla
     const userName = name;
     const nuevoRol = newRole; // (Le pasaremos "Profesor" desde el ProfilesService)
@@ -1899,9 +1902,9 @@ export class MailService {
    * Envía un email al usuario informando que su solicitud de cambio de rol fue rechazada
    */
   async sendRoleRequestRejectedEmail(
-    email: string, 
-    name: string, 
-    reason: string // <-- Acepta el motivo del rechazo
+    email: string,
+    name: string,
+    reason: string, // <-- Acepta el motivo del rechazo
   ) {
     const userName = name;
     const rejectionReason = reason; // Asigna el motivo a la variable
@@ -2054,6 +2057,273 @@ export class MailService {
                     >
                       Esto no significa un cierre definitivo — podés revisar los
                       requisitos específicos para el nuevo rol y volver a postularte
+                      más adelante, o comunicarte con nuestro equipo si querés más
+                      información.
+                    </p>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 35px 0"
+                    >
+                      <tr>
+                        <td align="center">
+                          <div
+                            style="
+                              display: inline-block;
+                              background-color: #3a321b;
+                              border: 1px solid rgba(251, 191, 36, 0.4);
+                              color: #fbbf24;
+                              padding: 12px 28px;
+                              border-radius: 8px;
+                              font-weight: 600;
+                              font-size: 15px;
+                            "
+                          >
+                            ⚠️ Estado: No aprobado
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 30px 0"
+                    >
+                      <tr>
+                        <td align="center">
+                          <a
+                            href="mailto:devcoreacademia@gmail.com"
+                            style="
+                              display: inline-block;
+                              text-decoration: none;
+                              border: 1px solid rgba(255, 255, 255, 0.25);
+                              color: #e5e7eb;
+                              background-color: transparent;
+                              padding: 14px 38px;
+                              border-radius: 8px;
+                              font-weight: 600;
+                              font-size: 15px;
+                              transition: all 0.3s ease;
+                            "
+                            onmouseover="this.style.backgroundColor='#7E4BDE'"
+                            onmouseout="this.style.backgroundColor='transparent'"
+                          >
+                            Contactar al equipo DevCore
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p
+                      style="
+                        margin: 0;
+                        color: #a0aec0;
+                        font-size: 14px;
+                        line-height: 1.6;
+                      "
+                    >
+                      Agradecemos sinceramente tu tiempo e interés en
+                      <strong>DevCore</strong>. Esperamos poder colaborar contigo en
+                      el futuro 💫
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      background-color: #131425;
+                      padding: 35px 40px;
+                      text-align: center;
+                    "
+                  >
+                    <p style="margin: 0 0 8px; color: #9ca3af; font-size: 14px">
+                      El equipo de <strong style="color: #a78bfa">DevCore</strong>
+                    </p>
+                    <p style="margin: 10px 0 0; color: #6b7280; font-size: 13px">
+                      ¿Tienes dudas?
+                      <a
+                        href="mailto:devcoreacademia@gmail.com"
+                        style="color: #a78bfa; text-decoration: none"
+                        >Contáctanos</a
+                      >
+                    </p>
+                    <p style="margin: 10px 0 0; color: #8b8fa9; font-size: 12px">
+                      © ${new Date().getFullYear()} DevCore. Todos los derechos
+                      reservados.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `,
+    });
+  }
+
+  async sendRejectProfile(
+    email: string,
+    name: string,
+    reason: string, // <-- Acepta el motivo del rechazo
+  ) {
+    const userName = name;
+    const rejectionReason = reason; // Asigna el motivo a la variable
+
+    await this.transporter.sendMail({
+      from: '"DevCore" <noreply@tuapp.com>',
+      to: email,
+      subject: '⚠️ Actualización sobre tu solicitud de aprobacion de perfil en DevCore',
+      html: `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Solicitud de perfil de profesor no aprobada</title>
+      </head>
+      <body
+        style="
+          margin: 0;
+          padding: 0;
+          background-color: #131425;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            'Helvetica Neue', Arial, sans-serif;
+          color: #e2e8f0;
+        "
+      >
+        <table
+          width="100%"
+          cellpadding="0"
+          cellspacing="0"
+          style="padding: 40px 20px; background-color: #131425"
+        >
+          <tr>
+            <td align="center">
+              <table
+                width="600"
+                cellpadding="0"
+                cellspacing="0"
+                style="
+                  background-color: #242645;
+                  border-radius: 18px;
+                  overflow: hidden;
+                  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                  border: 1px solid rgba(255, 255, 255, 0.05);
+                  max-width: 100%;
+                "
+              >
+                <tr>
+                  <td
+                    style="
+                      background-color: #363968;
+                      text-align: center;
+                      padding: 45px 30px;
+                    "
+                  >
+                    <img
+                      src="https://res.cloudinary.com/dclx6hdpk/image/upload/v1762290639/logo2_gxkhlq.png"
+                      alt="DevCore Logo"
+                      style="
+                        width: 120px;
+                        height: auto;
+                        margin-bottom: 20px;
+                        border: 1px solid #8b5cf6;
+                        border-radius: 12px;
+                        padding: 6px;
+                      "
+                    />
+                    <h1
+                      style="
+                        margin: 0;
+                        color: #ffffff;
+                        font-size: 26px;
+                        font-weight: 700;
+                      "
+                    >
+                      Tu perfil de profesor no ha sido aprobada ⚠️
+                    </h1>
+                    <p
+                      style="
+                        margin: 10px 0 0;
+                        color: rgba(255, 255, 255, 0.85);
+                        font-size: 15px;
+                      "
+                    >
+                      Gracias por tu interés en crecer dentro de la comunidad 💜
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding: 50px 40px; background-color: #242645">
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 16px;
+                        line-height: 1.7;
+                      "
+                    >
+                      Hola <strong style="color: #a78bfa">${userName}</strong>,
+                      <br /><br />
+                      Tras revisar cuidadosamente tu perfil y documentacion enviada,
+                      lamentamos informarte que en esta ocasión no fue aprobada.
+                    </p>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="
+                        background-color: #1d1f3a;
+                        border-radius: 10px;
+                        padding: 25px;
+                        border-left: 4px solid #fbbf24; /* Borde amarillo */
+                        margin-bottom: 30px;
+                      "
+                    >
+                      <tr>
+                        <td>
+                          <h3
+                            style="
+                              margin: 0 0 12px 0;
+                              color: #fbbf24;
+                              font-size: 17px;
+                            "
+                          >
+                            Motivo del rechazo
+                          </h3>
+                          <p
+                            style="
+                              color: #d1d5db;
+                              font-size: 15px;
+                              line-height: 1.7;
+                              margin: 0;
+                              font-style: italic;
+                            "
+                          >
+                            "${rejectionReason}"
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 15px;
+                        line-height: 1.7;
+                      "
+                    >
+                      Esto no significa un cierre definitivo — podés revisar los
+                      requisitos específicos y volver a postularte
                       más adelante, o comunicarte con nuestro equipo si querés más
                       información.
                     </p>
