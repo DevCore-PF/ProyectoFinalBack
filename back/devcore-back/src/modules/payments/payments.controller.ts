@@ -5,6 +5,7 @@ import {
   Req,
   UseGuards,
   Controller,
+  Get,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -29,6 +30,13 @@ export class PaymentsController {
   async createCheckoutSession(@Req() req) {
     const userId = req.user.sub;
     return this.paymentsService.createCheckoutSession(userId);
+  }
+
+  @Get('my-payments')
+  @UseGuards(AuthGuard('jwt'))
+  async getMyPayments(@Req() req) {
+    const userId = req.user.sub;
+    return await this.paymentsService.getPaymentsByUser(userId);
   }
 
   /**
