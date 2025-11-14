@@ -23,34 +23,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   }
 
 
-  /**
-   * Método Validate
-   * Este método se ejecuta DESPUÉS de que Google verifica al usuario
-   * y nos devuelve el perfil en el 'callbackURL'.
-   */
-  async validateFirts(
-    accessToken: string,
-    refreshToken: string,
-    profile: Profile,
-  ): Promise<any> {
-    
-    // destructuramos los datos del perfil del usuario de google
-    const { id, name, emails, photos } = profile;
-
-    //creamos nuestro dto para el registro
-    const googleUserDto: GoogleUserDto = {
-      googleId: id,
-      email: emails?.[0]?.value ?? 'no-email@google.com', // Valor por defecto
-      name: name?.givenName ?? 'Usuario', // Valor por defecto
-      image: photos?.[0]?.value || undefined,
-    };
-
-    // Llamamos al metodo validate
-
-    const user = await this.authService.validateAndHandleGoogleUser(googleUserDto);
-
-    return user;   }
-
     async validate(req: Request, ...args: any[]): Promise<any>{
       const [accessToken, refreshToken, profile] = args;
 
