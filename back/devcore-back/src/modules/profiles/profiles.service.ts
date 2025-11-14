@@ -385,10 +385,22 @@ export class ProfilesService {
     return this.profilesRepository.save(professorFind);
   }
 
-  async declineProfesor(professorId: string) {
+  async declineProfesor(professorId: string, rejectDto: RejectRequestDto) {
+
+    const {reason} = rejectDto;
+    
     const professorFind = await this.profilesRepository.findById(professorId);
     if (!professorFind) throw new NotFoundException('Profesor no encontrado');
+
     professorFind.approvalStatus = ApprovalStatus.REJECTED;
+    professorFind.rejectionReason = reason;
+
+    try {
+      await this.mailService.sendRejectProfile(professorFind.user.email, professorFind.user.name, reason)
+    } catch(emailError) {
+      throw new BadRequestException(`Solicitud de rol rechazada para el ${professorFind.user.id}, pero fallo el envio del email`, emailError)
+    }
+
     return this.profilesRepository.save(professorFind);
   }
 }
