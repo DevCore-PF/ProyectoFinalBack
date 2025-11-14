@@ -70,7 +70,6 @@ export class ProfilesController {
     return this.profilesService.createProfile(userId, createProfileDto, files);
   }
 
-  // --- PRÓXIMO PASO (CUANDO LO NECESITES) ---
 
   @Patch() // Se activa con un PATCH a /profiles
   @ApiUpdateProfessorProfile()
