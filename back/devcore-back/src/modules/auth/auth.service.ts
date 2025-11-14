@@ -33,98 +33,7 @@ export class AuthService {
     private readonly mailService: MailService,
   ) {}
 
-  /**
-   * Metodo que implementa la lógica de Google
-   */
-  async validateAndHandleGoogleUser(
-    googleUserDto: GoogleUserDto,
-  ): Promise<User> {
-    const { email, image } = googleUserDto;
-
-    try {
-      // Buscamos al usuario por su email
-      const user = await this.userRepository.findUserByEmail(email);
-
-      // si el el usuario "SI" existe ---
-
-      if (user) {
-        // Si el email existe PERO no es de Google, es un conflicto.
-        if (!user.isGoogleAccount) {
-          throw new ConflictException(
-            `El email ${email} ya está registrado con contraseña. Por favor, inicia sesión localmente.`,
-          );
-        }
-
-        // Si es un usuario de Google actualizamos su imagen
-        if (image) {
-          user.image = image;
-        }
-
-        // y guardamos el usuario
-        await this.userRepository.save(user);
-        return user;
-      }
-
-      // El usuario NO existe
-      // se pasa la creación al UsersService
-      const newUser = await this.userService.createGoogleUser(googleUserDto);
-      return newUser;
-    } catch (error) {
-      if (error instanceof ConflictException) {
-        throw error;
-      }
-      console.error(error);
-      throw new InternalServerErrorException(
-        'Error al procesar el login con Google',
-      );
-    }
-  }
-
-  /**
-   * Metodo que implementa la lógica de Google
-   */
-  async validateAndHandleGitHubUser(
-    githubUserDto: GithubUserDto,
-  ): Promise<User> {
-    const { email, image } = githubUserDto;
-
-    try {
-      // Buscamos al usuario por su email
-      const user = await this.userRepository.findUserByEmail(email);
-
-      // si el el usuario "SI" existe ---
-      if (user) {
-        // Si el email existe PERO no es de Google, es un conflicto.
-        if (!user.isGitHubAccount) {
-          throw new ConflictException(
-            `El email ${email} ya está registrado con contraseña. Por favor, inicia sesión localmente.`,
-          );
-        }
-
-        // Si es un usuario de github actualizamos su imagen
-        if (image) {
-          user.image = image;
-        }
-        // y guardamos el usuario
-        await this.userRepository.save(user);
-        return user;
-      }
-
-      // El usuario NO existe
-      // se pasa la creación al UsersService
-      const newUser = await this.userService.createGithubUser(githubUserDto);
-      return newUser;
-    } catch (error) {
-      if (error instanceof ConflictException) {
-        throw error;
-      }
-      console.error(error);
-      throw new InternalServerErrorException(
-        'Error al procesar el login con Google',
-      );
-    }
-  }
-
+  
   //Nuevo metodo para probar el registro de ambos provedores github y google
   async validateAndHandleSocialUser(
     profile: SocialProfileDto,
@@ -155,7 +64,7 @@ export class AuthService {
     if (action === 'login') {
       if (!user) {
         throw new NotFoundException(`El email ${email} no está registrado.`);
-      }
+      } 
 
       //pero si existe con google, github o el nuestro lo dejamos entrar y vinculamos su cuenta al registro que ya tiene
       if (provider === 'google') {
@@ -186,19 +95,6 @@ export class AuthService {
     );
 
     if (userExists) {
-      // // Si existe Y es de Google, no puede registrarse localmente
-      // if (userExists.isGoogleAccount) {
-      //   throw new BadRequestException(
-      //     `El email ${registerUser.email} ya está registrado con Google. Por favor, inicia sesión con Google.`,
-      //   );
-      // }
-      // // Si existe Y es de GitHub, no puede registrarse localmente
-      // if (userExists.isGitHubAccount) {
-      //   throw new BadRequestException(
-      //     `El email ${registerUser.email} ya está registrado con GitHub. Por favor, inicia sesión con GitHub.`,
-      //   )
-      // }
-      // Si existe y no es de google marca error de que ya existe
       if (
         userExists.isActive === false &&
         userExists.isEmailVerified === true
@@ -240,7 +136,7 @@ export class AuthService {
   }
 
   /**
-   * Metodo para cambio de contraseña usario la olvido
+   * Metodo para cambio de contraseña usuario la olvido
    */
   async requestPasswordReset(forgotPasswordDto: ForgotPasswordDto) {
     const { email } = forgotPasswordDto;
