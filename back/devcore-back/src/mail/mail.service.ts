@@ -2179,7 +2179,7 @@ export class MailService {
     await this.transporter.sendMail({
       from: '"DevCore" <noreply@tuapp.com>',
       to: email,
-      subject: '⚠️ Actualización sobre tu solicitud de aprobacion de perfil en DevCore',
+      subject: '⚠️ Actualización sobre tu solicitud de aprobacion de perfil profesor en DevCore',
       html: `
     <!DOCTYPE html>
     <html lang="es">
