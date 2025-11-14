@@ -27,7 +27,6 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { CreateCourseDto } from '../course/dto/create-course.dto';
 import { ApiCreateProfessorProfileDoc } from './doc/createProfessorProfile.doc';
 import { ApiUpdateProfessorProfile } from './doc/updateProfessorProfile.doc';
 import { ApiGetProffessorByIdDoc } from './doc/getProfessorProfileById.doc';
@@ -113,6 +112,15 @@ export class ProfilesController {
       return this.profilesService.requestTeacherRole(userId, createProfileDto, files)
   }
 
+  @Get('status/my-approval')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('teacher')
+  async getMyApprovalStatus(@Req() req) {
+    const userId = req.user.sub;
+    return this.profilesService.getApprovalStatusByUserId(userId);
+  }
+  
+
   @Get('profesor')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
@@ -156,23 +164,26 @@ export class ProfilesController {
     return this.profilesService.getProfessorById(id);
   }
 
-  @Patch('aproved/professorId')
+  @Patch('aproved/:professorId')
   @ApiApprovedProfessorDoc()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
   async aprovedProfesor(
-    @Param('profesorId', ParseUUIDPipe) profesorId: string,
+    @Param('professorId', ParseUUIDPipe) profesorId: string,
   ) {
     return await this.profilesService.aprovedProfesor(profesorId);
   }
 
-  @Patch('decline/professorId')
+  @Patch('decline/:professorId')
   @ApiDeclineProfessorDoc()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
   async declineProfesor(
-    @Param('profesorId', ParseUUIDPipe) profesorId: string,
+    @Param('professorId', ParseUUIDPipe) profesorId: string,
   ) {
     return await this.profilesService.declineProfesor(profesorId);
   }
+
+
+
 }
