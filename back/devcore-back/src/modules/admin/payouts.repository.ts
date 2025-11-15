@@ -16,6 +16,6 @@ export class PayoutRepository {
     }
 
     findById(id: string): Promise<Payout | null> {
-        return this.payoutRepository.findOne({where: {id}, relations: ['professor', 'enrollments']})
+        return this.payoutRepository.findOne({where: {id}, relations: ['professor', 'professor.user','enrollments','enrollments.course']})
     }
 }

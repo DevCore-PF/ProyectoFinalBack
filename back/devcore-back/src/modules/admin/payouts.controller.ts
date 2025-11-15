@@ -29,4 +29,28 @@ export class PayoutController {
     async markAsPaid(@Param('payoutId', ParseUUIDPipe) payoutId: string, @Body('referenceNumber') referenceNumber: string){
         return this.payoutService.markPayoutAsPaid(payoutId, referenceNumber)
     }
+
+    /**
+     * Obtiene todas las ventas
+     */
+    @Get('sales/all')
+    async getAllSales() {
+        return this.payoutService.getSalesHistory('ALL')
+    }
+
+    /**
+     * Obtiene solo las ventas pendientes de pago
+     */
+    @Get('sales/pending')
+    async getPendingSale() {
+        return this.payoutService.getSalesHistory('PENDING')
+    }
+
+    /**
+     * Obtiene solo las ventas que ya fueron pagadas
+     */
+    @Get('sales/paid')
+    async getPaidSales(){
+        return this.payoutService.getSalesHistory('PAID')
+    }
 }

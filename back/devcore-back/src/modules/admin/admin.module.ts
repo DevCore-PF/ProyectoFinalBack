@@ -7,13 +7,15 @@ import { ProfessorProfile } from "../profiles/entities/professor-profile.entity"
 import { PayoutController } from "./payouts.controller";
 import { PayoutService } from "./payouts.service";
 import { PayoutRepository } from "./payouts.repository";
+import { EnrollmentRepository } from "../enrollments/enrollments.repository";
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([
             Payout,
             Enrollment,
-            ProfessorProfile
+            ProfessorProfile,
+            EnrollmentRepository
         ])
     ],
     controllers: [PayoutController],

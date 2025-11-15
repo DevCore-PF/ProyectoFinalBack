@@ -16,6 +16,7 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { Not } from 'typeorm/browser';
 import { MailService } from 'src/mail/mail.service';
 import { RejectRequestDto } from './dto/reject-request.dto';
+import { EnrollmentRepository } from '../enrollments/enrollments.repository';
 
 @Injectable()
 export class ProfilesService {
@@ -26,7 +27,8 @@ export class ProfilesService {
     private readonly userRepository: UsersRepository,
     private readonly authService: AuthService,
     private readonly cloudinaryService: CloudinaryService,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
+    private readonly enrollmentRespository: EnrollmentRepository
   ) {}
 
   /**
@@ -402,6 +404,41 @@ export class ProfilesService {
     }
 
     return this.profilesRepository.save(professorFind);
+  }
+
+  /**
+   * Metodo que obtiene el perfil de profesor apartir del id del usuario
+   */
+  private async getProfessorProfileId(userId: string): Promise<string> {
+    const user = await this.userRepository.findUserWithProfile(userId);
+
+    if(user.role !== UserRole.TEACHER || !user.professorProfile) {
+      throw new ForbiddenException('Acceso denegado. No eres un profesor')
+    }
+
+    return user.professorProfile.id;
+  }
+
+  /**
+   * Metodo que obtiene el historial de ganancia para el profesor logueado
+   */
+  async getMyEarningsHistory(userId: string, status: 'PENDING' | 'PAID' | 'ALL') {
+    //Obttiene el id del perfil del profesor
+    const professorId = await this.getProfessorProfileId(userId);
+
+    //Llama al metodo del repositorio de inscripciones
+    const sales = await this.enrollmentRespository.findSalesForProfessor(professorId, status);
+
+    //armamos la respuesta que vera el profesor
+    return sales.map(sale => ({
+      saleId: sale.id,
+      saleDate: sale.inscripcionDate,
+      courseTitle: sale.course.title,
+      studentName: sale.user.name,
+      yourEarnings: sale.professorEarnings,
+      status: sale.payout ? 'Pagado' : 'Pendiente',
+      payoutReference: sale.payout ? sale.payout.referenceNumber : null
+    }))
   }
 }
 

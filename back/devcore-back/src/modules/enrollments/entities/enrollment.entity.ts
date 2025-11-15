@@ -52,7 +52,7 @@ export class Enrollment {
   inscripcionDate: Date;
 
   @Column({type: 'decimal', precision: 10, scale: 2, nullable:false})
-  professsorEarnings: number;
+  professorEarnings: number;
 
   @Column({type: 'decimal', precision: 10, scale: 2, nullable:false})
   adminEarnings: number;
