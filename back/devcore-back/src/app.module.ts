@@ -15,6 +15,7 @@ import { CourseFeedbackModule } from './modules/CourseFeedback/courseFeedback.mo
 import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TaskService } from './task.service';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { TaskService } from './task.service';
     LessonProgressModule,
     CourseFeedbackModule,
     EnrollmentsModule,
+    AdminModule
   ],
   providers: [TaskService],
 })

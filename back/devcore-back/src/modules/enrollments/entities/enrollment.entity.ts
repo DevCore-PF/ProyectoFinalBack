@@ -5,10 +5,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Payout } from '../../admin/entities/payout.entity';
 
 @Entity('enrollment')
 export class Enrollment {
@@ -49,7 +51,17 @@ export class Enrollment {
   @CreateDateColumn()
   inscripcionDate: Date;
 
+  @Column({type: 'decimal', precision: 10, scale: 2, nullable:false})
+  professsorEarnings: number;
+
+  @Column({type: 'decimal', precision: 10, scale: 2, nullable:false})
+  adminEarnings: number;
+
   //relacion hacia los datos del pago del curso
   @ManyToOne(() => Payment, (payment) => payment.enrollments, {nullable:false})
   payment: Payment
+
+  @ManyToOne(() => Payout, (payout) => payout.enrollments, {nullable: true})
+  @JoinColumn({name: 'payout_id'})
+  payout: Payout
 }
