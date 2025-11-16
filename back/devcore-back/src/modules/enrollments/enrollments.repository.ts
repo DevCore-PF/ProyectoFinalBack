@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Enrollment } from './entities/enrollment.entity';
-import { DeepPartial, Repository } from 'typeorm';
+import { DeepPartial, Repository, IsNull } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -34,15 +34,16 @@ export class EnrollmentRepository {
   }
 
   /**
-   * Metodo que busca las inscripciones por estado de pago query 
+   * Metodo que busca las inscripciones por estado de pago query
    */
   private createDetailedQueryBuilder(){
     return this.enrollmentRepository.createQueryBuilder('enrollment').
     leftJoinAndSelect('enrollment.course', 'course').
     leftJoinAndSelect('enrollment.user', 'student').
     leftJoinAndSelect('enrollment.payment', 'payment').
-    leftJoinAndSelect('enrollment.professor', 'professor').
-    leftJoinAndSelect('professor.user', 'professorUser')
+    leftJoinAndSelect('enrollment.payout', 'payout'). 
+    leftJoinAndSelect('course.professor', 'professor'). 
+    leftJoinAndSelect('professor.user', 'professorUser');
   }
 
   /**
@@ -52,29 +53,64 @@ export class EnrollmentRepository {
     const qb = this.createDetailedQueryBuilder();
 
     if(status === 'PENDING') {
-      qb.where('enrollment.payoutId IS NULL')
+      // 3. Usa 'payout' (la relación) no 'payoutId' (la columna)
+      qb.where('enrollment.payout IS NULL'); 
     } else if(status === 'PAID'){
-      qb.where('enrollment.payoutId IS NOT NULL')
+      qb.where('enrollment.payout IS NOT NULL');
     }
 
     return qb.orderBy('enrollment.inscripcionDate', 'DESC').getMany();
+  }
+
+  /**
+   * Busca todas las ventas para un profesor en especifico
+   */
+  async findSalesForProfessor(professorId: string, status: 'PENDING' | 'PAID' | 'ALL'){
+    const qb = this.createDetailedQueryBuilder();
+
+    //Filtramos por el id del profesor
+    qb.where('professor.id = :professorId', {professorId});
+
+    if(status === 'PENDING'){
+      qb.andWhere('enrollment.payout IS NULL');
+    } else if(status === 'PAID'){
+      qb.andWhere('enrollment.payout IS NOT NULL');
     }
 
-    /**
-     * Busca todas las ventas para un profesor en especifico
-     */
-    async findSalesForProfessor(professorId: string, status: 'PENDING' | 'PAID' | 'ALL'){
-      const qb = this.createDetailedQueryBuilder();
+    return qb.orderBy('enrollment.inscripcionDate', 'DESC').getMany();
+  }
+  
+  
+  /**
+   * Busca todas las inscripciones pendientes de pago (payout IS NULL)
+   * y carga las relaciones necesarias para el resumen del admin.
+   */
+  async findPendingSummary(): Promise<Enrollment[]> {
+    return this.enrollmentRepository.find({
+      where: { payout: IsNull() },
+      relations: {
+        course: {
+          professor: {
+            user: true,
+          },
+        },
+      },
+    });
+  }
 
-      //Filtramos por el id del profesor
-      qb.where('professor.id = :professorId', {professorId});
 
-      if(status === 'PENDING'){
-        qb.andWhere('enrollment.payoutId IS NULL')
-      } else if(status === 'PAID'){
-        qb.andWhere('enrollment.payoutId IS NOT NULL')
-      }
-
-      return qb.orderBy('enrollment.inscripcionDate', 'DESC').getMany();
-    }
+  /**
+   * Busca todas las ventas pendientes de pago para un profesor específico.
+   */
+  async findPendingSalesForProfessor(professorId: string): Promise<Enrollment[]> {
+    return this.enrollmentRepository.find({
+      where: {
+        // Busca inscripciones...
+        course: {
+          professor: { id: professorId } // ...que pertenezcan a este profesor
+        },
+        payout: IsNull(), // ...y que aún no tengan un lote de pago (payout)
+      },
+    });
+  }
 }
