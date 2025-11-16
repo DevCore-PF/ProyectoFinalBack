@@ -42,6 +42,46 @@ export class CourseFeedback {
   @Column({ type: 'text', nullable: true })
   feedback: string;
 
+  // ===== CAMPOS DE MODERACIÓN =====
+  
+  /**
+   * Score de toxicidad del feedback (0.0 a 1.0)
+   * 0.0 = contenido limpio
+   * 1.0 = contenido extremadamente tóxico
+   */
+  @Column({ type: 'decimal', precision: 3, scale: 2, default: 0.00 })
+  toxicityScore: number;
+
+  /**
+   * Si el feedback está censurado (visible pero tapado/borroso)
+   * true = mostrar censurado en el frontend
+   * false = mostrar normalmente
+   */
+  @Column({ default: false })
+  isCensored: boolean;
+
+  /**
+   * Estado de moderación del feedback
+   * - approved: aprobado, mostrar normalmente
+   * - pending: pendiente de revisión manual por admin
+   * - censored: aprobado pero censurado (visible tapado)
+   * - rejected: rechazado (no debería existir en BD, pero por si acaso)
+   */
+  @Column({ type: 'enum', enum: ['approved', 'pending', 'censored', 'rejected'], default: 'approved' })
+  moderationStatus: string;
+
+  /**
+   * Si requiere revisión manual por un admin
+   */
+  @Column({ default: false })
+  requiresManualReview: boolean;
+
+  /**
+   * Razón de la moderación (si fue marcado)
+   */
+  @Column({ type: 'text', nullable: true })
+  moderationReason: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

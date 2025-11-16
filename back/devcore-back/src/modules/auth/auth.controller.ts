@@ -18,7 +18,6 @@ import { User } from '../users/entities/user.entity';
 import type { Response } from 'express';
 import { SelectRoleDto } from './dto/select-role.dto';
 import { LoginUserDto } from './dto/login-user-dto';
-import { ApiConsumes, ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { SocialActionGuard } from './guards/social-action.guard';
 import { SetPasswordDto } from './dto/set-password.dto';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
@@ -34,6 +33,8 @@ import { ApiRedirectHomeGithubDoc } from './doc/redirectGithub.doc';
 import { ChangePasswordRequestDto } from './dto/change-password-request.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { CreateUserAdminDto } from '../users/dto/create-user-admin.dto';
+import { ApiCreateAdmin } from './doc/createAdmin.dto';
 
 @Controller('auth')
 @UseFilters(new OauthExceptionFilter())
@@ -49,6 +50,18 @@ export class AuthController {
   @ApiRegisterDoc()
   async create(@Body() createAuthDto: CreateUserDto) {
     return await this.authService.create(createAuthDto);
+  }
+
+  /**
+   * Endpoint para registrar usuario admin
+   */
+
+  @Post('register/admin')
+  @ApiCreateAdmin()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  async createAdmin(@Body() createAdminDto: CreateUserAdminDto) {
+    return await this.authService.createAdmin(createAdminDto);
   }
 
   /**
@@ -97,7 +110,6 @@ export class AuthController {
       throw new BadRequestException('Fallo en la autenticación con Google.');
     }
 
-
     // Llama a tu servicio para obtener el token
     const loginData = await this.authService.login(user);
     const token = loginData.access_token; //Extrae el token
@@ -130,7 +142,6 @@ export class AuthController {
     @Query('token') token: string,
     @Res() res: Response, // Inyectamos 'res' para redirigir
   ) {
-
     try {
       //verifica el token si el token es valido continua y redirige al login
       await this.authService.verifyEmailToken(token);
@@ -139,7 +150,8 @@ export class AuthController {
       res.redirect(successUrl.toString());
     } catch (error) {
       //si falla por que el token vencio u otro detalle lo redirige tambien la login y le manda un mensaje con el error
-      const errorMessage ='El token de verificación es inválido o ha expirado. Por favor, solicita uno nuevo.';
+      const errorMessage =
+        'El token de verificación es inválido o ha expirado. Por favor, solicita uno nuevo.';
 
       //Redirige a la página de login, pero con el error del token
       const errorUrl = new URL(`${process.env.FRONTEND_URL}/login`);
@@ -147,7 +159,6 @@ export class AuthController {
       errorUrl.searchParams.set('message', encodeURIComponent(errorMessage));
       res.redirect(errorUrl.toString());
     }
-
   }
 
   /**
@@ -174,22 +185,21 @@ export class AuthController {
     // Lo envolvemos en try...catch para redirigir
     try {
       await this.authService.confirmPasswordChange(token);
-      
+
       // ¡Éxito! Redirige al login con un mensaje de éxito
       const successUrl = new URL(`${process.env.FRONTEND_URL}/login`);
       successUrl.searchParams.set('passwordChanged', 'true');
       res.redirect(successUrl.toString());
-
     } catch (error) {
       // ¡Fallo! Redirige al login con un mensaje de error
       const errorMessage =
         error.message ||
         'El token es inválido o ha expirado. Inténtalo de nuevo.';
-      
+
       const errorUrl = new URL(`${process.env.FRONTEND_URL}/login`);
       errorUrl.searchParams.set('error', 'password_change_failed');
       errorUrl.searchParams.set('message', encodeURIComponent(errorMessage));
-      
+
       res.redirect(errorUrl.toString());
     }
   }
@@ -239,8 +249,8 @@ export class AuthController {
    * Endpoind para solicitar el reseto de contraseña
    */
   @Post('forgot-password')
-  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto){
-    return this.authService.requestPasswordReset(forgotPasswordDto)
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.requestPasswordReset(forgotPasswordDto);
   }
 
   /**
@@ -248,8 +258,8 @@ export class AuthController {
    * el front recibe el token del link y lo mandao aqui
    */
   @Patch('reset-password')
-  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto){
-    return this.authService.resetPassword(resetPasswordDto)
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
   /**
    * Para asignar una contraseña cuando el usuario uso github o google en el registro
