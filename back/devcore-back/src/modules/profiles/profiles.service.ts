@@ -422,23 +422,37 @@ export class ProfilesService {
   /**
    * Metodo que obtiene el historial de ganancia para el profesor logueado
    */
-  async getMyEarningsHistory(userId: string, status: 'PENDING' | 'PAID' | 'ALL') {
-    //Obttiene el id del perfil del profesor
+  async getMyEarningsHistory(userId: string,
+    status: 'ALL' | 'PAID' | 'PENDING',
+  ) {
     const professorId = await this.getProfessorProfileId(userId);
+    const sales = await this.enrollmentRespository.findSalesForProfessor(
+      professorId,
+      status,
+    );
 
-    //Llama al metodo del repositorio de inscripciones
-    const sales = await this.enrollmentRespository.findSalesForProfessor(professorId, status);
+    return sales.map(sale => {
 
-    //armamos la respuesta que vera el profesor
-    return sales.map(sale => ({
-      saleId: sale.id,
-      saleDate: sale.inscripcionDate,
-      courseTitle: sale.course.title,
-      studentName: sale.user.name,
-      yourEarnings: sale.professorEarnings,
-      status: sale.payout ? 'Pagado' : 'Pendiente',
-      payoutReference: sale.payout ? sale.payout.referenceNumber : null
-    }))
+      let detailedStatus = 'Pendiente';
+      if (sale.payout) { 
+        if (sale.payout.status === 'PAID') {
+          detailedStatus = 'Pagado';
+        } else {
+          detailedStatus = 'En Proceso';
+        }
+      }
+
+
+      return {
+        saleId: sale.id,
+        saleDate: sale.inscripcionDate,
+        courseTitle: sale.course.title,
+        // (Quitamos los datos del estudiante como pediste antes)
+        yourEarnings: sale.professorEarnings,
+        status: detailedStatus, // <-- Usamos el estado detallado
+        paymentReference: sale.payout ? sale.payout.referenceNumber : null,
+      };
+    });
   }
 }
 
