@@ -278,7 +278,10 @@ export class CoursesController {
   @ApiDeclineCourseDoc()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
-  async declineCourse(@Param('courseId', ParseUUIDPipe) courseId: string) {
-    return await this.coursesService.declineCourse(courseId);
+  async declineCourse(
+    @Param('courseId', ParseUUIDPipe) courseId: string,
+    @Body('reason') reason: string,
+  ) {
+    return await this.coursesService.declineCourse(reason, courseId);
   }
 }

@@ -12,6 +12,7 @@ import { Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProfessorProfile } from '../profiles/entities/professor-profile.entity';
 import { UsersRepository } from '../users/users.repository';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class CoursesService {
@@ -22,6 +23,7 @@ export class CoursesService {
     @InjectRepository(ProfessorProfile)
     private readonly professorRepository: Repository<ProfessorProfile>,
     private readonly usersRepository: UsersRepository,
+    private readonly mailService: MailService,
   ) {}
 
   async createCourse(
@@ -168,10 +170,20 @@ export class CoursesService {
     await this.coursesRepository.updateCourse(courseFind);
   }
 
-  async declineCourse(courseId: string) {
-    const courseFind = await this.coursesRepository.findById(courseId);
-    if (!courseFind) throw new NotFoundException('Curso no encontrado');
-    courseFind.status = CourseStatus.REJECT;
-    await this.coursesRepository.updateCourse(courseFind);
+  async declineCourse(reason: string, courseId: string) {
+    const course = await this.coursesRepository.findById(courseId);
+    if (!course) throw new NotFoundException('Curso no encontrado');
+
+    course.status = CourseStatus.REJECT;
+    await this.coursesRepository.updateCourse(course);
+
+    await this.mailService.sendRejectCourseEmail(
+      course.professor.user.email,
+      course.professor.user.name,
+      reason,
+      course.title,
+    );
+
+    return { message: 'Curso rechazado y notificación enviada' };
   }
 }

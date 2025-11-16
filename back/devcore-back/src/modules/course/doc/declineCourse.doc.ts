@@ -4,91 +4,61 @@ import {
   ApiResponse,
   ApiParam,
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
 } from '@nestjs/swagger';
 
 export function ApiDeclineCourseDoc() {
   return applyDecorators(
+    // 👇 Cambiado para permitir textarea
+    ApiConsumes('application/json'),
     ApiBearerAuth(),
+
     ApiOperation({
       summary: 'Rechazar un curso',
       description:
-        'Permite a un administrador rechazar un curso que está pendiente de revisión. El curso no estará disponible para los usuarios y puede requerir modificaciones antes de una nueva revisión.',
+        'Permite rechazar un curso enviando un motivo del rechazo en formato string dentro de un objeto.',
     }),
+
     ApiParam({
       name: 'courseId',
       required: true,
-      description: 'ID del curso que se desea rechazar',
+      description: 'ID del curso a rechazar',
       type: 'string',
       format: 'uuid',
       example: 'a7b8c9d0-1234-5678-90ab-cdef12345678',
     }),
+
+    ApiBody({
+      description: 'Motivo del rechazo',
+      required: true,
+      schema: {
+        type: 'object',
+        properties: {
+          reason: {
+            type: 'string',
+            description: 'Motivo del rechazo del curso',
+            example: 'El contenido del curso es insuficiente.',
+          },
+        },
+        required: ['reason'],
+      },
+    }),
+
     ApiResponse({
       status: 200,
       description: 'Curso rechazado correctamente',
       schema: {
         example: {
-          message: 'Curso rechazado correctamente',
-          course: {
-            id: 'a7b8c9d0-1234-5678-90ab-cdef12345678',
-            title: 'Introducción a TypeScript',
-            approved: false,
-            declinedAt: '2025-11-12T10:30:00.000Z',
-          },
+          message: 'Curso rechazado y notificación enviada',
+          reason: 'El contenido del curso es insuficiente.',
         },
       },
     }),
-    ApiResponse({
-      status: 401,
-      description: 'No autorizado - Token inválido o ausente',
-      schema: {
-        example: {
-          statusCode: 401,
-          message: 'Unauthorized',
-        },
-      },
-    }),
-    ApiResponse({
-      status: 403,
-      description: 'Acceso prohibido - Se requiere rol de administrador',
-      schema: {
-        example: {
-          statusCode: 403,
-          message: 'Forbidden resource',
-          error: 'Forbidden',
-        },
-      },
-    }),
-    ApiResponse({
-      status: 404,
-      description: 'Curso no encontrado',
-      schema: {
-        example: {
-          statusCode: 404,
-          message: 'Curso no encontrado',
-          error: 'Not Found',
-        },
-      },
-    }),
-    ApiResponse({
-      status: 400,
-      description: 'ID de curso inválido',
-      schema: {
-        example: {
-          statusCode: 400,
-          message: 'Validation failed (uuid is expected)',
-          error: 'Bad Request',
-        },
-      },
-    }),
-    ApiResponse({
-      status: 500,
-      description: 'Error interno del servidor',
-      schema: {
-        example: {
-          statusCode: 500,
-          message: 'Error interno del servidor',
-        },
-      },
-    }),
+
+    ApiResponse({ status: 401, description: 'No autorizado' }),
+    ApiResponse({ status: 403, description: 'Acceso prohibido' }),
+    ApiResponse({ status: 404, description: 'Curso no encontrado' }),
+    ApiResponse({ status: 500, description: 'Error interno del servidor' }),
   );
 }
