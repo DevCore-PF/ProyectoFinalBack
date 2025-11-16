@@ -21,36 +21,53 @@ export class PayoutService {
     /**
      * Pbtiene un resumen de todas las ganacias pendientes agrupadar por profesor
      */
-    async getPendingPayoutSummary(){
-        //Buscamos todas las inscriciones que aun no han sido pagadas(payoutId es null)
-        const pendingEnrollments = await this.enrollmentRepository.find({
-            where: { payout: IsNull()},
-            relations: ['course', 'course.professor']
-        });
+    async getPendingPayoutSummary() {
+    
+    // 1. Busca todas las inscripciones pendientes
+    const pendingEnrollments = await this.enrollmentRepository.find({
+      where: { payout: IsNull() },
+      // --- ¡LA CORRECCIÓN! ---
+      // Usamos la sintaxis de objeto para cargar relaciones anidadas
+      relations: {
+        course: {         // Carga la relación 'course'
+          professor: {    // Dentro de 'course', carga 'professor'
+            user: true,   // Y dentro de 'professor', carga 'user'
+          },
+        },
+      },
+    });
 
-        //Agrupamos las ganancias por id de profesor
-        const sumary = pendingEnrollments.reduce((acc, enrollment) => {
-            const professorId = enrollment.course.professor.id;
-            const earnings = Number(enrollment.professorEarnings);
+    // 2. Agrupa las ganancias por ID de profesor
+    const summary = pendingEnrollments.reduce((acc, enrollment) => {
+      // (Esta parte es sensible. Si un curso no tiene profesor, podría fallar)
+      // Añadimos un '?' por seguridad
+      const professorId = enrollment.course?.professor?.id;
+      
+      // Si por alguna razón no hay profesor, omitimos esta venta del resumen
+      if (!professorId) {
+        return acc;
+      }
+      
+      const earnings = Number(enrollment.professorEarnings);
 
-            if(!acc[professorId]) {
-                acc[professorId] = {
-                    professorId: professorId,
-                    professorName: enrollment.course.professor.user.name,
-                    totalOweb: 0,
-                    salesCount: 0
-                }
-            }
+      if (!acc[professorId]) {
+        acc[professorId] = {
+          professorId: professorId,
+          // Ahora 'enrollment.course.professor.user' SÍ existe
+          professorName: enrollment.course.professor.user.name, 
+          totalOwed: 0,
+          salesCount: 0,
+        };
+      }
+      
+      acc[professorId].totalOwed += earnings;
+      acc[professorId].salesCount += 1;
+      return acc;
+    }, {});
 
-            acc[professorId].totalOweb += earnings;
-            acc[professorId].salesCount += 1;
-
-            return acc
-        },{});
-
-        //convetimos el objeto en un arreglo
-        return Object.values(sumary);
-    }
+    // 3. Convierte el objeto en un arreglo
+    return Object.values(summary);
+  }
     
     /**
      * Creamos un lote de pago para un profesor especifico
