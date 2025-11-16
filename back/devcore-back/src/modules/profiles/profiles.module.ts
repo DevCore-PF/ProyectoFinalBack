@@ -10,11 +10,16 @@ import { ProfilesService } from "./profiles.service";
 import { CloudinaryModule } from "../cloudinary/cloudinary.module";
 import { MailModule } from "src/mail/mail.module";
 import { EnrollmentsModule } from "../enrollments/enrollments.module";
+import { StudentProfile } from "../studentprofile/entities/studentprofile.entity";
+import { StudentProfileService } from "../studentprofile/studentprofile.service";
+import { StudentProfileRepository } from "../studentprofile/studentprofile.repository";
+import { StudentProfileController } from "../studentprofile/studentprofile.controller";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([ProfessorProfile, User]),UsersModule, AuthModule, CloudinaryModule, MailModule, EnrollmentsModule],
-    providers: [ProfilesRepository, ProfilesService],
-    controllers: [ProfilesController]
+    imports: [TypeOrmModule.forFeature([ProfessorProfile,StudentProfile, User]),UsersModule, AuthModule, CloudinaryModule, MailModule, EnrollmentsModule],
+    providers: [ProfilesRepository, ProfilesService, StudentProfileService, StudentProfileRepository],
+    controllers: [ProfilesController, StudentProfileController],
+    exports: [ProfilesService, StudentProfileService,ProfilesRepository, StudentProfileRepository]
 })
 
 export class ProfilesModule{}
