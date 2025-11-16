@@ -35,6 +35,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { CreateUserAdminDto } from '../users/dto/create-user-admin.dto';
 import { ApiCreateAdmin } from './doc/createAdmin.dto';
+import { Roles, RolesGuard } from './guards/verify-role.guard';
 
 @Controller('auth')
 @UseFilters(new OauthExceptionFilter())
