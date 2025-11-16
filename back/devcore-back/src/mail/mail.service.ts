@@ -2180,7 +2180,8 @@ export class MailService {
     await this.transporter.sendMail({
       from: '"DevCore" <noreply@tuapp.com>',
       to: email,
-      subject: '⚠️ Actualización sobre tu solicitud de aprobacion de perfil profesor en DevCore',
+      subject:
+        '⚠️ Actualización sobre tu solicitud de aprobacion de perfil profesor en DevCore',
       html: `
     <!DOCTYPE html>
     <html lang="es">
@@ -2441,7 +2442,7 @@ export class MailService {
    */
   async sendPayoutConfirmationEmail(user: User, payout: Payout) {
     const profesorName = user.name;
-    const totalAmount = `$${(Number(payout.totalAmount)).toFixed(2)} USD`; // (Ajusta la moneda si es necesario)
+    const totalAmount = `$${Number(payout.totalAmount).toFixed(2)} USD`; // (Ajusta la moneda si es necesario)
     const paymentDate = new Date(payout.paidAt).toLocaleDateString('es-ES', {
       day: 'numeric',
       month: 'long',
@@ -2451,8 +2452,9 @@ export class MailService {
     const loginUrl = `${process.env.API_URL}/login`; // O al dashboard del profesor
 
     // Construimos la lista de cursos pagados
-    const coursesListHtml = payout.enrollments.map(enrollment => {
-        const earnings = (Number(enrollment.professorEarnings)).toFixed(2);
+    const coursesListHtml = payout.enrollments
+      .map((enrollment) => {
+        const earnings = Number(enrollment.professorEarnings).toFixed(2);
         return `
           <tr style="border-top: 1px solid rgba(255, 255, 255, 0.05)">
             <td style="padding: 12px 16px; color: #d1d5db; font-size: 15px;">
@@ -2463,7 +2465,8 @@ export class MailService {
             </td>
           </tr>
         `;
-    }).join('');
+      })
+      .join('');
 
     await this.transporter.sendMail({
       from: '"DevCore" <noreply@tuapp.com>',
@@ -2692,6 +2695,301 @@ export class MailService {
           </tr>
         </table>
       </body>
+    </html>
+    `,
+    });
+  }
+  async sendWelcomeAdminEmail(email: string, name: string, password: string) {
+    const loginUrl = `${process.env.FRONTEND_URL}/login`;
+
+    await this.transporter.sendMail({
+      from: '"DevCore" <noreply@tuapp.com>',
+      to: email,
+      subject: '🎉 Bienvenido como Administrador - DevCore',
+      html: `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Bienvenido como Administrador</title>
+    </head>
+    <body
+      style="
+        margin: 0;
+        padding: 0;
+        background-color: #131425;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          'Helvetica Neue', Arial, sans-serif;
+        color: #e2e8f0;
+      "
+    >
+      <table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 20px; background-color: #131425">
+        <tr>
+          <td align="center">
+            <table
+              width="600"
+              cellpadding="0"
+              cellspacing="0"
+              style="
+                background-color: #242645;
+                border-radius: 18px;
+                overflow: hidden;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                border: 1px solid rgba(139, 92, 246, 0.25);
+                max-width: 100%;
+              "
+            >
+              <tr>
+                <td
+                  style="
+                    background: linear-gradient(135deg, #7e4bde 0%, #8b5cf6 100%);
+                    text-align: center;
+                    padding: 45px 30px;
+                  "
+                >
+                  <img
+                    src="https://res.cloudinary.com/dclx6hdpk/image/upload/v1762290639/logo2_gxkhlq.png"
+                    alt="DevCore Logo"
+                    style="
+                      width: 120px;
+                      height: auto;
+                      margin-bottom: 20px;
+                      border: 1px solid #a78bfa;
+                      border-radius: 12px;
+                      padding: 6px;
+                    "
+                  />
+                  <h1
+                    style="
+                      margin: 0;
+                      color: #ffffff;
+                      font-size: 26px;
+                      font-weight: 700;
+                    "
+                  >
+                    ¡Bienvenido al equipo de DevCore! 🎉
+                  </h1>
+                  <p
+                    style="
+                      margin: 10px 0 0;
+                      color: rgba(255, 255, 255, 0.85);
+                      font-size: 15px;
+                    "
+                  >
+                    Has sido invitado como <strong>Administrador</strong>
+                  </p>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding: 50px 40px; background-color: #242645">
+                  <p
+                    style="
+                      margin: 0 0 25px;
+                      color: #d1d5db;
+                      font-size: 16px;
+                      line-height: 1.7;
+                    "
+                  >
+                    Hola <strong style="color: #a78bfa">${name}</strong>,
+                    <br /><br />
+                    Te damos la bienvenida al equipo administrativo de DevCore.
+                    Hemos creado tu cuenta con los siguientes datos de acceso:
+                  </p>
+
+                  <table
+                    width="100%"
+                    cellpadding="0"
+                    cellspacing="0"
+                    style="
+                      margin: 25px 0 35px;
+                      background-color: #1d1f3a;
+                      border: 1px solid rgba(167, 139, 250, 0.3);
+                      border-radius: 10px;
+                      padding: 25px;
+                    "
+                  >
+                    <tr>
+                      <td>
+                        <h3
+                          style="
+                            margin: 0 0 20px 0;
+                            color: #a78bfa;
+                            font-size: 17px;
+                          "
+                        >
+                          📋 Tus credenciales de acceso:
+                        </h3>
+                        
+                        <div style="margin-bottom: 15px;">
+                          <p style="margin: 0 0 5px; color: #9ca3af; font-size: 14px;">
+                            <strong>Email:</strong>
+                          </p>
+                          <p
+                            style="
+                              margin: 0;
+                              padding: 10px 15px;
+                              background-color: #242645;
+                              border-radius: 6px;
+                              color: #e5e7eb;
+                              font-family: monospace;
+                              font-size: 15px;
+                            "
+                          >
+                            ${email}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p style="margin: 0 0 5px; color: #9ca3af; font-size: 14px;">
+                            <strong>Contraseña temporal:</strong>
+                          </p>
+                          <p
+                            style="
+                              margin: 0;
+                              padding: 10px 15px;
+                              background-color: #242645;
+                              border-radius: 6px;
+                              color: #4ade80;
+                              font-family: monospace;
+                              font-size: 15px;
+                              font-weight: 600;
+                            "
+                          >
+                            ${password}
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <table
+                    width="100%"
+                    cellpadding="0"
+                    cellspacing="0"
+                    style="
+                      margin: 25px 0;
+                      background-color: #3a321b;
+                      border-left: 4px solid #fbbf24;
+                      border-radius: 8px;
+                      padding: 20px;
+                    "
+                  >
+                    <tr>
+                      <td>
+                        <p
+                          style="
+                            margin: 0;
+                            color: #fbbf24;
+                            font-size: 15px;
+                            line-height: 1.6;
+                          "
+                        >
+                          <strong>⚠️ Importante:</strong> Por tu seguridad, te recomendamos
+                          cambiar tu contraseña después del primer inicio de sesión desde
+                          tu panel de administración.
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <table width="100%" cellpadding="0" cellspacing="0" style="margin: 35px 0">
+                    <tr>
+                      <td align="center">
+
+                        <!-- BOTÓN REPARADO -->
+                        <a 
+                          href="${loginUrl}"
+                          style="
+                            display: inline-block;
+                            color: #ffffff;
+                            background: linear-gradient(135deg, #7e4bde 0%, #8b5cf6 100%);
+                            text-decoration: none;
+                            padding: 14px 40px;
+                            border-radius: 10px;
+                            font-weight: 600;
+                            font-size: 16px;
+                          "
+                        >
+                          Iniciar Sesión
+                        </a>
+
+                      </td>
+                    </tr>
+                  </table>
+
+                  <p
+                    style="
+                      margin: 30px 0 20px;
+                      color: #d1d5db;
+                      font-size: 15px;
+                      line-height: 1.7;
+                    "
+                  >
+                    Como administrador, tendrás acceso a:
+                  </p>
+                  <ul
+                    style="
+                      margin: 0;
+                      padding-left: 20px;
+                      color: #d1d5db;
+                      font-size: 15px;
+                      line-height: 1.8;
+                    "
+                  >
+                    <li>Gestión de usuarios y cursos</li>
+                    <li>Panel de administración completo</li>
+                    <li>Reportes y estadísticas</li>
+                    <li>Configuración de la plataforma</li>
+                  </ul>
+
+                  <p
+                    style="
+                      margin: 30px 0 0;
+                      color: #d1d5db;
+                      font-size: 15px;
+                    "
+                  >
+                    ¡Bienvenido al equipo! 🚀
+                  </p>
+                </td>
+              </tr>
+
+              <tr>
+                <td
+                  style="
+                    background-color: #131425;
+                    padding: 35px 40px;
+                    text-align: center;
+                  "
+                >
+                  <p style="margin: 0 0 8px; color: #9ca3af; font-size: 14px">
+                    El equipo de <strong style="color: #a78bfa">DevCore</strong>
+                  </p>
+                  <p style="margin: 10px 0 0; color: #6b7280; font-size: 13px">
+
+                    <!-- LINK REPARADO -->
+                    <a 
+                      href="mailto:devcoreacademia@gmail.com"
+                      style="color: #a78bfa; text-decoration: none"
+                    >
+                      Contáctanos
+                    </a>
+
+                  </p>
+                  <p style="margin: 10px 0 0; color: #8b8fa9; font-size: 12px">
+                    © ${new Date().getFullYear()} DevCore. Todos los derechos
+                    reservados.
+                  </p>
+                </td>
+              </tr>
+
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
     </html>
     `,
     });

@@ -93,6 +93,7 @@ export class UsersController {
     return this.usersService.updateUserImage(id, result.secure_url);
   }
 
+  @Post('admin')
   @Get()
   @ApigetAllUsersDocs()
   getAllUsers() {
@@ -150,7 +151,10 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
   @ApiDeleteUserById()
-  remove(@Param('id', ParseUUIDPipe) id: string,@Body() desactivateDto: DesactivatedUserDto) {
+  remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() desactivateDto: DesactivatedUserDto,
+  ) {
     return this.usersService.deleteUser(id, desactivateDto);
   }
 

@@ -16,13 +16,14 @@ import { SocialProfileDto } from '../auth/dto/socialProfile.dto';
 import { UserRole } from './enums/user-role.enum';
 import { MailService } from 'src/mail/mail.service';
 import { DesactivatedUserDto } from './dto/desactivate-user.dto';
+import { CreateUserAdminDto } from './dto/create-user-admin.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     private userRepository: UsersRepository,
     private readonly dataSource: DataSource,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -141,7 +142,6 @@ export class UsersService {
     }
   }
 
-
   async getAllUsers() {
     return await this.userRepository.getAllUsers();
   }
@@ -181,17 +181,17 @@ export class UsersService {
   }
 
   async getUserById(id: string) {
-  const userFind = await this.userRepository.findUserWithProfile(id);
-  const { password, ...userWithoutPassword } = userFind;
-  
-  // Agregar información de si tiene contraseña sin exponer la contraseña misma
-  const userWithPasswordStatus = {
-    ...userWithoutPassword,
-    hasPassword: !!password, // true si tiene contraseña, false si no
-  };
-  
-  return userWithPasswordStatus;
-}
+    const userFind = await this.userRepository.findUserWithProfile(id);
+    const { password, ...userWithoutPassword } = userFind;
+
+    // Agregar información de si tiene contraseña sin exponer la contraseña misma
+    const userWithPasswordStatus = {
+      ...userWithoutPassword,
+      hasPassword: !!password, // true si tiene contraseña, false si no
+    };
+
+    return userWithPasswordStatus;
+  }
 
   async updateUser(userId: string, data: UpdateUserProfileDto) {
     const userFind = await this.userRepository.findUserById(userId);
@@ -203,14 +203,15 @@ export class UsersService {
   }
 
   async deleteUser(id: string, desactivateDto: DesactivatedUserDto) {
-
     const { reason } = desactivateDto;
 
-
-    const desactivatedUSer = await this.userRepository.deleteUserRepo(id,reason);
+    const desactivatedUSer = await this.userRepository.deleteUserRepo(
+      id,
+      reason,
+    );
 
     //manejamos el caso de no encontrarlo
-    if(desactivatedUSer instanceof NotFoundException){
+    if (desactivatedUSer instanceof NotFoundException) {
       throw desactivatedUSer;
     }
 
@@ -219,10 +220,13 @@ export class UsersService {
       await this.mailService.sendBannedEmail(
         desactivatedUSer.email,
         desactivatedUSer.name,
-        reason
+        reason,
       );
-    } catch(emailError) {
-      throw new BadRequestException(`Error al enviar el email de suspension del usuario: ${desactivatedUSer.id}:`, emailError)
+    } catch (emailError) {
+      throw new BadRequestException(
+        `Error al enviar el email de suspension del usuario: ${desactivatedUSer.id}:`,
+        emailError,
+      );
     }
     return 'Usuario desactivado correctamente';
   }
@@ -237,14 +241,14 @@ export class UsersService {
   async activateUser(userId: string) {
     const userFind = await this.userRepository.findInactiveUser(userId);
 
-    if (!userFind){
+    if (!userFind) {
       throw new NotFoundException('No se encontro el usuario inactivo');
     }
 
-    if(userFind.isActive === true) {
+    if (userFind.isActive === true) {
       throw new BadRequestException('El usuario ya esta activo');
     }
-    
+
     userFind.isActive = true;
     userFind.suspensionReason = null;
 
@@ -252,8 +256,11 @@ export class UsersService {
 
     try {
       await this.mailService.sendActivateUser(userFind.email, userFind.name);
-    } catch(emailError) {
-      throw new BadRequestException(`Error al enviar el email de activacion del usuario: ${userFind.id}:`, emailError)
+    } catch (emailError) {
+      throw new BadRequestException(
+        `Error al enviar el email de activacion del usuario: ${userFind.id}:`,
+        emailError,
+      );
     }
 
     return 'Usuario activado correctamente';

@@ -23,6 +23,7 @@ import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { ChangePasswordRequestDto } from './dto/change-password-request.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { CreateUserAdminDto } from '../users/dto/create-user-admin.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,7 +34,6 @@ export class AuthService {
     private readonly mailService: MailService,
   ) {}
 
-  
   //Nuevo metodo para probar el registro de ambos provedores github y google
   async validateAndHandleSocialUser(
     profile: SocialProfileDto,
@@ -64,7 +64,7 @@ export class AuthService {
     if (action === 'login') {
       if (!user) {
         throw new NotFoundException(`El email ${email} no está registrado.`);
-      } 
+      }
 
       //pero si existe con google, github o el nuestro lo dejamos entrar y vinculamos su cuenta al registro que ya tiene
       if (provider === 'google') {
@@ -134,6 +134,97 @@ export class AuthService {
     //retornamos el usaurio con su token y el rol
     return this.login(newUser);
   }
+
+  // Se registra un nuevo usuario admin
+
+  // Nuevo método para admin
+  async createAdmin(createAdminDto: CreateUserAdminDto) {
+    const userExists = await this.userRepository.findUserByEmail(
+      createAdminDto.email,
+    );
+
+    if (userExists) {
+      throw new BadRequestException('El correo electrónico ya está en uso');
+    }
+
+    // Validar que las contraseñas coincidan
+    if (createAdminDto.password !== createAdminDto.confirmPassword) {
+      throw new BadRequestException('Las contraseñas no coinciden');
+    }
+
+    // Hashear la contraseña
+    const hashedPassword = await bcrypt.hash(createAdminDto.password, 10);
+
+    if (!hashedPassword) {
+      throw new BadRequestException('Error al hashear el password');
+    }
+
+    // Admin crea usuario ya verificado y activo
+    const userCreate = {
+      ...createAdminDto,
+      password: hashedPassword,
+      isEmailVerified: true,
+      isActive: true,
+      role: UserRole.ADMIN,
+      emailVerificationToken: undefined,
+    };
+
+    const newUser = await this.userRepository.createAdmin(userCreate);
+
+    //  Enviar email de bienvenida con las credenciales
+    try {
+      await this.mailService.sendWelcomeAdminEmail(
+        newUser.email,
+        newUser.name,
+        createAdminDto.password, //  Contraseña sin hashear para enviar por email
+      );
+    } catch (error) {
+      console.error('Error al enviar email de bienvenida:', error);
+      // No lanzamos error aquí para que el admin se cree igual
+    }
+
+    // Retornar sin la contraseña
+    const { password, ...userWithoutPassword } = newUser;
+
+    return {
+      message:
+        'Administrador creado exitosamente. Se ha enviado un email con las credenciales de acceso.',
+      user: userWithoutPassword,
+    };
+  }
+  // async createAdmin(createAdminDto: CreateUserAdminDto) {
+  //   const userExists = await this.userRepository.findUserByEmail(
+  //     createAdminDto.email,
+  //   );
+
+  //   if (userExists) {
+  //     throw new BadRequestException('El correo electrónico ya está en uso');
+  //   }
+
+  //   // Hashear la contraseña
+  //   const hashedPassword = await bcrypt.hash(createAdminDto.password, 10);
+
+  //   if (!hashedPassword) {
+  //     throw new BadRequestException('Error al hashear el password');
+  //   }
+
+  //   // Admin crea usuario ya verificado y activo
+  //   const userCreate = {
+  //     ...createAdminDto,
+  //     password: hashedPassword,
+  //     isEmailVerified: true,
+  //     isActive: true,
+  //     role: UserRole.ADMIN,
+  //     emailVerificationToken: null,
+  //   };
+
+  //   const newUser = await this.userRepository.createAdmin(userCreate);
+
+  //   // Opcionalmente enviar email de bienvenida con contraseña temporal
+  //   // await this.mailService.sendWelcomeEmail(newUser.email);
+
+  //   return newUser;
+  // }
 
   /**
    * Metodo para cambio de contraseña usuario la olvido
