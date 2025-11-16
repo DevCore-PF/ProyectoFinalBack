@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { Subject } from 'rxjs';
+import { Payout } from 'src/modules/admin/entities/payout.entity';
 import { Course } from 'src/modules/course/entities/course.entity';
 import { Payment } from 'src/modules/payments/entities/payment.entity';
 import { User } from 'src/modules/users/entities/user.entity';
@@ -2432,6 +2433,267 @@ export class MailService {
       </body>
     </html>
   `,
+    });
+  }
+
+  /**
+   * Metodo que envia correo al profesor notificando su pago de ganancias
+   */
+  async sendPayoutConfirmationEmail(user: User, payout: Payout) {
+    const profesorName = user.name;
+    const totalAmount = `$${(Number(payout.totalAmount)).toFixed(2)} USD`; // (Ajusta la moneda si es necesario)
+    const paymentDate = new Date(payout.paidAt).toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+    const referenceNumber = payout.referenceNumber;
+    const loginUrl = `${process.env.API_URL}/login`; // O al dashboard del profesor
+
+    // Construimos la lista de cursos pagados
+    const coursesListHtml = payout.enrollments.map(enrollment => {
+        const earnings = (Number(enrollment.professorEarnings)).toFixed(2);
+        return `
+          <tr style="border-top: 1px solid rgba(255, 255, 255, 0.05)">
+            <td style="padding: 12px 16px; color: #d1d5db; font-size: 15px;">
+              ${enrollment.course.title}
+            </td>
+            <td style="padding: 12px 16px; color: #4ade80; text-align: right; font-size: 15px; font-weight: 600;">
+              + $${earnings}
+            </td>
+          </tr>
+        `;
+    }).join('');
+
+    await this.transporter.sendMail({
+      from: '"DevCore" <noreply@tuapp.com>',
+      to: user.email,
+      subject: '✅ ¡Tu pago de DevCore ha sido procesado!',
+      html: `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Pago Procesado - DevCore</title>
+      </head>
+      <body
+        style="
+          margin: 0;
+          padding: 0;
+          background-color: #131425;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            'Helvetica Neue', Arial, sans-serif;
+          color: #e2e8f0;
+        "
+      >
+        <table
+          width="100%"
+          cellpadding="0"
+          cellspacing="0"
+          style="padding: 40px 20px; background-color: #131425"
+        >
+          <tr>
+            <td align="center">
+              <table
+                width="600"
+                cellpadding="0"
+                cellspacing="0"
+                style="
+                  background-color: #242645;
+                  border-radius: 18px;
+                  overflow: hidden;
+                  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                  border: 1px solid rgba(34, 197, 94, 0.25); /* Borde verde */
+                  max-width: 100%;
+                "
+              >
+                <tr>
+                  <td
+                    style="
+                      background: linear-gradient(135deg, #7e4bde 0%, #22c55e 100%);
+                      text-align: center;
+                      padding: 45px 30px;
+                    "
+                  >
+                    <img
+                      src="https://res.cloudinary.com/dclx6hdpk/image/upload/v1762290639/logo2_gxkhlq.png"
+                      alt="DevCore Logo"
+                      style="
+                        width: 120px;
+                        height: auto;
+                        margin-bottom: 20px;
+                        border: 1px solid #8b5cf6;
+                        border-radius: 12px;
+                        padding: 6px;
+                      "
+                    />
+                    <h1
+                      style="
+                        margin: 0;
+                        color: #ffffff;
+                        font-size: 26px;
+                        font-weight: 700;
+                      "
+                    >
+                      ¡Tu pago ha sido enviado! 💸
+                    </h1>
+                    <p
+                      style="
+                        margin: 10px 0 0;
+                        color: rgba(255, 255, 255, 0.8);
+                        font-size: 15px;
+                      "
+                    >
+                      Tus ganancias de <strong style="color: #a78bfa">DevCore</strong> están en camino.
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding: 50px 40px; background-color: #242645">
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 16px;
+                        line-height: 1.7;
+                      "
+                    >
+                      Hola <strong style="color: #a78bfa">${profesorName}</strong>,
+                      <br /><br />
+                      Nos complace informarte que hemos procesado tu lote de pagos
+                      reciente.
+                    </p>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="
+                        margin: 25px 0 35px;
+                        background-color: #1a3622;
+                        border: 1px solid rgba(34, 197, 94, 0.4);
+                        border-radius: 8px;
+                        padding: 25px;
+                      "
+                    >
+                      <tr>
+                        <td style="color: #e5e7eb; font-size: 15px; padding-bottom: 12px;">
+                          <strong>Monto Total Transferido:</strong><br />
+                          <span style="color: #4ade80; font-size: 24px; font-weight: 600;">${totalAmount}</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="color: #e5e7eb; font-size: 15px; padding-bottom: 12px; padding-top: 12px; border-top: 1px solid rgba(34, 197, 94, 0.2);">
+                          <strong>Referencia de Transferencia:</strong><br />
+                          <span style="color: #d1d5db;">${referenceNumber}</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="color: #e5e7eb; font-size: 15px; padding-top: 12px; border-top: 1px solid rgba(34, 197, 94, 0.2);">
+                          <strong>Fecha de Pago:</strong><br />
+                          <span style="color: #d1d5db;">${paymentDate}</span>
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <h3
+                      style="
+                        margin: 30px 0 15px 0;
+                        color: #f3f4f6;
+                        font-size: 18px;
+                        font-weight: 600;
+                      "
+                    >
+                      Inscripciones incluidas en este pago:
+                    </h3>
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="
+                        background-color: #2b2d4a;
+                        border-radius: 10px;
+                        overflow: hidden;
+                      "
+                    >
+                      <thead>
+                        <tr style="background-color: #363968; color: #e5e7eb; text-align: left;">
+                          <th style="padding: 12px 16px">Curso Vendido</th>
+                          <th style="padding: 12px 16px; text-align: right">Tu Ganancia</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${coursesListHtml}
+                      </tbody>
+                    </table>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 40px 0 20px"
+                    >
+                      <tr>
+                        <td align="center">
+                          <a
+                            href="${loginUrl}"
+                            style="
+                              display: inline-block;
+                              border: 1px solid #8b5cf6;
+                              color: #e5e7eb;
+                              text-decoration: none;
+                              padding: 12px 34px;
+                              border-radius: 8px;
+                              font-weight: 600;
+                              font-size: 15px;
+                              transition: all 0.3s ease;
+                            "
+                            onmouseover="this.style.backgroundColor='#8b5cf6';this.style.color='#fff';"
+                            onmouseout="this.style.backgroundColor='transparent';this.style.color='#e5e7eb';"
+                          >
+                            Ir a mi Panel de Ganancias
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      background-color: #131425;
+                      padding: 35px 40px;
+                      text-align: center;
+                    "
+                  >
+                    <p style="margin: 0 0 8px; color: #9ca3af; font-size: 14px">
+                      El equipo de <strong style="color: #a78bfa">DevCore</strong>
+                    </p>
+                    <p style="margin: 10px 0 0; color: #6b7280; font-size: 13px">
+                      ¿Tienes dudas?
+                      <a
+                        href="mailto:devcoreacademia@gmail.com"
+                        style="color: #a78bfa; text-decoration: none"
+                        >Contáctanos</a
+                      >
+                    </p>
+                    <p style="margin: 10px 0 0; color: #8b8fa9; font-size: 12px">
+                      © ${new Date().getFullYear()} DevCore. Todos los derechos
+                      reservados.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+    `,
     });
   }
 }

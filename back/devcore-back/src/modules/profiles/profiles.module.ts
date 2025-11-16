@@ -9,9 +9,10 @@ import { ProfilesController } from "./profiles.controller";
 import { ProfilesService } from "./profiles.service";
 import { CloudinaryModule } from "../cloudinary/cloudinary.module";
 import { MailModule } from "src/mail/mail.module";
+import { EnrollmentsModule } from "../enrollments/enrollments.module";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([ProfessorProfile, User]),UsersModule, AuthModule, CloudinaryModule, MailModule],
+    imports: [TypeOrmModule.forFeature([ProfessorProfile, User]),UsersModule, AuthModule, CloudinaryModule, MailModule, EnrollmentsModule],
     providers: [ProfilesRepository, ProfilesService],
     controllers: [ProfilesController]
 })
