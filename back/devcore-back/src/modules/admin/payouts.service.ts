@@ -26,10 +26,9 @@ export class PayoutService {
     // 1. Busca todas las inscripciones pendientes
     const pendingEnrollments = await this.enrollmentRepository.find({
       where: { payout: IsNull() },
-      // --- ¡LA CORRECCIÓN! ---
-      // Usamos la sintaxis de objeto para cargar relaciones anidadas
+      // Usamos la sintaxis de objeto para cargar relaciones anidadas   
       relations: {
-        course: {         // Carga la relación 'course'
+        course: {         // Carga la relación 'course'|A
           professor: {    // Dentro de 'course', carga 'professor'
             user: true,   // Y dentro de 'professor', carga 'user'
           },
