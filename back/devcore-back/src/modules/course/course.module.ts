@@ -9,12 +9,14 @@ import { Lesson } from '../lesson/entities/lesson.entity';
 import { ProfessorProfile } from '../profiles/entities/professor-profile.entity';
 import { CourseFeedbackModule } from '../CourseFeedback/courseFeedback.module';
 import { UsersModule } from '../users/users.module';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   controllers: [CoursesController],
   providers: [CoursesService, CoursesRepository],
   imports: [
     TypeOrmModule.forFeature([Course, Lesson, ProfessorProfile]),
+    MailModule,
     UsersModule,
     CloudinaryModule,
     CourseFeedbackModule,

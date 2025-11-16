@@ -43,13 +43,13 @@ export class CourseFeedback {
   feedback: string;
 
   // ===== CAMPOS DE MODERACIÓN =====
-  
+
   /**
    * Score de toxicidad del feedback (0.0 a 1.0)
    * 0.0 = contenido limpio
    * 1.0 = contenido extremadamente tóxico
    */
-  @Column({ type: 'decimal', precision: 3, scale: 2, default: 0.00 })
+  @Column({ type: 'decimal', precision: 3, scale: 2, default: 0.0 })
   toxicityScore: number;
 
   /**
@@ -67,7 +67,11 @@ export class CourseFeedback {
    * - censored: aprobado pero censurado (visible tapado)
    * - rejected: rechazado (no debería existir en BD, pero por si acaso)
    */
-  @Column({ type: 'enum', enum: ['approved', 'pending', 'censored', 'rejected'], default: 'approved' })
+  @Column({
+    type: 'enum',
+    enum: ['approved', 'pending', 'censored', 'rejected'],
+    default: 'approved',
+  })
   moderationStatus: string;
 
   /**
