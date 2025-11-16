@@ -4,7 +4,7 @@ import { Repository, DeepPartial, MoreThan } from 'typeorm'; // <-- 1. Importa D
 import { CreateUserDto } from './dto/create-user.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRole } from './enums/user-role.enum';
-import { UserResponseDto } from './dto/user-response.dto';
+import { CreateUserAdminDto } from './dto/create-user-admin.dto';
 
 @Injectable()
 export class UsersRepository {
@@ -55,6 +55,11 @@ export class UsersRepository {
     return this.userRepository.save(newUser);
   }
 
+  async createAdmin(userCreate: DeepPartial<User>): Promise<User> {
+    const newUser = this.userRepository.create(userCreate);
+    return this.userRepository.save(newUser);
+  }
+
   async findUserById(id: string) {
     const findUser = await this.userRepository.findOneBy({ id });
     if (!findUser || !findUser?.isActive)
@@ -88,8 +93,8 @@ export class UsersRepository {
         resetPasswordToken: token,
         //comprobamos la fecha de expiracion
         resetPasswordExpires: MoreThan(new Date()),
-      }
-    })
+      },
+    });
   }
 
   async findUserWithPurchasedCourses(userId: string): Promise<User | null> {

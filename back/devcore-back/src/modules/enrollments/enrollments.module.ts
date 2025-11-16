@@ -13,14 +13,17 @@ import { ProfessorProfile } from '../profiles/entities/professor-profile.entity'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Enrollment,Course,
+    TypeOrmModule.forFeature([
+      Enrollment,
+      Course,
       User,
       Payment,
       Payout,
-      ProfessorProfile,]),LessonsModule,
+      ProfessorProfile,
+    ]),
+    LessonsModule,
     LessonProgressModule,
-
-  ],    
+  ],
   providers: [EnrollmentService, EnrollmentRepository],
   exports: [EnrollmentService, EnrollmentRepository],
 })

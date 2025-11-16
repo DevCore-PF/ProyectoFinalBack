@@ -75,6 +75,12 @@ export class CourseFeedbackRepository {
         id: true,
         feedback: true,
         rating: true,
+        // Campos de moderación
+        isCensored: true,
+        moderationStatus: true,
+        toxicityScore: true,
+        moderationReason: true,
+        requiresManualReview: true,
         course: {
           id: true,
           title: true,
@@ -103,6 +109,12 @@ export class CourseFeedbackRepository {
         rating: true,
         feedback: true,
         createdAt: true,
+        // Campos de moderación
+        isCensored: true,
+        moderationStatus: true,
+        toxicityScore: true,
+        moderationReason: true,
+        requiresManualReview: true,
         user: {
           id: true,
           name: true,
