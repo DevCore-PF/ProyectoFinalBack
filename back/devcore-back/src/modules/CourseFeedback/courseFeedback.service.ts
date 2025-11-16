@@ -45,16 +45,18 @@ export class CourseFeedbackService {
 
     // ===== NUEVO: ANÁLISIS DE MODERACIÓN =====
     let moderationResult: ModerationResult | null = null;
-    
+
     // Solo analizar si hay texto en el feedback
     if (dto.feedback && dto.feedback.trim().length > 0) {
-      moderationResult = await this.moderationService.analyzeFeedback(dto.feedback);
+      moderationResult = await this.moderationService.analyzeFeedback(
+        dto.feedback,
+      );
 
       // Si el feedback es EXTREMADAMENTE tóxico, rechazarlo y no guardarlo
       if (moderationResult.suggestedAction === 'reject') {
         throw new BadRequestException(
-          moderationResult.reason || 
-          'Tu feedback contiene lenguaje inapropiado y no puede ser publicado. Por favor, reformula tu comentario de manera respetuosa.'
+          moderationResult.reason ||
+            'Su comentario no está permitido. En caso de reintentarlo será notificado al administrador.',
         );
       }
     }
@@ -64,13 +66,15 @@ export class CourseFeedbackService {
 
     // Aplicar resultados de moderación si existen
     if (moderationResult) {
-      feedback.toxicityScore = Number(moderationResult.toxicityScore.toFixed(2));
+      feedback.toxicityScore = Number(
+        moderationResult.toxicityScore.toFixed(2),
+      );
       feedback.isCensored = moderationResult.suggestedAction === 'censor';
       feedback.requiresManualReview = moderationResult.requiresManualReview;
       if (moderationResult.reason) {
         feedback.moderationReason = moderationResult.reason;
       }
-      
+
       // Determinar estado de moderación
       if (moderationResult.suggestedAction === 'censor') {
         feedback.moderationStatus = 'censored';
@@ -87,11 +91,12 @@ export class CourseFeedbackService {
     const savedFeedback = await this.feedbackRepo.saveFeedback(feedback);
 
     // Retornar mensaje según el resultado
-    const message = moderationResult?.suggestedAction === 'censor'
-      ? 'Tu feedback ha sido publicado pero será visible de forma censurada debido a su contenido.'
-      : moderationResult?.requiresManualReview
-      ? 'Tu feedback ha sido publicado y está en revisión por nuestro equipo.'
-      : 'Feedback publicado exitosamente.';
+    const message =
+      moderationResult?.suggestedAction === 'censor'
+        ? 'Tu feedback ha sido publicado pero será visible de forma censurada debido a su contenido.'
+        : moderationResult?.requiresManualReview
+          ? 'Tu feedback ha sido publicado y está en revisión por nuestro equipo.'
+          : 'Feedback publicado exitosamente.';
 
     return {
       message,
@@ -99,7 +104,7 @@ export class CourseFeedbackService {
       moderation: {
         isCensored: savedFeedback.isCensored,
         requiresReview: savedFeedback.requiresManualReview,
-      }
+      },
     };
   }
 
