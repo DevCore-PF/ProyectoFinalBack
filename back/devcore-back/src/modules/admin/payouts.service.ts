@@ -99,24 +99,34 @@ export class PayoutService {
     }
 
     async getSalesHistory(status: 'PENDING' | 'PAID' | 'ALL') {
-        // Usa el REPO PERSONALIZADO
-        const sales = await this.enrollmentRepository.findSalesForAdmin(status);
+    const sales = await this.enrollmentRepository.findSalesForAdmin(status);
 
-        //Formateamos la vista para el profesor
-        return sales.map(sale => ({
-            // ... (tu lógica de map está bien) ...
-            saleID: sale.id,
-            saleDate: sale.inscripcionDate,
-            courseTitle: sale.course.title,
-            studentName: sale.user.name,
-            studentEmail: sale.user.email,
-            professorName: sale.course.professor.user.name,
-            totalPrice: sale.priceAtPurchase,
-            professorEarnings: sale.professorEarnings,
-            adminEarnings: sale.adminEarnings,
-            paymentId: sale.payment.id,
-            stripeID: sale.payment.stripeId,
-            payoutStatus: sale.payout ? 'Pagado' : 'Pendiente'
-        }));
-    }
+    return sales.map(sale => {
+      
+      let detailedStatus = 'Pendiente (Nueva Venta)';
+      if (sale.payout) { // Si ya está en un lote...
+        if (sale.payout.status === 'PAID') {
+          detailedStatus = 'Pagado';
+        } else {
+          detailedStatus = 'En Proceso (Lote Creado)';
+        }
+      }
+
+      return {
+        saleID: sale.id,
+        saleDate: sale.inscripcionDate,
+        courseTitle: sale.course.title,
+        studentName: sale.user.name,
+        studentEmail: sale.user.email,
+        professorName: sale.course.professor.user.name,
+        totalPrice: sale.priceAtPurchase,
+        professorEarnings: sale.professorEarnings,
+        adminEarnings: sale.adminEarnings,
+        paymentId: sale.payment.id,
+        stripeID: sale.payment.stripeId,
+        payoutStatus: detailedStatus, // <-- Usamos el estado detallado
+        paymentReference: sale.payout ? sale.payout.referenceNumber : null,
+      };
+    });
+  }
 }
