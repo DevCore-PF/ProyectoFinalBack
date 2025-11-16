@@ -8,6 +8,9 @@ import { PayoutController } from "./payouts.controller";
 import { PayoutService } from "./payouts.service";
 import { PayoutRepository } from "./payouts.repository";
 import { EnrollmentRepository } from "../enrollments/enrollments.repository";
+import { MailModule } from "src/mail/mail.module";
+import { MailService } from "src/mail/mail.service";
+import { EnrollmentsModule } from "../enrollments/enrollments.module";
 
 @Module({
     imports: [
@@ -15,8 +18,8 @@ import { EnrollmentRepository } from "../enrollments/enrollments.repository";
             Payout,
             Enrollment,
             ProfessorProfile,
-            EnrollmentRepository
-        ])
+            
+        ]), MailModule, EnrollmentsModule
     ],
     controllers: [PayoutController],
     providers: [PayoutService,PayoutRepository]

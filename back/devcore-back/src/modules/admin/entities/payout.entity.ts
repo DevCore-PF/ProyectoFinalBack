@@ -1,9 +1,12 @@
 import { ProfessorProfile } from "src/modules/profiles/entities/professor-profile.entity";
-import { Column, CreateDateColumn, ManyToOne, OneToMany } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Enrollment } from "../../enrollments/entities/enrollment.entity";
 import { PayoutStatus } from "../enums/PayoutStatus.enum";
 
+@Entity('payouts')
 export class Payout {
+
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @ManyToOne(() => ProfessorProfile)

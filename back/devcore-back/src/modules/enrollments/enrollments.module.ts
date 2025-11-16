@@ -13,6 +13,6 @@ import { LessonProgressModule } from '../LessonProgress/lessonprogress.module';
     LessonProgressModule,
   ],
   providers: [EnrollmentService, EnrollmentRepository],
-  exports: [EnrollmentService],
+  exports: [EnrollmentService, EnrollmentRepository],
 })
 export class EnrollmentsModule {}

@@ -31,7 +31,7 @@ export class EnrollmentService {
         priceAtPurchase: data.priceInCents / 100.0,
         payment: {id: data.paymentId},
 
-        professsorEarnings: professorShare,
+        professorEarnings: professorShare,
         adminEarnings: adminShare,
         payout: undefined,
       });

@@ -1,10 +1,11 @@
-import { Body, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards } from "@nestjs/common";
 import { PayoutService } from "./payouts.service";
 import { AuthGuard } from "@nestjs/passport";
 import { Roles, RolesGuard } from "../auth/guards/verify-role.guard";
 
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Roles('admin')
+@Controller('admin/payouts')
 export class PayoutController {
     constructor(private readonly payoutService: PayoutService) {}
 
@@ -30,6 +31,7 @@ export class PayoutController {
         return this.payoutService.markPayoutAsPaid(payoutId, referenceNumber)
     }
 
+    
     /**
      * Obtiene todas las ventas
      */
