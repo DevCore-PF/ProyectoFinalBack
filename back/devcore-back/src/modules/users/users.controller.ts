@@ -93,7 +93,6 @@ export class UsersController {
     return this.usersService.updateUserImage(id, result.secure_url);
   }
 
-  @Post('admin')
   @Get()
   @ApigetAllUsersDocs()
   getAllUsers() {
