@@ -58,7 +58,7 @@ export class PayoutController {
     }
 
     /**
-     * Endpoint 1: Obtiene TODOS los lotes de pago (Pagados y Pendientes)
+     * Obtiene TODOS los lotes de pago (Pagados y Pendientes)
      */
     @Get('batches/all')
     async getAllBatches() {
@@ -66,7 +66,7 @@ export class PayoutController {
     }
 
     /**
-     * Endpoint 2: Obtiene solo lotes PENDIENTES
+     * Obtiene solo lotes PENDIENTES
      */
     @Get('batches/pending')
     async getPendingBatches() {
@@ -74,7 +74,7 @@ export class PayoutController {
     }
 
     /**
-     * Endpoint 3: Obtiene solo lotes YA PAGADOS
+     * Obtiene solo lotes YA PAGADOS
      */
     @Get('batches/paid')
     async getPaidBatches() {
