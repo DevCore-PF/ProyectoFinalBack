@@ -6,7 +6,7 @@ export function ApiGetAllFeedbacksDocs() {
     ApiOperation({
       summary: 'Obtiene todos los feedbacks de todos los cursos.',
       description:
-        'Devuelve una lista con todos los comentarios y valoraciones de los cursos, ordenados de mayor a menor rating. Solo accesible para administradores.',
+        'Devuelve una lista con todos los comentarios y valoraciones de los cursos, ordenados de mayor a menor rating.',
     }),
     ApiResponse({
       status: 200,
