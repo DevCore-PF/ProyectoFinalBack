@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards } f
 import { PayoutService } from "./payouts.service";
 import { AuthGuard } from "@nestjs/passport";
 import { Roles, RolesGuard } from "../auth/guards/verify-role.guard";
+import { PayoutStatus } from "./enums/PayoutStatus.enum";
 
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Roles('admin')
@@ -54,5 +55,29 @@ export class PayoutController {
     @Get('sales/paid')
     async getPaidSales(){
         return this.payoutService.getSalesHistory('PAID')
+    }
+
+    /**
+     * Endpoint 1: Obtiene TODOS los lotes de pago (Pagados y Pendientes)
+     */
+    @Get('batches/all')
+    async getAllBatches() {
+        return this.payoutService.getPayoutBatches(); // Sin filtro
+    }
+
+    /**
+     * Endpoint 2: Obtiene solo lotes PENDIENTES
+     */
+    @Get('batches/pending')
+    async getPendingBatches() {
+        return this.payoutService.getPayoutBatches(PayoutStatus.PENDING);
+    }
+
+    /**
+     * Endpoint 3: Obtiene solo lotes YA PAGADOS
+     */
+    @Get('batches/paid')
+    async getPaidBatches() {
+        return this.payoutService.getPayoutBatches(PayoutStatus.PAID);
     }
 }
