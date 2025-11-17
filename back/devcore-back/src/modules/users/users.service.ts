@@ -177,6 +177,15 @@ export class UsersService {
       priceAtPurchase: enrollment.priceAtPurchase,
       completed: !!enrollment.completedAt,
       enrollmentId: enrollment.id,
+      totalLessons: enrollment.course.lessons?.length || 0,
+      completedLessons: 0, // Se calculará en el frontend con lesson-progress
+      lessons:
+        enrollment.course.lessons?.map((lesson) => ({
+          id: lesson.id,
+          title: lesson.title,
+          completed: false, // Se actualizará en el frontend
+          completedAt: null,
+        })) || [],
     }));
   }
 
