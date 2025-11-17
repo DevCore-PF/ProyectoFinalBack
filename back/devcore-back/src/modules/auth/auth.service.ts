@@ -48,7 +48,9 @@ export class AuthService {
       if (user) {
         if (user?.isActive === false && user.isEmailVerified === true) {
           console.log('🚫 Usuario baneado detectado');
-          throw new BadRequestException('El email ha sido baneado');
+          throw new BadRequestException(
+            'Tu cuenta ha sido suspendida. Por favor, contacta al soporte para más información.',
+          );
         }
         //aqui se valida para que no pueda registrarse de nuevo sin importar si fue con gihub, propio o google
         throw new ConflictException(`El email ${email} ya está registrado.`);
@@ -64,6 +66,14 @@ export class AuthService {
     if (action === 'login') {
       if (!user) {
         throw new NotFoundException(`El email ${email} no está registrado.`);
+      }
+
+      // Verificar si el usuario está baneado
+      if (user.isActive === false && user.isEmailVerified === true) {
+        console.log('🚫 Usuario baneado detectado en OAuth login');
+        throw new BadRequestException(
+          'Tu cuenta ha sido suspendida. Por favor, contacta al soporte para más información.',
+        );
       }
 
       //pero si existe con google, github o el nuestro lo dejamos entrar y vinculamos su cuenta al registro que ya tiene
@@ -99,7 +109,9 @@ export class AuthService {
         userExists.isActive === false &&
         userExists.isEmailVerified === true
       ) {
-        throw new BadRequestException('El email ha sido baneado');
+        throw new BadRequestException(
+          'Tu cuenta ha sido suspendida. Por favor, contacta al soporte para más información.',
+        );
       }
       throw new BadRequestException('El correo electrónico ya está en uso');
     }
@@ -192,39 +204,6 @@ export class AuthService {
       user: userWithoutPassword,
     };
   }
-  // async createAdmin(createAdminDto: CreateUserAdminDto) {
-  //   const userExists = await this.userRepository.findUserByEmail(
-  //     createAdminDto.email,
-  //   );
-
-  //   if (userExists) {
-  //     throw new BadRequestException('El correo electrónico ya está en uso');
-  //   }
-
-  //   // Hashear la contraseña
-  //   const hashedPassword = await bcrypt.hash(createAdminDto.password, 10);
-
-  //   if (!hashedPassword) {
-  //     throw new BadRequestException('Error al hashear el password');
-  //   }
-
-  //   // Admin crea usuario ya verificado y activo
-  //   const userCreate = {
-  //     ...createAdminDto,
-  //     password: hashedPassword,
-  //     isEmailVerified: true,
-  //     isActive: true,
-  //     role: UserRole.ADMIN,
-  //     emailVerificationToken: null,
-  //   };
-
-  //   const newUser = await this.userRepository.createAdmin(userCreate);
-
-  //   // Opcionalmente enviar email de bienvenida con contraseña temporal
-  //   // await this.mailService.sendWelcomeEmail(newUser.email);
-
-  //   return newUser;
-  // }
 
   /**
    * Metodo para cambio de contraseña usuario la olvido
@@ -511,6 +490,13 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException(
         'Esta cuenta no está registrada. Por favor, regístrate primero.',
+      );
+    }
+
+    // Verificar si el usuario está baneado
+    if (user.isActive === false && user.isEmailVerified === true) {
+      throw new BadRequestException(
+        'Tu cuenta ha sido suspendida. Por favor, contacta al soporte para más información.',
       );
     }
 
