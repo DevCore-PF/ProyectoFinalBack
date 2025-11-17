@@ -13,20 +13,17 @@ import { ProfilesRepository } from "../profiles/profiles.repository";
 @Injectable()
 export class PayoutService {
     constructor(
-        // Repos de este módulo
         private readonly payoutRepository: PayoutRepository,
-        // Servicios/Repos de otros módulos
         private readonly mailService: MailService,
-        private readonly enrollmentRepository: EnrollmentRepository, // <-- ¡USA EL REPO PERSONALIZADO!
-        private readonly professorProfileRepository: ProfilesRepository // <-- ¡USA EL REPO PERSONALIZADO!
+        private readonly enrollmentRepository: EnrollmentRepository, 
+        private readonly professorProfileRepository: ProfilesRepository
     ){}
 
     async getPendingPayoutSummary() {
-        // Busca usando el REPO PERSONALIZADO
-        // (Debes crear este método 'findPendingSummary' en EnrollmentRepository)
+
         const pendingEnrollments = await this.enrollmentRepository.findPendingSummary();
 
-        // 2. Agrupa las ganancias
+        //Agrupa las ganancias
         const summary = pendingEnrollments.reduce((acc, enrollment) => {
             const professorId = enrollment.course?.professor?.id;
             if (!professorId) return acc;
@@ -50,14 +47,11 @@ export class PayoutService {
     }
     
     async createPayoutBatch(professorId: string): Promise<Payout> {
-        // Usa el REPO PERSONALIZADO
         const professor = await this.professorProfileRepository.findById(professorId); 
         if(!professor) {
             throw new NotFoundException('Perfil del profesor no encontrado')
         }
 
-        // Usa el REPO PERSONALIZADO
-        // (Debes crear este método 'findPendingSalesForProfessor' en EnrollmentRepository)
         const pendindEnrollments = await this.enrollmentRepository.findPendingSalesForProfessor(professorId);
 
         if(pendindEnrollments.length === 0){
@@ -77,9 +71,9 @@ export class PayoutService {
     }
 
     async markPayoutAsPaid(payoutId: string, referenceNumber: string){
-        // ... (Esta lógica está bien porque usa 'payoutRepository') ...
+
         const payout = await this.payoutRepository.findById(payoutId);
-        // ... (resto del método)
+
         if(!payout) {
             throw new NotFoundException('Lote de pago no encontrado')
         }
@@ -104,7 +98,7 @@ export class PayoutService {
     return sales.map(sale => {
       
       let detailedStatus = 'Pendiente (Nueva Venta)';
-      if (sale.payout) { // Si ya está en un lote...
+      if (sale.payout) { 
         if (sale.payout.status === 'PAID') {
           detailedStatus = 'Pagado';
         } else {
@@ -124,9 +118,31 @@ export class PayoutService {
         adminEarnings: sale.adminEarnings,
         paymentId: sale.payment.id,
         stripeID: sale.payment.stripeId,
-        payoutStatus: detailedStatus, // <-- Usamos el estado detallado
+        payoutStatus: detailedStatus,
         paymentReference: sale.payout ? sale.payout.referenceNumber : null,
       };
     });
+  }
+
+  /**
+   * Metodo que obtiene toda la lista de los lotes creados
+   */
+  async getPayoutBatches(status?: PayoutStatus) {
+    //Llamamos al nuev metodo el de traer los batches
+    const statusFilter = status ? (status as PayoutStatus): undefined;
+    const payouts =  await this.payoutRepository.findByStatus(statusFilter);
+
+    //Formateamos la rsspueta para el admin
+    return payouts.map(payout => ({
+        payoutId: payout.id,
+        status: payout.status,
+        createdAt: payout.createdAt,
+        paidAt: payout.paidAt,
+        totalAmount: payout.totalAmount,
+        salesCount: payout.enrollments.length,
+        professorName: payout.professor.user.name,
+        professorEmail: payout.professor.user.email,
+        referenceNumber: payout.referenceNumber
+    }))
   }
 }
