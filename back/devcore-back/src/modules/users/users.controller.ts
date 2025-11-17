@@ -22,7 +22,6 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
-  ApiBody,
   ApiConsumes,
   ApiOperation,
   ApiTags,
