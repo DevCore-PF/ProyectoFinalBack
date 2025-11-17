@@ -106,6 +106,7 @@ export class UsersRepository {
             professor: {
               user: true,
             },
+            lessons: true, // Agregar las lecciones del curso
           },
         },
       },
@@ -130,6 +131,10 @@ export class UsersRepository {
                 id: true,
                 name: true,
               },
+            },
+            lessons: {
+              id: true,
+              title: true,
             },
           },
         },
