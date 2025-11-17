@@ -120,6 +120,16 @@ export class ProfilesController {
     const userId = req.user.sub;
     return this.profilesService.getApprovalStatusByUserId(userId);
   }
+
+  /**
+   * Obtiene el historial de ganancia por queryParam
+   * Ej: /profiles/my-earnings?status=PENDING
+   */
+  @Get('my-earnings')
+  @UseGuards(AuthGuard('jwt'))
+  async getMyEarnings(@Req() req,@Query('status', new ValidationPipe()) status: 'PENDING' | 'PAID' | 'ALL' = 'ALL',){
+    return this.profilesService.getMyEarningsHistory(req.user.sub, status)
+  }
   
 
   @Get('profesor')
@@ -185,14 +195,6 @@ export class ProfilesController {
     return await this.profilesService.declineProfesor(professorId, rejectDto);
   }
 
-  /**
-   * Obtiene el historial de ganancia por queryParam
-   * Ej: /profiles/my-earnings?status=PENDING
-   */
-  @Get('my-earnings')
-  @UseGuards(AuthGuard('jwt'))
-  async getMyEarnings(@Req() req,@Query('status', new ValidationPipe()) status: 'PENDING' | 'PAID' | 'ALL' = 'ALL',){
-    return this.profilesService.getMyEarningsHistory(req.user.sub, status)
-  }
+  
 
 }
