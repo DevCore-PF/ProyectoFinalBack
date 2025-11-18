@@ -139,7 +139,7 @@ export class PayoutService {
         createdAt: payout.createdAt,
         paidAt: payout.paidAt,
         totalAmount: payout.totalAmount,
-        salesCount: payout.enrollments.length,
+        salesCount: payout.enrollments?.length || 0,
         professorName: payout.professor.user.name,
         professorEmail: payout.professor.user.email,
         referenceNumber: payout.referenceNumber

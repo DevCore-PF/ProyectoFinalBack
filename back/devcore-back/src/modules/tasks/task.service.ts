@@ -90,6 +90,8 @@ export class TasksService {
     if (updatedCarts.length > 0) {
       await this.cartRepository.save(updatedCarts);
       this.logger.log(`[Cron: Carritos] ${updatedCarts.length} carritos marcados como 'notificados'.`);
+
+      await this.settingsService.updateSetting('ABANDONED_CART_DELAY_HOURS', new Date().toString())
     }
   }
 }
