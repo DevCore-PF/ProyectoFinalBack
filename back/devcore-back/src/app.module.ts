@@ -14,8 +14,9 @@ import { LessonProgressModule } from './modules/LessonProgress/lessonprogress.mo
 import { CourseFeedbackModule } from './modules/CourseFeedback/courseFeedback.module';
 import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { TaskService } from './task.service';
+
 import { AdminModule } from './modules/admin/admin.module';
+import { TasksModule } from './modules/tasks/task.module';
 
 @Module({
   imports: [
@@ -45,8 +46,9 @@ import { AdminModule } from './modules/admin/admin.module';
     LessonProgressModule,
     CourseFeedbackModule,
     EnrollmentsModule,
-    AdminModule
+    AdminModule,
+    TasksModule
   ],
-  providers: [TaskService],
+  providers: [],
 })
 export class AppModule {}

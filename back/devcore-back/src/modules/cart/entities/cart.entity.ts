@@ -1,6 +1,6 @@
 import { Course } from "src/modules/course/entities/course.entity";
 import { User } from "src/modules/users/entities/user.entity";
-import { Entity, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('carts')
 export class Cart {
@@ -12,6 +12,14 @@ export class Cart {
     @JoinColumn()
     user: User;
 
+    //resgitra automaticamente la ultima vez que el carrito fue modificado
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @Column({type: 'boolean',default:false})
+    notificationSent: boolean;
+
+    //esto evita spam para el usuario
     @ManyToMany(() => Course)
     @JoinTable({
         name: 'cart_courses',
