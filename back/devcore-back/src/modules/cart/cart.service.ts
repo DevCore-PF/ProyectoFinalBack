@@ -9,6 +9,7 @@ import { CoursesRepository } from '../course/course.repository';
 import { Cart } from './entities/cart.entity';
 import { UsersRepository } from '../users/users.repository';
 import { MailService } from 'src/mail/mail.service';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
 export class CartService {
@@ -20,6 +21,7 @@ private readonly logger = new Logger(CartService.name);
     private readonly courseRepository: CoursesRepository,
     private readonly usersRepository: UsersRepository,
     private readonly mailService: MailService,
+    private readonly settingsService: SettingsService
   ) {}
 
   //Metodo para dos usos obtener el carrito o ceare si es que no existe
@@ -140,6 +142,9 @@ private readonly logger = new Logger(CartService.name);
     // 5. Guarda todos los carritos actualizados en una sola consulta de BD
     if (updatedCarts.length > 0) {
       await this.cartRepository.save(updatedCarts);
+
+      //guardamos la fecha
+      await this.settingsService.updateSetting('ABANDONED_CART_DELAY_HOURS', new Date().toString())
     }
 
     return {

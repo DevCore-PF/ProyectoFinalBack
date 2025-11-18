@@ -81,4 +81,13 @@ export class CartRepository {
       },
     });
   }
+
+  //Metodo que cuenta cuantos carritos tienen items pendiente y no han sido notificados
+  async countPendingCarts(): Promise<number> {
+    //usamos una query para filtrar los carritos que si tiene cursos
+  return this.cartRepository.createQueryBuilder('cart')
+    .innerJoin('cart.courses', 'course') //solo carritos con cursos
+    .where('cart.notificationSent = :sent', {sent: false})
+    .getCount();
+  }
 }
