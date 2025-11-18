@@ -9,6 +9,8 @@ import { PayoutRepository } from "./payouts.repository";
 import { MailModule } from "src/mail/mail.module";
 import { EnrollmentsModule } from "../enrollments/enrollments.module";
 import { ProfilesModule } from "../profiles/profiles.module";
+import { AdminSettingsController } from "./admin-settings.controller";
+import { CartModule } from "../cart/cart.module";
 
 @Module({
     imports: [
@@ -18,8 +20,9 @@ import { ProfilesModule } from "../profiles/profiles.module";
         MailModule,
         EnrollmentsModule, // <-- Importa el módulo que provee EnrollmentRepository
         ProfilesModule,  // <-- Importa el módulo que provee ProfessorProfileRepository
+        CartModule
     ],
-    controllers: [PayoutController],
+    controllers: [PayoutController, AdminSettingsController],
     providers: [PayoutService, PayoutRepository]
 })
 export class AdminModule {}

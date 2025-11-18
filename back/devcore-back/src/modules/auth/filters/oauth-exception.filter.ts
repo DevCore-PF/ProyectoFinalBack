@@ -56,7 +56,7 @@ export class OauthExceptionFilter implements ExceptionFilter {
         // Construye la URL final con los errores
         const finalRedirect = new URL(redirectUrl);
         finalRedirect.searchParams.set('error', errorCode);
-        finalRedirect.searchParams.set('message', encodeURIComponent(errorMessage));
+        finalRedirect.searchParams.set('error_description', encodeURIComponent(errorMessage));
         
         response.redirect(finalRedirect.toString());
 
