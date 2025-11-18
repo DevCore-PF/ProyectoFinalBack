@@ -144,7 +144,7 @@ private readonly logger = new Logger(CartService.name);
       await this.cartRepository.save(updatedCarts);
 
       //guardamos la fecha
-      await this.settingsService.updateSetting('ABANDONED_CART_DELAY_HOURS', new Date().toString())
+      await this.settingsService.updateSetting('ABANDONED_CART_LAST_EXECUTION', new Date().toISOString())
     }
 
     return {
