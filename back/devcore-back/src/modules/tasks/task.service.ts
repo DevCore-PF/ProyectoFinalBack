@@ -40,7 +40,7 @@ export class TasksService {
       'ABANDONED_CART_DELAY_HOURS', 
       '24'
     );
-    const delayHours = parseInt(delayHoursStr, 10);
+    const delayHours = parseInt(delayHoursStr, 10) || 24;
     this.logger.log(`[Cron: Carritos] Usando un retraso de ${delayHours} horas.`);
 
     // --- ¡AQUÍ ESTÁ LA CORRECCIÓN! ---
