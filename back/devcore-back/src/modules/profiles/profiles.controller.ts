@@ -36,6 +36,10 @@ import { ApiApprovedProfessorDoc } from './doc/aprovedProfessor.doc';
 import { ApiDeclineProfessorDoc } from './doc/declineProfessor.doc';
 import { ApiGetProfessorsDocs } from './doc/getProfessors.doc';
 import { RejectRequestDto } from './dto/reject-request.dto';
+import { ApiGetMyEarningsDoc } from './doc/getMyEarnings.doc';
+import { ApiRejectTeacherDoc } from './doc/rejectTeacherRequest.doc';
+import { ApiApproveTeacherDoc } from './doc/approverTeacherRequest.doc';
+import { ApiGetMyApprovalStatusDoc } from './doc/getMyApprovalStatus.doc';
 
 @Controller('profiles')
 export class ProfilesController {
@@ -70,7 +74,6 @@ export class ProfilesController {
     return this.profilesService.createProfile(userId, createProfileDto, files);
   }
 
-
   @Patch() // Se activa con un PATCH a /profiles
   @ApiUpdateProfessorProfile()
   @UseGuards(AuthGuard('jwt'))
@@ -100,7 +103,10 @@ export class ProfilesController {
   @ApiCreateProfessorProfileDoc()
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FilesInterceptor('certificates', 10))
-  async requestTeacherRole(@Req() req, @Body() createProfileDto: CreateProfessorProfileDto, @UploadedFiles(
+  async requestTeacherRole(
+    @Req() req,
+    @Body() createProfileDto: CreateProfessorProfileDto,
+    @UploadedFiles(
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 1024 * 1024 }),
@@ -108,19 +114,24 @@ export class ProfilesController {
         ],
       }),
     )
-    files: Array<Express.Multer.File>,){
-      const userId = req.user.sub;
-      return this.profilesService.requestTeacherRole(userId, createProfileDto, files)
+    files: Array<Express.Multer.File>,
+  ) {
+    const userId = req.user.sub;
+    return this.profilesService.requestTeacherRole(
+      userId,
+      createProfileDto,
+      files,
+    );
   }
 
   @Get('status/my-approval')
+  @ApiGetMyApprovalStatusDoc()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('teacher')
   async getMyApprovalStatus(@Req() req) {
     const userId = req.user.sub;
     return this.profilesService.getApprovalStatusByUserId(userId);
   }
-  
 
   @Get('profesor')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -140,9 +151,10 @@ export class ProfilesController {
    * Endpoint para aprobar al usuario cambie de rol de alumno a profesor
    */
   @Patch('approved-teacher/:userId')
+  @ApiApproveTeacherDoc()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
-  async approvedTeacherRequest(@Param('userID', ParseUUIDPipe) userId: string){
+  async approvedTeacherRequest(@Param('userID', ParseUUIDPipe) userId: string) {
     return this.profilesService.approvedTeacherRequest(userId);
   }
 
@@ -150,14 +162,15 @@ export class ProfilesController {
    * Endpoint para rechazar la solicitud de cambio de rol de alumno a profesor
    */
   @Patch('reject-teacher/:userId')
+  @ApiRejectTeacherDoc()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
-  async rejectTeacherRequest(@Param('userID', ParseUUIDPipe) userId: string, @Body() rejectDto: RejectRequestDto) {
+  async rejectTeacherRequest(
+    @Param('userID', ParseUUIDPipe) userId: string,
+    @Body() rejectDto: RejectRequestDto,
+  ) {
     return this.profilesService.rejectTeacherRequest(userId, rejectDto);
   }
-
-
-
 
   @Get(':id')
   @ApiGetProffessorByIdDoc()
@@ -180,7 +193,9 @@ export class ProfilesController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
   async declineProfesor(
-    @Param('professorId', ParseUUIDPipe) professorId: string,string, @Body() rejectDto: RejectRequestDto
+    @Param('professorId', ParseUUIDPipe) professorId: string,
+    string,
+    @Body() rejectDto: RejectRequestDto,
   ) {
     return await this.profilesService.declineProfesor(professorId, rejectDto);
   }
@@ -190,9 +205,13 @@ export class ProfilesController {
    * Ej: /profiles/my-earnings?status=PENDING
    */
   @Get('my-earnings')
+  @ApiGetMyEarningsDoc()
   @UseGuards(AuthGuard('jwt'))
-  async getMyEarnings(@Req() req,@Query('status', new ValidationPipe()) status: 'PENDING' | 'PAID' | 'ALL' = 'ALL',){
-    return this.profilesService.getMyEarningsHistory(req.user.sub, status)
+  async getMyEarnings(
+    @Req() req,
+    @Query('status', new ValidationPipe())
+    status: 'PENDING' | 'PAID' | 'ALL' = 'ALL',
+  ) {
+    return this.profilesService.getMyEarningsHistory(req.user.sub, status);
   }
-
 }
