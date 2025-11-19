@@ -3377,4 +3377,173 @@ export class MailService {
   `,
     });
   }
+
+  /**
+   * Metodo para el email de envio contacto
+   */
+  async sendContactFormEmail(contactData: { name: string, email: string, motive: string, message: string }) {
+    // 1. Preparamos las variables
+    const senderName = contactData.name;
+    const senderEmail = contactData.email;
+    const submissionMotive = contactData.motive;
+    
+    // 2. Formateamos el mensaje para que los saltos de línea se vean bien en HTML
+    const submissionMessage = contactData.message.replace(/\n/g, '<br>'); 
+    const adminContactEmail = 'devcoreacademia@gmail.com';
+
+    await this.transporter.sendMail({
+      from: `"Formulario DevCore" <noreply@tuapp.com>`,
+      to: adminContactEmail, 
+      replyTo: senderEmail, 
+      subject: `[CONTACTO] Nuevo Mensaje: ${submissionMotive} de ${senderName}`,
+      html: `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Nuevo Mensaje de Contacto</title>
+      </head>
+      <body
+        style="
+          margin: 0;
+          padding: 0;
+          background-color: #131425;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            'Helvetica Neue', Arial, sans-serif;
+          color: #e2e8f0;
+        "
+      >
+        <table
+          width="100%"
+          cellpadding="0"
+          cellspacing="0"
+          style="padding: 40px 20px; background-color: #131425"
+        >
+          <tr>
+            <td align="center">
+              <table
+                width="600"
+                cellpadding="0"
+                cellspacing="0"
+                style="
+                  background-color: #242645;
+                  border-radius: 18px;
+                  overflow: hidden;
+                  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                  border: 1px solid rgba(255, 255, 255, 0.05);
+                  max-width: 100%;
+                "
+              >
+                <tr>
+                  <td
+                    style="
+                      background-color: #363968;
+                      text-align: center;
+                      padding: 50px 30px;
+                    "
+                  >
+                    <img
+                      src="https://res.cloudinary.com/dclx6hdpk/image/upload/v1762290639/logo2_gxkhlq.png"
+                      alt="DevCore Logo"
+                      style="
+                        width: 120px;
+                        height: auto;
+                        margin-bottom: 20px;
+                        border: 1px solid #8b5cf6;
+                        border-radius: 12px;
+                        padding: 6px;
+                      "
+                    />
+                    <h1
+                      style="
+                        color: #ffffff;
+                        font-size: 26px;
+                        font-weight: 800;
+                        margin: 0;
+                      "
+                    >
+                      Nuevo Mensaje de Contacto 📩
+                    </h1>
+                    <p
+                      style="
+                        color: rgba(255, 255, 255, 0.85);
+                        font-size: 15px;
+                        margin: 10px 0 0;
+                      "
+                    >
+                      Prioridad: ${submissionMotive}
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding: 45px 40px; background-color: #242645">
+                    
+                    <h2 style="color: #f3f4f6; font-size: 20px; margin: 0 0 25px;">
+                      Detalles del Remitente
+                    </h2>
+                    
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 35px; background-color: #1d1f3a; border-radius: 8px;">
+                      
+                      <tr style="color: #d1d5db; font-size: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                        <td style="padding: 12px 16px; width: 30%; color: #a78bfa;">Motivo:</td>
+                        <td style="padding: 12px 16px;"><strong>${submissionMotive}</strong></td>
+                      </tr>
+                      <tr style="color: #d1d5db; font-size: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                        <td style="padding: 12px 16px; color: #a78bfa;">Nombre:</td>
+                        <td style="padding: 12px 16px;">${senderName}</td>
+                      </tr>
+                      <tr style="color: #d1d5db; font-size: 15px;">
+                        <td style="padding: 12px 16px; color: #a78bfa;">Email:</td>
+                        <td style="padding: 12px 16px;">${senderEmail}</td>
+                      </tr>
+                    </table>
+
+                    <h3 style="color: #f3f4f6; font-size: 18px; margin: 30px 0 15px;">
+                      Mensaje Enviado:
+                    </h3>
+                    <div style="background-color: #1d1f3a; border-radius: 8px; padding: 20px; border-left: 4px solid #8b5cf6;">
+                      <p style="color: #d1d5db; font-size: 16px; line-height: 1.7; margin: 0;">
+                        ${submissionMessage}
+                      </p>
+                    </div>
+                    
+                    <p style="color: #9ca3af; font-size: 14px; line-height: 1.6; margin-top: 30px;">
+                      Para responder a ${senderName}, simplemente haz clic en 'Responder' en tu cliente de correo.
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      background-color: #131425;
+                      padding: 35px 40px;
+                      text-align: center;
+                    "
+                  >
+                    <p style="color: #9ca3af; font-size: 14px; margin: 0 0 8px">
+                      © ${new Date().getFullYear()} DevCore. Todos los derechos
+                      reservados.
+                    </p>
+                    <p style="color: #6b7280; font-size: 13px; margin: 0">
+                      ¿Tienes dudas?
+                      <a
+                        href="mailto:${adminContactEmail}"
+                        style="color: #a78bfa; text-decoration: none"
+                        >Contáctanos</a
+                      >
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `,
+    });
+  }
 }

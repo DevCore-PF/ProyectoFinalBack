@@ -17,6 +17,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 
 import { AdminModule } from './modules/admin/admin.module';
 import { TasksModule } from './modules/tasks/task.module';
+import { ContactModule } from './modules/contacto/contact.module';
 
 @Module({
   imports: [
@@ -47,7 +48,8 @@ import { TasksModule } from './modules/tasks/task.module';
     CourseFeedbackModule,
     EnrollmentsModule,
     AdminModule,
-    TasksModule
+    TasksModule,
+    ContactModule
   ],
   providers: [],
 })
