@@ -3381,11 +3381,11 @@ export class MailService {
   /**
    * Metodo para el email de envio contacto
    */
-  async sendContactFormEmail(contactData: { name: string, email: string, motive: string, message: string }) {
+  async sendContactForEmail(contactData: { name: string, email: string, reason: string, message: string }) {
     // 1. Preparamos las variables
     const senderName = contactData.name;
     const senderEmail = contactData.email;
-    const submissionMotive = contactData.motive;
+    const submissionMotive = contactData.reason;
     
     // 2. Formateamos el mensaje para que los saltos de línea se vean bien en HTML
     const submissionMessage = contactData.message.replace(/\n/g, '<br>'); 
