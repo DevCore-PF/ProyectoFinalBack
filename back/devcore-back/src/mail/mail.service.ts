@@ -3101,21 +3101,19 @@ export class MailService {
 
 
   /**
-   * NUEVO MÉTODO (Reemplaza el anterior)
-   * Envía el email de carrito abandonado con la nueva plantilla 'dark mode'.
+   * Envía el email de carrito abandonado con la nueva plantilla
    */
   async sendAbandonedCartEmail(email: string, name: string, courses: Course[]) {
     
-    // --- 1. Preparamos las variables para la plantilla ---
+    //Preparamos las variables para la plantilla
     const userName = name;
     const linkCarrito = `${process.env.FRONTEND_URL}/cart`;
 
     // Calcula el precio total del carrito
     const total = courses.reduce((sum, course) => sum + Number(course.price), 0);
-    // Asumo que tu moneda es USD o MXN. (Ajusta 'USD' si es necesario)
     const totalCarrito = `$${total.toFixed(2)} USD`; 
 
-    // --- 2. Lógica para la lista de artículos ---
+    //Lógica para la lista de artículos
     let articlesHtml = '';
     if (courses.length > 0) {
       articlesHtml += `<li style="margin-bottom: 5px"><strong style="color: #a78bfa">${courses[0].title}</strong></li>`;
@@ -3127,7 +3125,7 @@ export class MailService {
       const cantidadAdicional = courses.length - 2;
       articlesHtml += `<li style="margin-bottom: 5px; color: #9ca3af">y ${cantidadAdicional} artículo(s) más.</li>`;
     }
-    // --- Fin de la lógica de artículos ---
+
 
 
     await this.transporter.sendMail({
@@ -3142,15 +3140,7 @@ export class MailService {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>¡Tus artículos te esperan en DevCore!</title>
         <style>
-          .cart-status-box {
-            background-color: #32231b;
-            border: 1px solid rgba(251, 128, 36, 0.4);
-            color: #fb8024;
-            padding: 12px 28px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 15px;
-          }
+          /* No necesitamos la clase .cart-status-box externa si lo definimos inline */
           a {
             text-decoration: none;
             color: #a78bfa;
@@ -3278,12 +3268,12 @@ export class MailService {
                       <tr>
                         <td align="center">
                           <div
-                            class="cart-status-box"
                             style="
                               display: inline-block;
-                              background-color: #32231b;
-                              border: 1px solid rgba(251, 128, 36, 0.4);
-                              color: #fb8024;
+                              /* NUEVOS ESTILOS */
+                              background-color: #22c55e33; /* Verde más oscuro, semi-transparente */
+                              border: 1px solid #22c55e; /* Borde verde sólido */
+                              color: #dcfce7; /* Texto claro que contraste */
                               padding: 12px 28px;
                               border-radius: 8px;
                               font-weight: 600;
@@ -3291,8 +3281,7 @@ export class MailService {
                             "
                           >
                             Valor Total:
-                            <strong style="color: #4ade80">${totalCarrito}</strong>
-                          </div>
+                            <strong style="color: #4ade80">${totalCarrito}</strong> </div>
                         </td>
                       </tr>
                     </table>
