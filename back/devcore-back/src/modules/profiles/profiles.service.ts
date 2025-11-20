@@ -319,6 +319,10 @@ export class ProfilesService {
     //regresamos a false 
     user.isRequestingTeacherRole = false;
 
+    //guardamos los cambios
+    await this.profilesRepository.save(profile);
+    await this.userRepository.save(user);
+
     //enviamos el email de rechazo
     try {
       await this.mailService.sendRoleRequestRejectedEmail(user.email, user.name, reason)

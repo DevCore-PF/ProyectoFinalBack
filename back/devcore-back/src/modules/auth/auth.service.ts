@@ -338,6 +338,7 @@ export class AuthService {
     if(user.password === changePasswordDto.newPassword){
       throw new BadRequestException('La contraseña es la misma que la anterior');
     }
+    
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
     }
