@@ -8,7 +8,6 @@ import { User } from 'src/modules/users/entities/user.entity';
 
 @Injectable()
 export class MailService {
-
   //metodos para nodemailer el envio de confirmacion de cuenta de correo
   private transporter;
 
@@ -3099,19 +3098,20 @@ export class MailService {
     });
   }
 
-
   /**
    * Envía el email de carrito abandonado con la nueva plantilla
    */
   async sendAbandonedCartEmail(email: string, name: string, courses: Course[]) {
-    
     //Preparamos las variables para la plantilla
     const userName = name;
     const linkCarrito = `${process.env.FRONTEND_URL}/cart`;
 
     // Calcula el precio total del carrito
-    const total = courses.reduce((sum, course) => sum + Number(course.price), 0);
-    const totalCarrito = `$${total.toFixed(2)} USD`; 
+    const total = courses.reduce(
+      (sum, course) => sum + Number(course.price),
+      0,
+    );
+    const totalCarrito = `$${total.toFixed(2)} USD`;
 
     //Lógica para la lista de artículos
     let articlesHtml = '';
@@ -3125,8 +3125,7 @@ export class MailService {
       const cantidadAdicional = courses.length - 2;
       articlesHtml += `<li style="margin-bottom: 5px; color: #9ca3af">y ${cantidadAdicional} artículo(s) más.</li>`;
     }
-
-
+    // --- Fin de la lógica de artículos ---
 
     await this.transporter.sendMail({
       from: '"DevCore" <noreply@tuapp.com>',
@@ -3370,20 +3369,25 @@ export class MailService {
   /**
    * Metodo para el email de envio contacto
    */
-  async sendContactForEmail(contactData: { name: string, email: string, reason: string, message: string }) {
+  async sendContactForEmail(contactData: {
+    name: string;
+    email: string;
+    reason: string;
+    message: string;
+  }) {
     // 1. Preparamos las variables
     const senderName = contactData.name;
     const senderEmail = contactData.email;
     const submissionMotive = contactData.reason;
-    
+
     // 2. Formateamos el mensaje para que los saltos de línea se vean bien en HTML
-    const submissionMessage = contactData.message.replace(/\n/g, '<br>'); 
+    const submissionMessage = contactData.message.replace(/\n/g, '<br>');
     const adminContactEmail = 'devcoreacademia@gmail.com';
 
     await this.transporter.sendMail({
       from: `"Formulario DevCore" <noreply@tuapp.com>`,
-      to: adminContactEmail, 
-      replyTo: senderEmail, 
+      to: adminContactEmail,
+      replyTo: senderEmail,
       subject: `[CONTACTO] Nuevo Mensaje: ${submissionMotive} de ${senderName}`,
       html: `
     <!DOCTYPE html>
@@ -3533,6 +3537,214 @@ export class MailService {
       </body>
     </html>
   `,
+    });
+  }
+
+  async sendCourseDeactivatedEmail(
+    email: string,
+    name: string,
+    courseTitle: string,
+  ) {
+    await this.transporter.sendMail({
+      from: '"DevCore" <noreply@tuapp.com>',
+      to: email,
+      subject: `🔒 Tu curso "${courseTitle}" ha sido dado de baja`,
+      html: `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Curso dado de baja</title>
+      </head>
+      <body style="margin:0;padding:0;background-color:#131425;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#e2e8f0;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;background-color:#131425">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="background-color:#242645;border-radius:18px;overflow:hidden;box-shadow:0 8px 25px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.05);max-width:100%;">
+                
+                <tr>
+                  <td style="background-color:#363968;text-align:center;padding:45px 30px;">
+                    <img src="https://res.cloudinary.com/dclx6hdpk/image/upload/v1762290639/logo2_gxkhlq.png" alt="DevCore Logo"
+                      style="width:120px;margin-bottom:20px;border:1px solid #8b5cf6;border-radius:12px;padding:6px;" />
+                    <h1 style="margin:0;color:#fff;font-size:26px;font-weight:700;">
+                      Tu curso ha sido dado de baja 🔒
+                    </h1>
+                    <p style="margin:10px 0 0;color:rgba(255,255,255,0.85);font-size:15px;">
+                      Notificación sobre tu curso <strong>${courseTitle}</strong>
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:50px 40px;background-color:#242645;">
+                    <p style="margin:0 0 25px;color:#d1d5db;font-size:16px;line-height:1.7;">
+                      Hola <strong style="color:#a78bfa">${name}</strong>,<br /><br />
+                      Te informamos que tu curso <strong>"${courseTitle}"</strong> ha sido dado de baja y ya no está visible en la plataforma.
+                    </p>
+
+                    <table width="100%" cellpadding="0" cellspacing="0" 
+                      style="background-color:#1d1f3a;border-radius:10px;padding:25px;border-left:4px solid #ef4444;margin-bottom:30px;">
+                      <tr>
+                        <td>
+                          <h3 style="margin:0 0 12px 0;color:#ef4444;font-size:17px;">
+                            ¿Qué significa esto?
+                          </h3>
+                          <p style="color:#d1d5db;font-size:15px;line-height:1.7;margin:0;">
+                            • Tu curso ya no aparece en el catálogo de DevCore<br/>
+                            • Los estudiantes no pueden acceder al contenido<br/>
+                            • Podés reactivarlo cuando quieras desde tu panel
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin:0 0 25px;color:#d1d5db;font-size:15px;line-height:1.7;">
+                      Si esta baja fue un error o querés reactivar tu curso, podés hacerlo fácilmente desde tu panel de instructor.
+                    </p>
+
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin:35px 0;">
+                      <tr>
+                        <td align="center">
+                          <div style="display:inline-block;background-color:#3a1f1f;border:1px solid rgba(239,68,68,0.4);color:#ef4444;padding:12px 28px;border-radius:8px;font-weight:600;font-size:15px;">
+                            🔒 Estado del curso: Inactivo
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin:0;color:#a0aec0;font-size:14px;line-height:1.6;">
+                      Si no realizaste esta acción o necesitás ayuda, no dudes en contactarnos 💬
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="background-color:#131425;padding:35px 40px;text-align:center;">
+                    <p style="margin:0 0 8px;color:#9ca3af;font-size:14px;">
+                      El equipo de <strong style="color:#a78bfa">DevCore</strong>
+                    </p>
+                    <p style="margin:10px 0 0;color:#6b7280;font-size:13px;">
+                      ¿Necesitás ayuda?  
+                      <a href="mailto:devcoreacademia@gmail.com" style="color:#a78bfa;text-decoration:none;">Contactanos</a>
+                    </p>
+                    <p style="margin:10px 0 0;color:#8b8fa9;font-size:12px;">
+                      © ${new Date().getFullYear()} DevCore. Todos los derechos reservados.
+                    </p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+    `,
+    });
+  }
+
+  async sendCourseActivatedEmail(
+    email: string,
+    name: string,
+    courseTitle: string,
+  ) {
+    await this.transporter.sendMail({
+      from: '"DevCore" <noreply@tuapp.com>',
+      to: email,
+      subject: `✅ Tu curso "${courseTitle}" ha sido activado`,
+      html: `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Curso activado</title>
+      </head>
+      <body style="margin:0;padding:0;background-color:#131425;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#e2e8f0;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;background-color:#131425">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="background-color:#242645;border-radius:18px;overflow:hidden;box-shadow:0 8px 25px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.05);max-width:100%;">
+                
+                <tr>
+                  <td style="background-color:#363968;text-align:center;padding:45px 30px;">
+                    <img src="https://res.cloudinary.com/dclx6hdpk/image/upload/v1762290639/logo2_gxkhlq.png" alt="DevCore Logo"
+                      style="width:120px;margin-bottom:20px;border:1px solid #8b5cf6;border-radius:12px;padding:6px;" />
+                    <h1 style="margin:0;color:#fff;font-size:26px;font-weight:700;">
+                      ¡Tu curso está activo! ✅
+                    </h1>
+                    <p style="margin:10px 0 0;color:rgba(255,255,255,0.85);font-size:15px;">
+                      Tu curso <strong>${courseTitle}</strong> ya está visible
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:50px 40px;background-color:#242645;">
+                    <p style="margin:0 0 25px;color:#d1d5db;font-size:16px;line-height:1.7;">
+                      Hola <strong style="color:#a78bfa">${name}</strong>,<br /><br />
+                      ¡Excelentes noticias! Tu curso <strong>"${courseTitle}"</strong> ha sido activado exitosamente y ya está disponible en la plataforma.
+                    </p>
+
+                    <table width="100%" cellpadding="0" cellspacing="0" 
+                      style="background-color:#1d1f3a;border-radius:10px;padding:25px;border-left:4px solid #10b981;margin-bottom:30px;">
+                      <tr>
+                        <td>
+                          <h3 style="margin:0 0 12px 0;color:#10b981;font-size:17px;">
+                            ¿Qué significa esto?
+                          </h3>
+                          <p style="color:#d1d5db;font-size:15px;line-height:1.7;margin:0;">
+                            • Tu curso ya aparece en el catálogo de DevCore<br/>
+                            • Los estudiantes pueden inscribirse y acceder al contenido<br/>
+                            • Comenzarás a recibir notificaciones de nuevas inscripciones
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin:0 0 25px;color:#d1d5db;font-size:15px;line-height:1.7;">
+                      Tu curso está ahora visible para miles de estudiantes. Asegurate de mantener el contenido actualizado y responder las consultas de tus alumnos.
+                    </p>
+
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin:35px 0;">
+                      <tr>
+                        <td align="center">
+                          <div style="display:inline-block;background-color:#1f3a2d;border:1px solid rgba(16,185,129,0.4);color:#10b981;padding:12px 28px;border-radius:8px;font-weight:600;font-size:15px;">
+                            ✅ Estado del curso: Activo
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin:0;color:#a0aec0;font-size:14px;line-height:1.6;">
+                      ¡Mucha suerte con tu curso! Esperamos que sea un gran éxito 🚀
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="background-color:#131425;padding:35px 40px;text-align:center;">
+                    <p style="margin:0 0 8px;color:#9ca3af;font-size:14px;">
+                      El equipo de <strong style="color:#a78bfa">DevCore</strong>
+                    </p>
+                    <p style="margin:10px 0 0;color:#6b7280;font-size:13px;">
+                      ¿Necesitás ayuda?  
+                      <a href="mailto:devcoreacademia@gmail.com" style="color:#a78bfa;text-decoration:none;">Contactanos</a>
+                    </p>
+                    <p style="margin:10px 0 0;color:#8b8fa9;font-size:12px;">
+                      © ${new Date().getFullYear()} DevCore. Todos los derechos reservados.
+                    </p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+    `,
     });
   }
 

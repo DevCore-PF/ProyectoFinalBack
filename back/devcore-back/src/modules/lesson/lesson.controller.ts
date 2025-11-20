@@ -12,6 +12,7 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { ApiGetAllLessonsDoc } from './doc/getAllLessons.doc';
 import { ApiGetLessonByIdDoc } from './doc/getLessonById.doc';
 import { ApiAddAditionalData } from './doc/addAditionalData.doc';
+import { ApiDeleteLessonDoc } from './doc/deleteLesson.doc';
 
 @Controller('lessons')
 export class LessonsController {
@@ -33,6 +34,7 @@ export class LessonsController {
   }
 
   @Delete(':id')
+  @ApiDeleteLessonDoc()
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.lessonsService.deleteLessonById(id);
   }

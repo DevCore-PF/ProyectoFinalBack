@@ -1,5 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiConsumes, ApiOperation } from '@nestjs/swagger';
 
 export function ApiUpdateProfessorProfile() {
   return applyDecorators(

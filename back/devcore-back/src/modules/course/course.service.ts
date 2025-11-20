@@ -155,10 +155,21 @@ export class CoursesService {
     if (courseFind.isActive === true) {
       courseFind.isActive = false;
       await this.coursesRepository.updateCourse(courseFind);
+
+      await this.mailService.sendCourseDeactivatedEmail(
+        courseFind.professor.user.email,
+        courseFind.professor.user.name,
+        courseFind.title,
+      );
       return courseFind;
     } else {
       courseFind.isActive = true;
       await this.coursesRepository.updateCourse(courseFind);
+      await this.mailService.sendCourseActivatedEmail(
+        courseFind.professor.user.email,
+        courseFind.professor.user.name,
+        courseFind.title,
+      );
       return courseFind;
     }
   }
