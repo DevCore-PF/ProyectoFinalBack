@@ -383,8 +383,20 @@ export class ProfilesService {
   async aprovedProfesor(professorId: string) {
     const professorFind = await this.profilesRepository.findById(professorId);
     if (!professorFind) throw new NotFoundException('Profesor no encontrado');
+
+    if(professorFind.approvalStatus === ApprovalStatus.APPROVED) {
+      throw new BadRequestException('El perfil de profesor ya fue aprobado anteriormente')
+    }
     professorFind.approvalStatus = ApprovalStatus.APPROVED;
-    return this.profilesRepository.save(professorFind);
+    const saveProfile = await this.profilesRepository.save(professorFind);
+
+    try {
+      await this.mailService.sendProfileApprovedEmail(professorFind.user.email, professorFind.user.name)
+    } catch (emailError) {
+      console.error('Error al enviar el email de aprobacion', emailError);
+    }
+
+    return saveProfile;
   }
 
   async declineProfesor(professorId: string, rejectDto: RejectRequestDto) {
