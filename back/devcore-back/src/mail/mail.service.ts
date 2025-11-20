@@ -3535,4 +3535,251 @@ export class MailService {
   `,
     });
   }
+
+
+  /**
+   * NUEVO MÉTODO
+   * Envía un email al profesor confirmando la aprobación de su curso.
+   */
+  async sendCourseApprovedEmail(
+    email: string, 
+    name: string, 
+    courseTitle: string
+  ) {
+    const userName = name;
+    const dashboardUrl = `${process.env.FRONTEND_URL}/dashboard/my-courses`;
+
+    await this.transporter.sendMail({
+      from: '"DevCore" <noreply@tuapp.com>',
+      to: email,
+      subject: `✅ ¡Felicidades! Tu curso "${courseTitle}" ha sido aprobado`,
+      html: `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Curso Aprobado</title>
+      </head>
+      <body
+        style="
+          margin: 0;
+          padding: 0;
+          background-color: #131425;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            'Helvetica Neue', Arial, sans-serif;
+          color: #e2e8f0;
+        "
+      >
+        <table
+          width="100%"
+          cellpadding="0"
+          cellspacing="0"
+          style="padding: 40px 20px; background-color: #131425"
+        >
+          <tr>
+            <td align="center">
+              <table
+                width="600"
+                cellpadding="0"
+                cellspacing="0"
+                style="
+                  background-color: #242645;
+                  border-radius: 18px;
+                  overflow: hidden;
+                  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                  border: 1px solid rgba(54, 54, 54, 0.493);
+                  max-width: 100%;
+                "
+              >
+                <tr>
+                  <td
+                    style="
+                      background: #43257a;
+                      text-align: center;
+                      padding: 45px 30px;
+                    "
+                  >
+                    <img
+                      src="https://res.cloudinary.com/dclx6hdpk/image/upload/v1762290639/logo2_gxkhlq.png"
+                      alt="DevCore Logo"
+                      style="
+                        width: 120px;
+                        height: auto;
+                        margin-bottom: 20px;
+                        border: 1px solid #a78bfa;
+                        border-radius: 12px;
+                        padding: 6px;
+                      "
+                    />
+                    <h1
+                      style="
+                        margin: 0;
+                        color: #ffffff;
+                        font-size: 26px;
+                        font-weight: 700;
+                      "
+                    >
+                      ¡Curso Aprobado y Listo! 🚀
+                    </h1>
+                    <p
+                      style="
+                        margin: 10px 0 0;
+                        color: rgba(255, 255, 255, 0.85);
+                        font-size: 15px;
+                      "
+                    >
+                      Tu curso ha superado la revisión de calidad.
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding: 50px 40px; background-color: #242645">
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 16px;
+                        line-height: 1.7;
+                      "
+                    >
+                      ¡Felicitaciones,
+                      <strong style="color: #a78bfa">${userName}</strong>!
+                    </p>
+
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 15px;
+                        line-height: 1.7;
+                      "
+                    >
+                      Tu curso:
+                      <strong style="color: #4ade80">${courseTitle}</strong> ha sido
+                      <strong style="color: #4ade80">aprobado exitosamente</strong>
+                      por nuestro equipo de calidad. ¡Estás listo para lanzar!
+                    </p>
+
+                    <p
+                      style="
+                        margin: 0 0 25px;
+                        color: #d1d5db;
+                        font-size: 15px;
+                        line-height: 1.7;
+                      "
+                    >
+                      Ya puedes preparar la publicación y empezar a recibir alumnos.
+                      Usa tu panel para revisar los detalles finales y la fecha de
+                      lanzamiento.
+                    </p>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 35px 0"
+                    >
+                      <tr>
+                        <td align="center">
+                          <div
+                            style="
+                              display: inline-block;
+                              background-color: #1f1b2e;
+                              /* Borde y color de texto Verde */
+                              border: 1px solid rgba(34, 197, 94, 0.4);
+                              color: #4ade80;
+                              padding: 12px 28px;
+                              border-radius: 8px;
+                              font-weight: 600;
+                              font-size: 15px;
+                            "
+                          >
+                              ✅ Estado: Aprobado y Activo
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <table
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="margin: 35px 0"
+                    >
+                      <tr>
+                        <td align="center">
+                          <a
+                            href="${dashboardUrl}"
+                            style="
+                              display: inline-block;
+                              text-decoration: none;
+                              border: 1px solid rgba(88, 89, 89, 0.559);
+                              color: #e5e7eb;
+                              background-color: transparent;
+                              padding: 14px 38px;
+                              border-radius: 8px;
+                              font-weight: 600;
+                              font-size: 15px;
+                              transition: all 0.3s ease;
+                            "
+                            onmouseover="this.style.backgroundColor='#7E4BDE'"
+                            onmouseout="this.style.backgroundColor='transparent'"
+                          >
+                            Ir a mi Panel de Cursos
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p
+                      style="
+                        margin: 0;
+                        color: #a0aec0;
+                        font-size: 14px;
+                        line-height: 1.6;
+                      "
+                    >
+                      Estamos muy emocionados de lanzar tu curso y comenzar a
+                      recibir a los primeros estudiantes. ¡Gracias por contribuir a
+                      DevCore!
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      background-color: #131425;
+                      padding: 35px 40px;
+                      text-align: center;
+                    "
+                  >
+                    <p style="margin: 0 0 8px; color: #9ca3af; font-size: 14px">
+                      El equipo de <strong style="color: #a78bfa">DevCore</strong>
+                    </p>
+                    <p style="margin: 10px 0 0; color: #6b7280; font-size: 13px">
+                      ¿Tienes dudas?
+                      <a
+                        href="mailto:devcoreacademia@gmail.com"
+                        style="color: #a78bfa; text-decoration: none"
+                        >Contáctanos</a
+                      >
+                    </p>
+                    <p style="margin: 10px 0 0; color: #8b8fa9; font-size: 12px">
+                      © ${new Date().getFullYear()} DevCore. Todos los derechos
+                      reservados.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `,
+    });
+  }
 }
