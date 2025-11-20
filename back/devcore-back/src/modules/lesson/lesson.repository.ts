@@ -21,7 +21,10 @@ export class LessonsRepository {
   }
 
   async getLessonById(id: string): Promise<Lesson | null> {
-    return this.lessonRepository.findOne({ where: { id } });
+    return this.lessonRepository.findOne({
+      where: { id },
+      relations: ['course'],
+    });
   }
 
   async findLessonsByCourseId(courseId: string): Promise<Lesson[]> {

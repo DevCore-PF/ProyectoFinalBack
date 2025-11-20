@@ -2,10 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { LessonsRepository } from './lesson.repository';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { Lesson } from './entities/lesson.entity';
+import { CourseStatus, Visibility } from '../course/entities/course.entity';
+import { CoursesRepository } from '../course/course.repository';
 
 @Injectable()
 export class LessonsService {
-  constructor(private readonly lessonsRepository: LessonsRepository) {}
+  constructor(
+    private readonly lessonsRepository: LessonsRepository,
+    private readonly courseRepository: CoursesRepository,
+  ) {}
 
   async createLesson(data: CreateLessonDto): Promise<Lesson> {
     try {
@@ -42,6 +47,9 @@ export class LessonsService {
     const lessonFind = await this.lessonsRepository.getLessonById(lessonId);
     if (!lessonFind) throw new NotFoundException('Leccion no encontrada');
     lessonFind.aditionalData = aditionalData;
+    lessonFind.course.status = CourseStatus.DRAFT;
+    lessonFind.course.visibility = Visibility.PRIVATE;
+    await this.courseRepository.updateCourse(lessonFind.course);
     return await this.lessonsRepository.addAditionalData(lessonFind);
   }
 }
