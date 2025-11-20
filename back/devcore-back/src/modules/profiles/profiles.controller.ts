@@ -174,7 +174,7 @@ export class ProfilesController {
   @ApiApproveTeacherDoc()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
-  async approvedTeacherRequest(@Param('userID', ParseUUIDPipe) userId: string) {
+  async approvedTeacherRequest(@Param('userId', ParseUUIDPipe) userId: string) {
     return this.profilesService.approvedTeacherRequest(userId);
   }
 
@@ -186,7 +186,7 @@ export class ProfilesController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
   async rejectTeacherRequest(
-    @Param('userID', ParseUUIDPipe) userId: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
     @Body() rejectDto: RejectRequestDto,
   ) {
     return this.profilesService.rejectTeacherRequest(userId, rejectDto);
