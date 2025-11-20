@@ -176,9 +176,26 @@ export class CoursesService {
 
   async aprovedCourse(courseId: string) {
     const courseFind = await this.coursesRepository.findById(courseId);
-    if (!courseFind) throw new NotFoundException('Curso no encontrado');
+    if (!courseFind) {throw new NotFoundException('Curso no encontrado');}
+    if(courseFind.status === CourseStatus.PUBLISHED) {
+      throw new BadRequestException('El curso ya esta publicado')
+    }
+
     courseFind.status = CourseStatus.PUBLISHED;
     await this.coursesRepository.updateCourse(courseFind);
+
+    try {
+      const professorUser = courseFind.professor.user;
+
+      await this.mailService.sendCourseApprovedEmail(
+        professorUser.email,
+        professorUser.name,
+        courseFind.title
+      )
+    } catch (emailError) {
+      console.error(`Error al enviar email de aprobacion para ${courseId}:`, emailError)
+    }
+    return courseFind;
   }
 
   async declineCourse(reason: string, courseId: string) {
