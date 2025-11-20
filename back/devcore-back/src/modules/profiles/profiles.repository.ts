@@ -1,6 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProfessorProfile } from './entities/professor-profile.entity';
 import { DeepPartial, Repository } from 'typeorm';
+import { NotFoundException } from '@nestjs/common';
 
 export class ProfilesRepository {
   constructor(
@@ -46,7 +47,7 @@ export class ProfilesRepository {
       },
     });
     if (!profile) {
-      throw new Error(`Profile not found for user ${userId}`);
+      throw new NotFoundException(`Profile not found for user ${userId}`);
     }
     return profile;
   }
@@ -66,7 +67,7 @@ export class ProfilesRepository {
       ],
     });
     if (!profile) {
-      throw new Error(`Profile not found with id ${id}`);
+      throw new NotFoundException(`Profile not found with id ${id}`);
     }
     return profile;
   }

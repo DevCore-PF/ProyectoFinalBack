@@ -52,6 +52,7 @@ import { ApiApprovedCourseDoc } from './doc/aprovedCourse.doc';
 import { ApiDeclineCourseDoc } from './doc/declineCourse.doc';
 import { ApiGetAllCoursesAdminDocs } from './doc/getCourseAdmin.doc';
 import { ApiCreateCourseAdminDoc } from './doc/createCourseAdmin.doc';
+import { ApiHasUserFeedbackDoc } from './doc/hasUserFeedBack.doc';
 
 @Controller('courses')
 export class CoursesController {
@@ -243,6 +244,7 @@ export class CoursesController {
   }
 
   @Get(':courseId/user-feedback')
+  @ApiHasUserFeedbackDoc()
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   async hasUserFeedback(@Param('courseId') courseId: string, @Req() req) {

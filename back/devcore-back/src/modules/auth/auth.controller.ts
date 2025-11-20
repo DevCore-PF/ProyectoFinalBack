@@ -36,6 +36,16 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { CreateUserAdminDto } from '../users/dto/create-user-admin.dto';
 import { ApiCreateAdmin } from './doc/createAdmin.dto';
 import { Roles, RolesGuard } from './guards/verify-role.guard';
+import { ApiResendVerificationDoc } from './doc/resetEmail.doc';
+import { ApiSetPasswordDoc } from './doc/setPassword.doc';
+import { ApiResetPasswordDoc } from './doc/resetPassword.doc';
+import { ApiForgotPasswordDoc } from './doc/forgotPassword.doc';
+import { ApiGithubRegisterDoc } from './doc/githubRegister.doc';
+import { ApiGithubLoginDoc } from './doc/githubLogin.doc';
+import { ApiGoogleRegisterDoc } from './doc/googleRegister.doc';
+import { ApiGoogleLoginDoc } from './doc/googleLogin.doc';
+import { ApiConfirmPasswordChangeDoc } from './doc/confirmPasswordChange.doc';
+import { ApiRequestPasswordChangeDoc } from './doc/requestPasswordChange.doc';
 
 @Controller('auth')
 @UseFilters(new OauthExceptionFilter())
@@ -166,6 +176,7 @@ export class AuthController {
    * Solicitar un cambio de contraseña usuario loguedo
    */
   @Post('request-password-change')
+  @ApiRequestPasswordChangeDoc()
   @UseGuards(AuthGuard('jwt'))
   async requestPasswordChange(
     @Req() req,
@@ -179,6 +190,7 @@ export class AuthController {
    * Confirmar el cambio desde el email que se le envio
    */
   @Get('confirm-password-change')
+  @ApiConfirmPasswordChangeDoc()
   async confirmPasswordChange(
     @Query('token') token: string,
     @Res() res: Response,
@@ -229,20 +241,24 @@ export class AuthController {
 
   //Nuevo Endpoint para probar el registro y login nuevo
   @Get('google/login')
+  @ApiGoogleLoginDoc()
   @UseGuards(SocialActionGuard('google', 'login'))
   async googleLogin() {}
 
   @Get('google/register')
+  @ApiGoogleRegisterDoc()
   @UseGuards(SocialActionGuard('google', 'register'))
   async googleRegister() {}
 
   // 3. LOGIN CON GITHUB
   @Get('github/login')
+  @ApiGithubLoginDoc()
   @UseGuards(SocialActionGuard('github', 'login'))
   async githubLogin() {}
 
   // 4. REGISTRO CON GITHUB
   @Get('github/register')
+  @ApiGithubRegisterDoc()
   @UseGuards(SocialActionGuard('github', 'register'))
   async githubRegister() {}
 
@@ -250,6 +266,7 @@ export class AuthController {
    * Endpoind para solicitar el reseto de contraseña
    */
   @Post('forgot-password')
+  @ApiForgotPasswordDoc()
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.authService.requestPasswordReset(forgotPasswordDto);
   }
@@ -259,6 +276,7 @@ export class AuthController {
    * el front recibe el token del link y lo mandao aqui
    */
   @Patch('reset-password')
+  @ApiResetPasswordDoc()
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
   }
@@ -266,6 +284,7 @@ export class AuthController {
    * Para asignar una contraseña cuando el usuario uso github o google en el registro
    */
   @Patch('set-password')
+  @ApiSetPasswordDoc()
   @UseGuards(AuthGuard('jwt')) // ¡Debe estar logueado para hacer esto!
   async setPassword(@Req() req, @Body() setPasswordDto: SetPasswordDto) {
     const userId = req.user.sub; // ID del usuario logueado
@@ -276,6 +295,7 @@ export class AuthController {
    * Edpoind para reenviar el mensaje de confirmacion al usuario
    */
   @Post('resend-verification')
+  @ApiResendVerificationDoc()
   async resendEmail(@Body() resendDto: ResendVerificationDto) {
     return this.authService.resendVerificationEmail(resendDto);
   }

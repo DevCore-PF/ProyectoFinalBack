@@ -4,6 +4,7 @@ import {
   FileTypeValidator,
   Get,
   MaxFileSizeValidator,
+  NotFoundException,
   Param,
   ParseFilePipe,
   ParseUUIDPipe,
@@ -138,6 +139,7 @@ export class ProfilesController {
    * Ej: /profiles/my-earnings?status=PENDING
    */
   @Get('my-earnings')
+  @ApiGetMyEarningsDoc()
   @UseGuards(AuthGuard('jwt'))
   async getMyEarnings(
     @Req() req,
@@ -152,13 +154,17 @@ export class ProfilesController {
   @Roles('admin')
   @ApiGetProfessorsDocs()
   async getProfessors(@Query('approvalStatus') approvalStatus?: string) {
-    const validStatuses = ['approved', 'pending', 'rejected'];
+    try {
+      const validStatuses = ['approved', 'pending', 'rejected'];
 
-    const normalizedStatus = validStatuses.includes(approvalStatus ?? '')
-      ? approvalStatus
-      : undefined;
+      const normalizedStatus = validStatuses.includes(approvalStatus ?? '')
+        ? approvalStatus
+        : undefined;
 
-    return await this.profilesService.getProfessors(normalizedStatus);
+      return await this.profilesService.getProfessors(normalizedStatus);
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   /**
