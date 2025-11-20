@@ -316,7 +316,7 @@ export class ProfilesService {
     profile.approvalStatus = ApprovalStatus.REJECTED;
     profile.rejectionReason = reason;
 
-    
+    user.isRequestingTeacherRole = false
 
     //guardamos los cambios
     await this.profilesRepository.save(profile);
