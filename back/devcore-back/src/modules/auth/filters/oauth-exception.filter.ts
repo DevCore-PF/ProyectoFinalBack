@@ -3,11 +3,11 @@ import {
   Catch,
   ArgumentsHost,
   HttpException,
-  HttpStatus, // <-- Importa HttpStatus
+  HttpStatus, 
 } from '@nestjs/common';
 import { Response, Request } from 'express';
 
-@Catch() // <-- 1. Déjalo en blanco para atrapar TODO (no solo HttpException)
+@Catch()
 export class OauthExceptionFilter implements ExceptionFilter {
   
   catch(exception: unknown, host: ArgumentsHost) { 

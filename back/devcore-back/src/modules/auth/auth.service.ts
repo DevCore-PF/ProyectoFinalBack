@@ -264,6 +264,10 @@ export class AuthService {
     //buscamos al usuario por el token y que no este expirado
     const user = await this.userRepository.findUserByResetToken(token);
 
+    if(user?.password === resetPassword.newPassword) {
+      throw new BadRequestException('La contraseña es la misma que la anterior');
+    }
+
     if (!user) {
       throw new BadRequestException('Token invalido o expirado');
     }
@@ -330,6 +334,10 @@ export class AuthService {
     }
 
     const user = await this.userRepository.findUserById(userId);
+
+    if(user.password === changePasswordDto.newPassword){
+      throw new BadRequestException('La contraseña es la misma que la anterior');
+    }
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
     }
@@ -395,6 +403,10 @@ export class AuthService {
   async login(user: User) {
     //Obtenemos la relacion
     let userRelations = user;
+
+    if(!user.isEmailVerified) {
+      throw new BadRequestException('Debe verifiar su email para poder iniciar sesion');
+    }
 
     if (user.role === UserRole.TEACHER) {
       userRelations = await this.userRepository.findUserByIdWithRelations(
@@ -462,37 +474,6 @@ export class AuthService {
     return this.login(updatedUser);
   }
 
-  async validateLocalUserFirts(email: string, pass: string): Promise<any> {
-    const user = await this.userRepository.findUserByEmail(email);
-
-    // Revisa si el usuario existe y no es de Google
-    if (!user || user.isGoogleAccount) {
-      return null;
-    }
-
-    // Compara la contraseña hasheada si existe
-    if (!user.password) {
-      return null;
-    }
-
-    //Verificamos que el usario haya  validad su email desde su correo
-    if (!user.isEmailVerified) {
-      throw new BadRequestException(
-        'Debe verifiar su email para poder iniciar sesion',
-      );
-    }
-
-    const isPasswordMatch = await bcrypt.compare(pass, user.password);
-
-    if (isPasswordMatch) {
-      //Si la contraseña es correcta, devuelve el usuario (sin la contraseña)
-      const { password, ...result } = user;
-      return result;
-    }
-
-    return null;
-  }
-
   async validateLocalUser(email: string, pass: string): Promise<any> {
     const user = await this.userRepository.findUserByEmail(email);
 
@@ -544,7 +525,13 @@ export class AuthService {
       throw new BadRequestException('Las contraseñas no coinciden');
     }
 
+
     const user = await this.userRepository.findUserById(userId);
+
+    if(user.password === setPasswordDto.password) {
+      throw new BadRequestException('La contraseña es la misma que la anterior');
+    }
+
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
     }
