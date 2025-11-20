@@ -36,6 +36,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { CreateUserAdminDto } from '../users/dto/create-user-admin.dto';
 import { ApiCreateAdmin } from './doc/createAdmin.dto';
 import { Roles, RolesGuard } from './guards/verify-role.guard';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('auth')
 @UseFilters(new OauthExceptionFilter())
@@ -44,9 +45,7 @@ export class AuthController {
 
   /**
    * Enpoint para el registro con nuestro formulario
-   *
    */
-
   @Post('register')
   @ApiRegisterDoc()
   async create(@Body() createAuthDto: CreateUserDto) {
@@ -205,6 +204,19 @@ export class AuthController {
     }
   }
 
+  /**
+   * Endpoint para logout
+   */
+  @Post('logout')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({summary: 'Cerrar sesion del usuario'})
+  @ApiResponse({status: 200, description: 'Sesion cerrada correctamente'})
+  async logout(@Req() req) {
+    const userId = req.user.sub;
+    await this.authService.serverLogout(userId);
+    return {message: 'Sesion cerrada correctamente'}
+  }
+
   // @Get()
   // findAll() {
   //   return this.authService.findAll();
@@ -245,6 +257,7 @@ export class AuthController {
   @Get('github/register')
   @UseGuards(SocialActionGuard('github', 'register'))
   async githubRegister() {}
+
 
   /**
    * Endpoind para solicitar el reseto de contraseña
