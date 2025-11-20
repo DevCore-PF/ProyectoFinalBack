@@ -12,6 +12,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { CreateCheckoutDto } from './dto/create-checkout.dto';
 import { SrvRecord } from 'dns';
 import { ApiOperation } from '@nestjs/swagger';
+import { ApiGetMyPaymentsDoc } from './doc/getMyPayments.doc';
 
 @Controller('payments')
 export class PaymentsController {
@@ -33,6 +34,7 @@ export class PaymentsController {
   }
 
   @Get('my-payments')
+  @ApiGetMyPaymentsDoc()
   @UseGuards(AuthGuard('jwt'))
   async getMyPayments(@Req() req) {
     const userId = req.user.sub;

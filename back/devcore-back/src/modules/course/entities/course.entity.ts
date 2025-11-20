@@ -42,12 +42,21 @@ export enum CourseDifficulty {
 }
 
 export enum Category {
-  FrontEnd = 'Front End',
+  FrontEnd = 'Frontend',
   Backend = 'Backend',
   DataScience = 'Data Science',
   Database = 'Database',
   VideoGames = 'Video Games',
   MobileDevelopment = 'Mobile Development',
+  UIUX = 'UI/UX Design',
+  Cybersecurity = 'Cybersecurity',
+  DevOps = 'DevOps',
+  ArtificialIntelligence = 'Artificial Intelligence',
+  MachineLearning = 'Machine Learning',
+  DigitalMarketing = 'Digital Marketing',
+  WebDevelopment = 'Web Development',
+  QA = 'QA & Testing',
+  Automation = 'Automation',
 }
 
 export enum Tipo {
