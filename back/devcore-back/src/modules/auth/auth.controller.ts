@@ -36,6 +36,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { CreateUserAdminDto } from '../users/dto/create-user-admin.dto';
 import { ApiCreateAdmin } from './doc/createAdmin.dto';
 import { Roles, RolesGuard } from './guards/verify-role.guard';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ApiResendVerificationDoc } from './doc/resetEmail.doc';
 import { ApiSetPasswordDoc } from './doc/setPassword.doc';
 import { ApiResetPasswordDoc } from './doc/resetPassword.doc';
@@ -54,9 +55,7 @@ export class AuthController {
 
   /**
    * Enpoint para el registro con nuestro formulario
-   *
    */
-
   @Post('register')
   @ApiRegisterDoc()
   async create(@Body() createAuthDto: CreateUserDto) {
@@ -215,6 +214,19 @@ export class AuthController {
 
       res.redirect(errorUrl.toString());
     }
+  }
+
+  /**
+   * Endpoint para logout
+   */
+  @Post('logout')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Cerrar sesion del usuario' })
+  @ApiResponse({ status: 200, description: 'Sesion cerrada correctamente' })
+  async logout(@Req() req) {
+    const userId = req.user.sub;
+    await this.authService.serverLogout(userId);
+    return { message: 'Sesion cerrada correctamente' };
   }
 
   // @Get()

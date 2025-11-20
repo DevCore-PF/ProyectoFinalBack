@@ -2,12 +2,9 @@ import {
   BadRequestException,
   Body,
   Controller,
-  FileTypeValidator,
   Get,
-  MaxFileSizeValidator,
   NotFoundException,
   Param,
-  ParseFilePipe,
   ParseUUIDPipe,
   Patch,
   Post,
@@ -21,27 +18,17 @@ import {
 import { CoursesService } from './course.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiConsumes,
-  ApiOperation,
-  ApiParam,
-  ApiQuery,
-  ApiResponse,
+  ApiBearerAuth
 } from '@nestjs/swagger';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateLessonDto } from '../lesson/dto/create-lesson.dto';
 import { UploadApiResponse } from 'cloudinary';
-import { IsOptional } from 'class-validator';
-import { UpdateCourseDto } from './dto/update-course.dto';
-import { ApiUpdateCourseDocs } from './doc/update-course.doc';
 import { ApiCreateCourseDoc } from './doc/createCourse.doc';
 import { ApiCreateLessonDoc } from './doc/createLesson.doc';
 import { ApiGetAllCoursesDocs } from './doc/getCourse.doc';
 import { ApiGetCourseByIdDoc } from './doc/getCourseById.doc';
 import { AuthGuard } from '@nestjs/passport';
-import { CourseFeedback } from '../CourseFeedback/entities/courseFeedback.entity';
 import { CourseFeedbackService } from '../CourseFeedback/courseFeedback.service';
 import { ApiChangeCourseVisibilityDoc } from './doc/chageVisibility.doc';
 import { ApiChangeStatusCourseDoc } from './doc/changeStatus.doc';

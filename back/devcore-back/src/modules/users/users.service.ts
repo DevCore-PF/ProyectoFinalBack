@@ -126,6 +126,23 @@ export class UsersService {
     return this.userRepository.save(newUser);
   }
 
+  /**
+   * Metodo que limpia los tokens de github y google en la BD para inahbilitar la sesion
+   */
+  async clearSocialTokens(userId: string): Promise<void> {
+    const user = await this.userRepository.findUserById(userId);
+
+    if(!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    user.googleId = undefined;
+    user.githubId = undefined;
+
+    await this.userRepository.save(user)
+
+  }
+
   async updateUserImage(id: string, imageUrl: string) {
     try {
       const user = await this.userRepository.findUserById(id);

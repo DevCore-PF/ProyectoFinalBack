@@ -24,6 +24,7 @@ import { ChangePasswordRequestDto } from './dto/change-password-request.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { CreateUserAdminDto } from '../users/dto/create-user-admin.dto';
+import { use } from 'passport';
 
 @Injectable()
 export class AuthService {
@@ -424,6 +425,16 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
     };
   }
+
+  /**
+   * MEtodo para el deslogueo
+   */
+  async serverLogout(userId: string) {
+    await this.userService.clearSocialTokens(userId);
+    return { message: 'Sesión cerrada exitosamente.' };
+  }
+
+  
 
   async selectUserRole(userId: string, role: UserRole) {
     const user = await this.userRepository.findUserById(userId);
