@@ -25,7 +25,7 @@ export class Category {
   @Column({ type: 'varchar', length: 500, nullable: true })
   image: string;
 
-  @Column({ type: 'varchar', length: 500 })
+  @Column({ type: 'varchar', length: 500, nullable: true })
   icon: string;
 
   @Column({ type: 'boolean' })
