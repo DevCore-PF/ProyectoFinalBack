@@ -18,6 +18,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AdminModule } from './modules/admin/admin.module';
 import { TasksModule } from './modules/tasks/task.module';
 import { ContactModule } from './modules/contacto/contact.module';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
   imports: [
@@ -49,7 +50,8 @@ import { ContactModule } from './modules/contacto/contact.module';
     EnrollmentsModule,
     AdminModule,
     TasksModule,
-    ContactModule
+    ContactModule,
+    CategoryModule,
   ],
   providers: [],
 })

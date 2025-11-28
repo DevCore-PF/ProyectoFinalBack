@@ -1,6 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
-import { Category, CourseDifficulty } from '../entities/course.entity';
+import { CourseDifficulty } from '../entities/course.entity';
 
 export function ApiGetAllCoursesDocs() {
   return applyDecorators(
@@ -20,7 +20,6 @@ export function ApiGetAllCoursesDocs() {
       name: 'category',
       required: false,
       type: String,
-      enum: Category,
       description: 'Filtrar cursos por categoría específica',
       example: 'programacion',
     }),

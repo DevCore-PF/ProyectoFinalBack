@@ -5,7 +5,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { Category, CourseDifficulty } from '../entities/course.entity';
+import { CourseDifficulty } from '../entities/course.entity';
 
 export function ApiGetAllCoursesAdminDocs() {
   return applyDecorators(
@@ -26,7 +26,6 @@ export function ApiGetAllCoursesAdminDocs() {
       name: 'category',
       required: false,
       type: String,
-      enum: Category,
       description: 'Filtrar cursos por categoría específica.',
       example: 'programacion',
     }),

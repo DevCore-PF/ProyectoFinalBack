@@ -23,6 +23,7 @@ import { ProfessorProfile } from 'src/modules/profiles/entities/professor-profil
 import { Enrollment } from 'src/modules/enrollments/entities/enrollment.entity';
 import { CourseFeedback } from 'src/modules/CourseFeedback/entities/courseFeedback.entity';
 import { User } from 'src/modules/users/entities/user.entity';
+import { Category } from 'src/modules/category/entities/category.entity';
 
 export enum CourseStatus {
   DRAFT = 'EN REVISION',
@@ -41,23 +42,23 @@ export enum CourseDifficulty {
   ADVANCED = 'AVANZADO',
 }
 
-export enum Category {
-  FrontEnd = 'Frontend',
-  Backend = 'Backend',
-  DataScience = 'Data Science',
-  Database = 'Database',
-  VideoGames = 'Video Games',
-  MobileDevelopment = 'Mobile Development',
-  UIUX = 'UI/UX Design',
-  Cybersecurity = 'Cybersecurity',
-  DevOps = 'DevOps',
-  ArtificialIntelligence = 'Artificial Intelligence',
-  MachineLearning = 'Machine Learning',
-  DigitalMarketing = 'Digital Marketing',
-  WebDevelopment = 'Web Development',
-  QA = 'QA & Testing',
-  Automation = 'Automation',
-}
+// export enum Category {
+//   FrontEnd = 'Frontend',
+//   Backend = 'Backend',
+//   DataScience = 'Data Science',
+//   Database = 'Database',
+//   VideoGames = 'Video Games',
+//   MobileDevelopment = 'Mobile Development',
+//   UIUX = 'UI/UX Design',
+//   Cybersecurity = 'Cybersecurity',
+//   DevOps = 'DevOps',
+//   ArtificialIntelligence = 'Artificial Intelligence',
+//   MachineLearning = 'Machine Learning',
+//   DigitalMarketing = 'Digital Marketing',
+//   WebDevelopment = 'Web Development',
+//   QA = 'QA & Testing',
+//   Automation = 'Automation',
+// }
 
 export enum Tipo {
   Curse = 'Curso',
@@ -97,11 +98,11 @@ export class Course {
   @Column({ type: 'varchar', length: 50, nullable: false })
   duration: string;
 
-  @Column({
-    type: 'enum',
-    enum: Category,
-  })
-  category: Category;
+  // @Column({
+  //   type: 'enum',
+  //   enum: Category,
+  // })
+  // category: Category;
 
   @Column({
     type: 'enum',
@@ -152,6 +153,12 @@ export class Course {
   })
   @JoinColumn({ name: 'professor_id' })
   professor: ProfessorProfile;
+
+  @ManyToOne(() => Category, (category) => category.courses, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
 
   @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
   enrollments: Enrollment[];

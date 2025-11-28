@@ -11,9 +11,10 @@ import {
   ArrayMaxSize,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { Category, CourseDifficulty, Tipo } from '../entities/course.entity';
+import { CourseDifficulty, Tipo } from '../entities/course.entity';
 import { CreateLessonDto } from 'src/modules/lesson/dto/create-lesson.dto';
 import { BadRequestException } from '@nestjs/common';
+import { Category } from 'src/modules/category/entities/category.entity';
 
 export class CreateCourseDto {
   @ApiProperty({ example: 'Introducción a NestJS', required: true })
@@ -58,15 +59,15 @@ export class CreateCourseDto {
   @IsEnum(CourseDifficulty)
   difficulty: CourseDifficulty.ADVANCED;
 
-  @ApiProperty({
-    enum: Category,
-    example: Category.Backend,
-  })
-  @IsEnum(Category, {
-    message: 'La categoría debe ser válida',
-  })
-  @IsNotEmpty()
-  category: Category;
+  // @ApiProperty({
+  //   enum: Category,
+  //   example: Category,
+  // })
+  // @IsEnum(Category, {
+  //   message: 'La categoría debe ser válida',
+  // })
+  // @IsNotEmpty()
+  // category: Category;
 
   @ApiProperty({
     enum: Tipo,

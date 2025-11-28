@@ -10,6 +10,8 @@ import { ProfessorProfile } from '../profiles/entities/professor-profile.entity'
 import { CourseFeedbackModule } from '../CourseFeedback/courseFeedback.module';
 import { UsersModule } from '../users/users.module';
 import { MailModule } from 'src/mail/mail.module';
+import { Category } from '../category/entities/category.entity';
+import { CategoryModule } from '../category/category.module';
 
 @Module({
   controllers: [CoursesController],
@@ -20,6 +22,7 @@ import { MailModule } from 'src/mail/mail.module';
     UsersModule,
     CloudinaryModule,
     CourseFeedbackModule,
+    CategoryModule,
   ],
   exports: [CoursesRepository],
 })

@@ -17,9 +17,7 @@ import {
 } from '@nestjs/common';
 import { CoursesService } from './course.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import {
-  ApiBearerAuth
-} from '@nestjs/swagger';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateLessonDto } from '../lesson/dto/create-lesson.dto';
@@ -33,13 +31,14 @@ import { CourseFeedbackService } from '../CourseFeedback/courseFeedback.service'
 import { ApiChangeCourseVisibilityDoc } from './doc/chageVisibility.doc';
 import { ApiChangeStatusCourseDoc } from './doc/changeStatus.doc';
 import { ApiGetAllPublicCourses } from './doc/getAllPublicCourses.doc';
-import { Category, CourseDifficulty } from './entities/course.entity';
+import { CourseDifficulty } from './entities/course.entity';
 import { Roles, RolesGuard } from '../auth/guards/verify-role.guard';
 import { ApiApprovedCourseDoc } from './doc/aprovedCourse.doc';
 import { ApiDeclineCourseDoc } from './doc/declineCourse.doc';
 import { ApiGetAllCoursesAdminDocs } from './doc/getCourseAdmin.doc';
 import { ApiCreateCourseAdminDoc } from './doc/createCourseAdmin.doc';
 import { ApiHasUserFeedbackDoc } from './doc/hasUserFeedBack.doc';
+import { Category } from '../category/entities/category.entity';
 
 @Controller('courses')
 export class CoursesController {
@@ -177,7 +176,7 @@ export class CoursesController {
 
     return await this.coursesService.getAllCourses(
       title,
-      category,
+      category?.id,
       difficulty,
       finalSortBy,
       finalSortOrder,
@@ -211,7 +210,7 @@ export class CoursesController {
 
     return await this.coursesService.getAllCoursesAdmin(
       title,
-      category,
+      category?.id,
       difficulty,
       isActiveBoolean,
       finalSortBy,
