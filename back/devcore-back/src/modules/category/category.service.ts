@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CategoriesRepository } from './category.repository';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import slugify from 'slugify';
+import { Not } from 'typeorm';
 
 @Injectable()
 export class CategoriesService {
@@ -16,4 +17,24 @@ export class CategoriesService {
       status,
     });
   }
+
+  async getAllCategories() {
+    return await this.categoriesRepository.getAllCategories();
+  }
+
+  async getCategoryById(categoryId) {
+   const categoryFind = await this.categoriesRepository.getCategoryById(categoryId)
+   if (!categoryFind) throw new NotFoundException('Categoria no encontrada')
+    return categoryFind
+  }
+
+  async desactiveCategory(categoryId: string){
+    const categoryFind = await this.categoriesRepository.getCategoryById(categoryId)
+    if (!categoryFind) throw new NotFoundException('Categoria no encontrada')
+    categoryFind.status = false;
+    await this.categoriesRepository.createCategory(categoryFind)
+    return categoryFind;
+  }
+
+
 }

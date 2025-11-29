@@ -13,4 +13,14 @@ export class CategoriesRepository {
   async createCategory(data) {
     return this.categoriesRepository.save(data);
   }
+
+  async getAllCategories() {
+    return this.categoriesRepository.find({ where: { status: true } });
+  }
+
+  async getCategoryById(categoryId: string): Promise <Category | null> {
+    return await this.categoriesRepository.findOne({where: {id: categoryId}});
+  }
+
+
 }
